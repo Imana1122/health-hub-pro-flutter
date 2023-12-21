@@ -10,18 +10,18 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Login Page"),
-            const SizedBox(
+            Text("Login Page"),
+            SizedBox(
               height: 30,
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
-              child: const TextField(
+              child: TextField(
                 autocorrect: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder()
