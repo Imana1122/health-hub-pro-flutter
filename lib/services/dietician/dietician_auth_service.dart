@@ -9,61 +9,80 @@ import 'package:fluttertoast/fluttertoast.dart';
 class DieticianAuthService {
   String baseUrl = 'http://10.0.2.2:8000/api';
 
-  Future<Dietician> register({
-    required firstName,
-    required lastName,
-    required email,
-    required phoneNumber,
-    required cv,
-    required image,
-    required speciality,
-    required description,
-    required esewaId,
-    required bookingAmount,
-    required bio,
+  Future<bool> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phoneNumber,
+    required File cv,
+    required File image,
+    required String speciality,
+    required String description,
+    required String esewaId,
+    required String bookingAmount,
+    required String bio,
   }) async {
-    var url = '$baseUrl/account/process-register';
-    var headers = {'Content-Type': 'application/json'};
-    var body = jsonEncode({
-      'first_name': firstName,
-      'last_name': lastName,
-      'email': email,
-      'phone_number': phoneNumber,
-      'cv': cv,
-      'image': image,
-      'speciality': speciality,
-      'description': description,
-      'esewa_id': esewaId,
-      'booking_amount': bookingAmount,
-      'bio': bio,
-    });
-    var response = await http.post(
-      Uri.parse(url),
-      headers: headers,
-      body: body,
-    );
+    var url = '$baseUrl/dietician/process-register';
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      if (data['status'] == true) {
-        var dieticianData = data['dietician'];
-        var accessToken = data['token'];
+    // Create headers
+    var headers = {'Content-Type': 'multipart/form-data'};
 
-        Dietician dietician = Dietician.fromJson(dieticianData);
-        dietician.token = 'Bearer $accessToken';
-        Fluttertoast.showToast(
-          msg: "Successfully registered.",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: TColor.secondaryColor1,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        return dietician;
+    // Create a multipart request body
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+
+    // Add fields to the request
+    request.fields['first_name'] = firstName;
+    request.fields['last_name'] = lastName;
+    request.fields['email'] = email;
+    request.fields['phone_number'] = phoneNumber;
+    request.fields['speciality'] = speciality;
+    request.fields['description'] = description;
+    request.fields['esewa_id'] = esewaId;
+    request.fields['booking_amount'] = bookingAmount;
+    request.fields['bio'] = bio;
+
+    // Add files to the request
+    request.files.add(await http.MultipartFile.fromPath('cv', cv.path));
+    request.files.add(await http.MultipartFile.fromPath('image', image.path));
+
+    try {
+      // Send the request
+      var streamedResponse = await request.send();
+
+      // Read and decode the response
+      var response = await http.Response.fromStream(streamedResponse);
+      // Check the response status code
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+        // Check if registration was successful
+        if (data['status'] == true) {
+          Fluttertoast.showToast(
+            msg: "Successfully registered.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: TColor.secondaryColor1,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          return true;
+        } else {
+          Fluttertoast.showToast(
+            msg: "${data['errors']}",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Color.fromARGB(255, 231, 105, 96),
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          throw Exception("Errors: ${data['errors']}");
+        }
       } else {
         Fluttertoast.showToast(
-          msg: "${data['errors']}",
+          msg: "Failed to connect",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
@@ -71,18 +90,11 @@ class DieticianAuthService {
           textColor: Colors.white,
           fontSize: 16.0,
         );
-        throw Exception("Errors: $data['errors']");
+        throw Exception('Failed to Register');
       }
-    } else {
-      Fluttertoast.showToast(
-        msg: "Failed to connect",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+    } catch (e) {
+      // Handle any errors that occur during the request
+      print("An error occurred: $e");
       throw Exception('Failed to Register');
     }
   }
@@ -91,7 +103,7 @@ class DieticianAuthService {
     required String phoneNumber,
     required String password,
   }) async {
-    var url = '$baseUrl/account/process-login';
+    var url = '$baseUrl/dietician/process-login';
     var headers = {'Content-Type': 'application/json'};
     var body = jsonEncode({
       'phone_number': phoneNumber,
@@ -106,6 +118,7 @@ class DieticianAuthService {
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(data);
       if (data['status'] == true) {
         var dieticianData = data['dietician'];
         var accessToken = data['token'];
@@ -124,16 +137,42 @@ class DieticianAuthService {
         );
         return dietician;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("${data['errors']}");
+        if (data.containsKey('errors')) {
+          Map<String, dynamic> errorMap = data['errors'];
+          List<String> errorMessages = [];
+
+          errorMap.forEach((field, errors) {
+            for (var error in errors) {
+              errorMessages.add('$field: $error');
+            }
+          });
+
+          Fluttertoast.showToast(
+            msg: errorMessages.join(
+                '\n\n'), // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['errors']}");
+        } else {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -141,7 +180,7 @@ class DieticianAuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -150,7 +189,7 @@ class DieticianAuthService {
   }
 
   Future<bool> logout({required String token}) async {
-    var url = '$baseUrl/account/logout';
+    var url = '$baseUrl/dietician/logout';
     var headers = {
       'Content-Type': 'application/json',
       HttpHeaders.authorizationHeader: token
@@ -204,7 +243,7 @@ class DieticianAuthService {
       required String passwordConfirmation,
       required String oldPassword,
       required String token}) async {
-    var url = '$baseUrl/account/process-change-password';
+    var url = '$baseUrl/dietician/process-change-password';
     var headers = {
       'Content-Type': 'application/json',
       HttpHeaders.authorizationHeader: token
@@ -261,17 +300,17 @@ class DieticianAuthService {
   }
 
   Future<dynamic> updatePersonalInfo(
-      {required String name,
+      {required String bio,
       required String email,
       required String phoneNumber,
       required String token}) async {
-    var url = '$baseUrl/account/update-info';
+    var url = '$baseUrl/dietician/update-info';
     var headers = {
       'Content-Type': 'application/json',
       HttpHeaders.authorizationHeader: token
     };
     var body = jsonEncode({
-      'name': name,
+      'bio': bio,
       'email': email,
       'phone_number': phoneNumber,
     });

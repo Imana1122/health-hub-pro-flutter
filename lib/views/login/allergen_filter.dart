@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/login/health_condition_filter.dart';
+import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:fyp_flutter/views/login/welcome_view.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +26,21 @@ class _AllergenPreferenceState extends State<AllergenPreference> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    user = authProvider.getAuthenticatedUser();
-    _fetchAllergens();
+    if (!authProvider.isLoggedIn) {
+      // If the user is not logged in, navigate to the login page
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const LoginView(), // Replace LoginPage with your actual login page
+          ),
+        );
+      });
+    } else {
+      // If the user is logged in, fetch the authenticated user data
+      user = authProvider.getAuthenticatedUser();
+      _fetchAllergens();
+    }
   }
 
   _fetchAllergens() async {
@@ -34,10 +48,10 @@ class _AllergenPreferenceState extends State<AllergenPreference> {
       var allergens = await authProvider.getAllergens();
       setState(() {
         allergenArr = allergens;
-
         // Initialize selectedAllergens here
-        selectedAllergens =
-            user.allergens?.map((allergen) => allergen.id).toList() ?? [];
+        selectedAllergens = user.allergens
+            .map((allergen) => allergen['id'].toString())
+            .toList();
       });
     } catch (e) {
       print("Error fetching allergens: $e");
@@ -56,28 +70,19 @@ class _AllergenPreferenceState extends State<AllergenPreference> {
 
   Future<void> _confirmButtonPressed() async {
     try {
-      if (selectedAllergens.isNotEmpty) {
-        var result =
-            await authProvider.setAllergens(allergens: selectedAllergens);
+      var result =
+          await authProvider.setAllergens(allergens: selectedAllergens);
 
-        if (result == true) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HealthConditionPreference(),
-            ),
-          );
-        } else {
-          print("Error setting allergen preferences");
-          // Handle unsuccessful setAllergens, show an error message if needed
-        }
-      } else {
+      if (result == true) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const HealthConditionPreference(),
           ),
         );
+      } else {
+        print("Error setting allergen preferences");
+        // Handle unsuccessful setAllergens, show an error message if needed
       }
     } catch (e) {
       print("Error: $e");

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
-import 'package:fyp_flutter/views/dietician/home.dart';
+import 'package:fyp_flutter/views/dietician/profile/dietician_change_password.dart';
+import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
+import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
 import 'package:fyp_flutter/views/login/change_password.dart';
 import 'package:fyp_flutter/views/login/complete_profile_view.dart';
 import 'package:fyp_flutter/views/login/dietician/dietician_login_view.dart';
@@ -12,7 +14,7 @@ import 'package:fyp_flutter/views/login/signup_view.dart';
 import 'package:fyp_flutter/views/login/update_personal_info.dart';
 import 'package:fyp_flutter/views/login/what_your_goal_view.dart';
 import 'package:fyp_flutter/views/main_tab/main_tab_view.dart';
-import 'package:fyp_flutter/views/on_boarding/on_boarding_view.dart';
+import 'package:fyp_flutter/views/meal_planner/meal_planner_view.dart';
 import 'package:fyp_flutter/views/profile/profile_view.dart';
 import 'package:fyp_flutter/views/user_selection/user_type_selection_page.dart';
 import 'package:provider/provider.dart';
@@ -55,8 +57,16 @@ class MyApp extends StatelessWidget {
           '/change-password': (context) => const ChangePassword(),
           '/privacy-policy': (context) => const ChangePassword(),
           '/contact-us': (context) => const ChangePassword(),
+          '/meal-planner': (context) => const MealPlannerView(),
+
+          // Dietician Routes
           '/login-dietician': (context) => const DieticianLoginView(),
           '/register-dietician': (context) => const DieticianSignUpView(),
+          '/dietician-change-password': (context) =>
+              const DieticianChangePassword(),
+          '/dietician-profile': (context) => const DieticianProfileView(),
+          '/dietician-update-profile': (context) =>
+              const DieticianProfileEditView(),
         },
       ),
     );
@@ -74,7 +84,7 @@ class AuthWrapper extends StatelessWidget {
     if (authProvider.isLoggedIn) {
       return const MainTabView();
     } else if (dieticianAuthProvider.isLoggedIn) {
-      return const DieticianProfilePage();
+      return const DieticianProfileView();
     } else {
       return const UserTypeSelectionPage();
     }

@@ -10,8 +10,21 @@ class RecipeRecommendationService {
   var authProvider = AuthProvider();
   RecipeRecommendationService(this.authProvider);
 
-  Future<dynamic> getRecipeRecommendations({required String mealTypeId}) async {
-    var url = '$baseUrl/account/recipe-recommendations/$mealTypeId';
+  Future<dynamic> getRecipeRecommendations(
+      {required String mealTypeId,
+      int currentPage = 1,
+      String keyword = '',
+      String category = ''}) async {
+    var url =
+        '$baseUrl/account/recipe-recommendations/$mealTypeId?page=$currentPage';
+
+    // Append keyword and category parameters if they are not empty
+    if (keyword != '') {
+      url += '&keyword=$keyword';
+    }
+    if (category != '') {
+      url += '&category=$category';
+    }
     String token = authProvider.user.token;
     var headers = {
       'Content-Type': 'application/json',
@@ -22,9 +35,7 @@ class RecipeRecommendationService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       if (data['status'] == true) {
-        var recipeRecommendations = data['recipes'];
-
-        return recipeRecommendations;
+        return data;
       } else {
         print("Error");
         throw Exception('Failed to get');
@@ -83,13 +94,36 @@ class RecipeRecommendationService {
       var data = jsonDecode(response.body);
       if (data['status'] == true) {
         List<dynamic> recipeMealTypesDataList = data['recipeMealTypes'];
-        print(recipeMealTypesDataList);
         List<MealType> recipeMealTypes = recipeMealTypesDataList
             .map(
                 (recipeMealTypesData) => MealType.fromJson(recipeMealTypesData))
             .toList();
 
         return recipeMealTypes;
+      } else {
+        print("Error");
+        throw Exception('Failed to get');
+      }
+    } else {
+      print("Failed to connect");
+      throw Exception('Failed to connect');
+    }
+  }
+
+  Future<dynamic> getLineChartDetails({required String type}) async {
+    var url = '$baseUrl/account/get-linechart-details/$type';
+
+    String token = authProvider.user.token;
+    var headers = {
+      'Content-Type': 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+    var response = await http.get(Uri.parse(url), headers: headers);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data['status'] == true) {
+        return data['data'];
       } else {
         print("Error");
         throw Exception('Failed to get');

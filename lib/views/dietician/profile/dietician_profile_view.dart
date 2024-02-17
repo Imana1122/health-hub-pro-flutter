@@ -1,92 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
-import 'package:fyp_flutter/models/user.dart';
-import 'package:fyp_flutter/models/user_profile.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/common_widget/setting_row.dart';
+import 'package:fyp_flutter/common_widget/title_subtitle_cell.dart';
+import 'package:fyp_flutter/models/dietician.dart';
+import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
+import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
 import 'package:fyp_flutter/views/login/complete_profile_view.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/color_extension.dart';
-import '../../common_widget/setting_row.dart';
-import '../../common_widget/title_subtitle_cell.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
-class ProfileView extends StatefulWidget {
-  const ProfileView({super.key});
+class DieticianProfileView extends StatefulWidget {
+  const DieticianProfileView({super.key});
 
   @override
-  State<ProfileView> createState() => _ProfileViewState();
+  State<DieticianProfileView> createState() => _DieticianProfileViewState();
 }
 
-class _ProfileViewState extends State<ProfileView> {
+class _DieticianProfileViewState extends State<DieticianProfileView> {
   bool positive = false;
-  late AuthProvider authProvider;
-  late User authenticatedUser;
-  late UserProfile userProfile;
+  late DieticianAuthProvider authProvider;
+  late Dietician authenticatedUser;
 
   @override
   void initState() {
     super.initState();
-    authProvider = Provider.of<AuthProvider>(context, listen: false);
-    authenticatedUser = authProvider.getAuthenticatedUser();
-    userProfile = authProvider.getAuthenticatedUserProfile();
+    authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
+    authenticatedUser = authProvider.getAuthenticatedDietician();
   }
-
-  int selectTab = 0;
-  final PageStorageBucket pageBucket = PageStorageBucket();
-  Widget currentTab = const ProfileView();
-
-  List accountArr = [
-    {
-      "image": "assets/img/p_personal.png",
-      "name": "Personal Data",
-      "tag": "1",
-      "url": "/update-personal-data"
-    },
-    {
-      "image": "assets/img/p_achi.png",
-      "name": "Achievement",
-      "tag": "2",
-      "url": "/dashboard"
-    },
-    {
-      "image": "assets/img/p_activity.png",
-      "name": "Activity History",
-      "tag": "3",
-      "url": "/personal-activity"
-    },
-    {
-      "image": "assets/img/p_workout.png",
-      "name": "Workout Progress",
-      "tag": "4",
-      "url": "/workout-progress"
-    }
-  ];
 
   List otherArr = [
     {
       "image": "assets/img/p_contact.png",
       "name": "Contact Us",
-      "tag": "5",
+      "tag": "1",
       "url": "/"
     },
     {
       "image": "assets/img/p_privacy.png",
       "name": "Privacy Policy",
-      "tag": "6",
+      "tag": "2",
       "url": "/privacy-policy"
     },
     {
       "image": "assets/img/p_setting.png",
-      "name": "Setting",
-      "tag": "7",
-      "url": "/change-password"
+      "name": "Change Password",
+      "tag": "3",
+      "url": "/dietician-change-password"
     },
   ];
   @override
   Widget build(BuildContext context) {
     bool isLoading = false;
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    DieticianAuthProvider authProvider =
+        Provider.of<DieticianAuthProvider>(context);
 
     handleLogout() async {
       setState(() {
@@ -180,7 +148,8 @@ class _ProfileViewState extends State<ProfileView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          authenticatedUser.name,
+                          authenticatedUser.firstName +
+                              authenticatedUser.lastName,
                           style: TextStyle(
                             color: TColor.black,
                             fontSize: 14,
@@ -188,7 +157,7 @@ class _ProfileViewState extends State<ProfileView> {
                           ),
                         ),
                         Text(
-                          "Lose a Fat Program",
+                          authenticatedUser.bio,
                           style: TextStyle(
                             color: TColor.gray,
                             fontSize: 12,
@@ -208,7 +177,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const CompleteProfileView(),
+                                        const DieticianProfileEditView(),
                                   ),
                                 );
                               },
@@ -219,33 +188,16 @@ class _ProfileViewState extends State<ProfileView> {
               const SizedBox(
                 height: 15,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TitleSubtitleCell(
-                      title: userProfile.height.toString() ?? 'N/A',
-                      subtitle: "Height",
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  Expanded(
-                    child: TitleSubtitleCell(
-                      title: userProfile.weight.toString() ?? 'N/A',
-                      subtitle: "Weight",
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  Expanded(
-                    child: TitleSubtitleCell(
-                      title: userProfile.age.toString() ?? 'N/A',
-                      subtitle: "Age",
-                    ),
-                  ),
-                ],
+              TitleSubtitleCell(
+                title: "NRs. ${authenticatedUser.bookingAmount}",
+                subtitle: "Booking Amount",
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TitleSubtitleCell(
+                title: authenticatedUser.description,
+                subtitle: "Description",
               ),
               const SizedBox(
                 height: 25,
@@ -259,37 +211,6 @@ class _ProfileViewState extends State<ProfileView> {
                     boxShadow: const [
                       BoxShadow(color: Colors.black12, blurRadius: 2)
                     ]),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Account",
-                      style: TextStyle(
-                        color: TColor.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: accountArr.length,
-                      itemBuilder: (context, index) {
-                        var iObj = accountArr[index] as Map? ?? {};
-                        return SettingRow(
-                          icon: iObj["image"].toString(),
-                          title: iObj["name"].toString(),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '${iObj["url"]}');
-                          },
-                        );
-                      },
-                    )
-                  ],
-                ),
               ),
               const SizedBox(
                 height: 25,
@@ -450,7 +371,7 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
               ),
               const SizedBox(
-                height: 16,
+                height: 20,
               ),
               Align(
                 alignment: Alignment.bottomRight,

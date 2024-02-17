@@ -3,6 +3,9 @@ import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/workout_row.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/models/user.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart';
 import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 import '../../common/color_extension.dart';
@@ -18,6 +21,25 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  late AuthProvider authProvider;
+  late User user;
+  @override
+  void initState() {
+    super.initState();
+
+    // Access the authentication provider
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    user = authProvider.getAuthenticatedUser();
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
+  }
+
   List lastWorkoutArr = [
     {
       "name": "Full Body Workout",
@@ -131,7 +153,7 @@ class _HomeViewState extends State<HomeView> {
                           style: TextStyle(color: TColor.gray, fontSize: 12),
                         ),
                         Text(
-                          "Stefani Wong",
+                          user.name,
                           style: TextStyle(
                               color: TColor.black,
                               fontSize: 20,
@@ -252,8 +274,8 @@ class _HomeViewState extends State<HomeView> {
                             fontWeight: FontWeight.w700),
                       ),
                       SizedBox(
-                        width: 70,
-                        height: 25,
+                        width: 90,
+                        height: 35,
                         child: RoundButton(
                           title: "Check",
                           type: RoundButtonType.bgGradient,

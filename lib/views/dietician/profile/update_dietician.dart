@@ -1,29 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:fyp_flutter/views/profile/profile_view.dart';
 import 'package:provider/provider.dart';
 
-class ProfileEditView extends StatefulWidget {
-  const ProfileEditView({super.key});
+class DieticianProfileEditView extends StatefulWidget {
+  const DieticianProfileEditView({super.key});
 
   @override
-  State<ProfileEditView> createState() => _ProfileEditViewState();
+  State<DieticianProfileEditView> createState() =>
+      _DieticianProfileEditViewState();
 }
 
-class _ProfileEditViewState extends State<ProfileEditView> {
-  late TextEditingController nameController;
+class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
+  late TextEditingController bioController;
   late TextEditingController emailController;
   late TextEditingController phoneNumberController;
 
   @override
   void initState() {
     super.initState();
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    DieticianAuthProvider authProvider =
+        Provider.of<DieticianAuthProvider>(context, listen: false);
+    authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
-      // If the user is not logged in, navigate to the login page
+      // If the dietician is not logged in, navigate to the login page
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -33,18 +34,19 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         );
       });
     } else {
-      nameController = TextEditingController(text: authProvider.user.name);
-      emailController = TextEditingController(text: authProvider.user.email);
+      bioController = TextEditingController(text: authProvider.dietician.bio);
+      emailController =
+          TextEditingController(text: authProvider.dietician.email);
       phoneNumberController =
-          TextEditingController(text: authProvider.user.phoneNumber);
+          TextEditingController(text: authProvider.dietician.phoneNumber);
     }
   }
 
   Future<void> _saveProfile() async {
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
+    DieticianAuthProvider authProvider =
+        Provider.of<DieticianAuthProvider>(context, listen: false);
     bool success = await authProvider.updatePersonalInfo(
-      name: nameController.text,
+      bio: bioController.text,
       phoneNumber: phoneNumberController.text,
       email: emailController.text,
     );
@@ -80,7 +82,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
-              controller: nameController,
+              controller: bioController,
               decoration: const InputDecoration(labelText: 'Name'),
             ),
             const SizedBox(height: 16),

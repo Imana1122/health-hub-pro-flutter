@@ -43,8 +43,8 @@ class FindEatCell extends StatelessWidget {
             children: [
               Image.network(
                 'http://10.0.2.2:8000/uploads/mealType/thumb/${mealType.image}',
-                width: media.width * 0.3,
-                height: media.width * 0.25,
+                width: media.width * 0.2,
+                height: media.width * 0.15,
                 fit: BoxFit.contain,
               )
             ],

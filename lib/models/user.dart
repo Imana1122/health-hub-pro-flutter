@@ -1,6 +1,3 @@
-import 'package:fyp_flutter/models/allergen.dart';
-import 'package:fyp_flutter/models/cuisine.dart';
-import 'package:fyp_flutter/models/health_condition.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
 
 class User {
@@ -10,9 +7,9 @@ class User {
   String phoneNumber;
   String token;
   UserProfile profile;
-  List<Cuisine>? cuisines; // Make the list nullable
-  List<Allergen>? allergens; // Make the list nullable
-  List<HealthCondition>? healthConditions; // Make the list nullable
+  List<dynamic> cuisines; // Make the list dynamic
+  List<dynamic> allergens; // Make the list dynamic
+  List<dynamic> healthConditions; // Make the list dynamic
 
   User({
     required this.id,
@@ -21,9 +18,9 @@ class User {
     required this.phoneNumber,
     required this.token,
     required this.profile,
-    this.cuisines, // Update the parameter to be nullable
-    this.allergens, // Update the parameter to be nullable
-    this.healthConditions, // Update the parameter to be nullable
+    required this.cuisines, // Update the parameter to be dynamic
+    required this.allergens, // Update the parameter to be dynamic
+    required this.healthConditions, // Update the parameter to be dynamic
   });
 
   // Named constructor with default values
@@ -34,42 +31,30 @@ class User {
         phoneNumber = '',
         token = '',
         profile = UserProfile.empty(),
-        cuisines = null, // Initialize the list as null
-        allergens = null, // Initialize the list as null
-        healthConditions = null; // Initialize the list as null
+        cuisines = [], // Initialize the list as empty
+        allergens = [], // Initialize the list as empty
+        healthConditions = []; // Initialize the list as empty
 
   factory User.fromJson(Map<String, dynamic> json) {
     // Extract cuisines list from the JSON
     List<dynamic>? cuisinesJson = json['cuisines'];
 
-    // Use null-aware operator to handle null case
-    List<Cuisine>? userCuisines =
-        cuisinesJson?.map((cuisine) => Cuisine.fromJson(cuisine)).toList();
-
-    // Extract cuisines list from the JSON
+    // Extract allergens list from the JSON
     List<dynamic>? allergensJson = json['allergens'];
 
-    // Use null-aware operator to handle null case
-    List<Allergen>? userAllergens =
-        allergensJson?.map((allergen) => Allergen.fromJson(allergen)).toList();
-
-    // Extract cuisines list from the JSON
+    // Extract healthConditions list from the JSON
     List<dynamic>? healthConditionsJson = json['healthConditions'];
 
-    // Use null-aware operator to handle null case
-    List<HealthCondition>? userHealthConditions = healthConditionsJson
-        ?.map((allergen) => HealthCondition.fromJson(allergen))
-        .toList();
-
     return User(
-        id: json['id'] ?? '',
-        name: json['name'] ?? '',
-        email: json['email'] ?? '',
-        phoneNumber: json['phone_number'] ?? '',
-        token: json['token'] ?? '',
-        profile: UserProfile.fromJson(json['profile'] ?? {}),
-        cuisines: userCuisines,
-        healthConditions: userHealthConditions,
-        allergens: userAllergens);
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phoneNumber: json['phone_number'] ?? '',
+      token: json['token'] ?? '',
+      profile: UserProfile.fromJson(json['profile'] ?? {}),
+      cuisines: cuisinesJson ?? [],
+      healthConditions: healthConditionsJson ?? [],
+      allergens: allergensJson ?? [],
+    );
   }
 }

@@ -1,9 +1,13 @@
 import 'package:calendar_agenda/calendar_agenda.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/recipe_recommendation_service.dart';
+import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
 import '../../common_widget/meal_food_schedule_row.dart';
 import '../../common_widget/nutritions_row.dart';
+import 'package:fyp_flutter/models/meal_type.dart';
 
 class MealScheduleView extends StatefulWidget {
   const MealScheduleView({super.key});
@@ -16,77 +20,171 @@ class _MealScheduleViewState extends State<MealScheduleView> {
   final CalendarAgendaController _calendarAgendaControllerAppBar =
       CalendarAgendaController();
 
-  late DateTime _selectedDateAppBBar;
+  List breakfastArr = [];
+  List<dynamic> mealTypes = [];
+  List lunchArr = [];
+  List snacksArr = [];
+  List dinnerArr = [];
+  late AuthProvider authProvider;
 
-  List breakfastArr = [
-    {
-      "name": "Honey Pancake",
-      "time": "07:00am",
-      "image": "assets/img/honey_pan.png"
-    },
-    {"name": "Coffee", "time": "07:30am", "image": "assets/img/coffee.png"},
-  ];
-
-  List lunchArr = [
-    {
-      "name": "Chicken Steak",
-      "time": "01:00pm",
-      "image": "assets/img/chicken.png"
-    },
-    {
-      "name": "Milk",
-      "time": "01:20pm",
-      "image": "assets/img/glass-of-milk 1.png"
-    },
-  ];
-  List snacksArr = [
-    {"name": "Orange", "time": "04:30pm", "image": "assets/img/orange.png"},
-    {
-      "name": "Apple Pie",
-      "time": "04:40pm",
-      "image": "assets/img/apple_pie.png"
-    },
-  ];
-  List dinnerArr = [
-    {"name": "Salad", "time": "07:10pm", "image": "assets/img/salad.png"},
-    {"name": "Oatmeal", "time": "08:10pm", "image": "assets/img/oatmeal.png"},
-  ];
-
-  List nutritionArr = [
-    {
-      "title": "Calories",
-      "image": "assets/img/burn.png",
-      "unit_name": "kCal",
-      "value": "350",
-      "max_value": "500",
-    },
-    {
-      "title": "Proteins",
-      "image": "assets/img/proteins.png",
-      "unit_name": "g",
-      "value": "300",
-      "max_value": "1000",
-    },
-    {
-      "title": "Fats",
-      "image": "assets/img/egg.png",
-      "unit_name": "g",
-      "value": "140",
-      "max_value": "1000",
-    },
-    {
-      "title": "Carbo",
-      "image": "assets/img/carbo.png",
-      "unit_name": "g",
-      "value": "140",
-      "max_value": "1000",
-    },
-  ];
+  List nutritionArr = [];
 
   @override
   void initState() {
     super.initState();
-    _selectedDateAppBBar = DateTime.now();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _loadMealLogs();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    var result = await RecipeRecommendationService(authProvider).getMealTypes();
+
+    setState(() {
+      mealTypes = result;
+    });
+  }
+
+  Future<void> _loadMealLogs() async {
+    List<dynamic> mealLogs = await authProvider.getMealLogs();
+    lunchArr = mealLogs.where((meal) {
+      // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+      return meal['recipe']['meal_type_id'] ==
+          '058152c4-4894-4756-95ae-3bba523be047';
+    }).toList();
+    dinnerArr = mealLogs.where((meal) {
+      // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+      return meal['recipe']['meal_type_id'] ==
+          '26ef8a66-455c-4a01-bffd-3cae152e3730';
+    }).toList();
+    breakfastArr = mealLogs.where((meal) {
+      // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+      return meal['recipe']['meal_type_id'] ==
+          '4bcd628b-2595-4c9e-ae57-2ff6e83eadba';
+    }).toList();
+    snacksArr = mealLogs.where((meal) {
+      // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+      return meal['recipe']['meal_type_id'] ==
+          'd37900ed-e44c-468a-bfaf-533734b39155';
+    }).toList();
+    // Initialize variables to store the sum of each nutrition type
+    double totalCalories = 0;
+    double totalProteins = 0;
+    double totalFats = 0;
+    double totalCarbo = 0;
+
+// Iterate through mealLogs to calculate the sum of each nutrition type
+    for (var meal in mealLogs) {
+      totalCalories += meal['recipe']['calories'];
+      totalProteins += meal['recipe']['protein'];
+      totalFats += meal['recipe']['total_fat'];
+      totalCarbo += meal['recipe']['carbohydrates'];
+    }
+
+    nutritionArr = [
+      {
+        "title": "Calories",
+        "image": "assets/img/burn.png",
+        "unit_name": "kCal",
+        "value": totalCalories.toString(),
+        "max_value": "2500",
+      },
+      {
+        "title": "Proteins",
+        "image": "assets/img/proteins.png",
+        "unit_name": "g",
+        "value": totalProteins.toString(),
+        "max_value": "1000",
+      },
+      {
+        "title": "Fats",
+        "image": "assets/img/egg.png",
+        "unit_name": "g",
+        "value": totalFats.toString(),
+        "max_value": "1000",
+      },
+      {
+        "title": "Carbo",
+        "image": "assets/img/carbo.png",
+        "unit_name": "g",
+        "value": totalCarbo.toString(),
+        "max_value": "1000",
+      },
+    ];
+  }
+
+  Future<void> _loadSpecificMealLogs(DateTime selectedDate) async {
+    // Handle the retrieved meal logs as needed
+    List<dynamic> mealLogs = await authProvider.getSpecificMealLogs(
+        datetime: selectedDate.toIso8601String());
+
+    setState(() {
+      lunchArr = mealLogs.where((meal) {
+        // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+        return meal['recipe']['meal_type_id'] ==
+            '058152c4-4894-4756-95ae-3bba523be047';
+      }).toList();
+      dinnerArr = mealLogs.where((meal) {
+        // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+        return meal['recipe']['meal_type_id'] ==
+            '26ef8a66-455c-4a01-bffd-3cae152e3730';
+      }).toList();
+      breakfastArr = mealLogs.where((meal) {
+        // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+        return meal['recipe']['meal_type_id'] ==
+            '4bcd628b-2595-4c9e-ae57-2ff6e83eadba';
+      }).toList();
+      snacksArr = mealLogs.where((meal) {
+        // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
+        return meal['recipe']['meal_type_id'] ==
+            'd37900ed-e44c-468a-bfaf-533734b39155';
+      }).toList();
+
+      // Initialize variables to store the sum of each nutrition type
+      double totalCalories = 0;
+      double totalProteins = 0;
+      double totalFats = 0;
+      double totalCarbo = 0;
+
+      // Iterate through mealLogs to calculate the sum of each nutrition type
+      for (var meal in mealLogs) {
+        totalCalories += meal['recipe']['calories'];
+        totalProteins += meal['recipe']['protein'];
+        totalFats += meal['recipe']['total_fat'];
+        totalCarbo += meal['recipe']['carbohydrates'];
+      }
+
+      nutritionArr = [
+        {
+          "title": "Calories",
+          "image": "assets/img/burn.png",
+          "unit_name": "kCal",
+          "value": totalCalories.toString(),
+          "max_value": "2500",
+        },
+        {
+          "title": "Proteins",
+          "image": "assets/img/proteins.png",
+          "unit_name": "g",
+          "value": totalProteins.toString(),
+          "max_value": "1000",
+        },
+        {
+          "title": "Fats",
+          "image": "assets/img/egg.png",
+          "unit_name": "g",
+          "value": totalFats.toString(),
+          "max_value": "1000",
+        },
+        {
+          "title": "Carbo",
+          "image": "assets/img/carbo.png",
+          "unit_name": "g",
+          "value": totalCarbo.toString(),
+          "max_value": "1000",
+        },
+      ];
+    });
   }
 
   @override
@@ -184,7 +282,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
             lastDate: DateTime.now().add(const Duration(days: 60)),
 
             onDateSelected: (date) {
-              _selectedDateAppBBar = date;
+              _loadSpecificMealLogs(date);
             },
             selectedDayLogo: Container(
               width: double.maxFinite,
@@ -218,7 +316,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                       TextButton(
                         onPressed: () {},
                         child: Text(
-                          "${breakfastArr.length} Items | 230 calories",
+                          "${breakfastArr.isEmpty ? "0 items | 0 calories" : breakfastArr.length} Items | ${breakfastArr.isEmpty ? 0 : breakfastArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
                           style: TextStyle(color: TColor.gray, fontSize: 12),
                         ),
                       )
@@ -226,17 +324,31 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                   ),
                 ),
                 ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: breakfastArr.length,
-                    itemBuilder: (context, index) {
-                      var mObj = breakfastArr[index] as Map? ?? {};
-                      return MealFoodScheduleRow(
-                        mObj: mObj,
-                        index: index,
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: breakfastArr.isEmpty ? 1 : breakfastArr.length,
+                  itemBuilder: (context, index) {
+                    if (breakfastArr.isEmpty) {
+                      // If breakfastArr is empty, display a message
+                      return const Center(
+                        child: Text("Breakfast not logged"),
                       );
-                    }),
+                    } else {
+                      // If breakfastArr is not empty, display the list items
+                      var mObj = breakfastArr[index] as Map? ?? {};
+                      if (mealTypes.isNotEmpty) {
+                        MealType dObj = mealTypes.firstWhere((mealType) =>
+                            mObj['recipe']['meal_type_id'] == mealType.id);
+                        return MealFoodScheduleRow(
+                          mObj: mObj,
+                          dObj: dObj,
+                          index: index,
+                        );
+                      }
+                    }
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Row(
@@ -252,7 +364,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                       TextButton(
                         onPressed: () {},
                         child: Text(
-                          "${lunchArr.length} Items | 500 calories",
+                          "${lunchArr.isEmpty ? "0 items | 0 calories" : lunchArr.length} Items | ${lunchArr.isEmpty ? 0 : lunchArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
                           style: TextStyle(color: TColor.gray, fontSize: 12),
                         ),
                       )
@@ -265,11 +377,24 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                     shrinkWrap: true,
                     itemCount: lunchArr.length,
                     itemBuilder: (context, index) {
-                      var mObj = lunchArr[index] as Map? ?? {};
-                      return MealFoodScheduleRow(
-                        mObj: mObj,
-                        index: index,
-                      );
+                      if (lunchArr.isEmpty) {
+                        // If breakfastArr is empty, display a message
+                        return const Center(
+                          child: Text("Lunch not logged"),
+                        );
+                      } else {
+                        // If lunchArr is not empty, display the list items
+                        var mObj = lunchArr[index] as Map? ?? {};
+                        if (mealTypes.isNotEmpty) {
+                          MealType dObj = mealTypes.firstWhere((mealType) =>
+                              mObj['recipe']['meal_type_id'] == mealType.id);
+                          return MealFoodScheduleRow(
+                            mObj: mObj,
+                            dObj: dObj,
+                            index: index,
+                          );
+                        }
+                      }
                     }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -286,7 +411,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                       TextButton(
                         onPressed: () {},
                         child: Text(
-                          "${snacksArr.length} Items | 140 calories",
+                          "${snacksArr.isEmpty ? "0 items | 0 calories" : snacksArr.length} Items | ${snacksArr.isEmpty ? 0 : snacksArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
                           style: TextStyle(color: TColor.gray, fontSize: 12),
                         ),
                       )
@@ -299,11 +424,24 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                     shrinkWrap: true,
                     itemCount: snacksArr.length,
                     itemBuilder: (context, index) {
-                      var mObj = snacksArr[index] as Map? ?? {};
-                      return MealFoodScheduleRow(
-                        mObj: mObj,
-                        index: index,
-                      );
+                      if (snacksArr.isEmpty) {
+                        // If snacksArr is empty, display a message
+                        return const Center(
+                          child: Text("Snacks not logged"),
+                        );
+                      } else {
+                        // If snacksArr is not empty, display the list items
+                        var mObj = snacksArr[index] as Map? ?? {};
+                        if (mealTypes.isNotEmpty) {
+                          MealType dObj = mealTypes.firstWhere((mealType) =>
+                              mObj['recipe']['meal_type_id'] == mealType.id);
+                          return MealFoodScheduleRow(
+                            mObj: mObj,
+                            dObj: dObj,
+                            index: index,
+                          );
+                        }
+                      }
                     }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -320,7 +458,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                       TextButton(
                         onPressed: () {},
                         child: Text(
-                          "${dinnerArr.length} Items | 120 calories",
+                          "${dinnerArr.isEmpty ? "0 items | 0 calories" : dinnerArr.length} Items | ${dinnerArr.isEmpty ? 0 : dinnerArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
                           style: TextStyle(color: TColor.gray, fontSize: 12),
                         ),
                       )
@@ -333,11 +471,24 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                     shrinkWrap: true,
                     itemCount: dinnerArr.length,
                     itemBuilder: (context, index) {
-                      var mObj = dinnerArr[index] as Map? ?? {};
-                      return MealFoodScheduleRow(
-                        mObj: mObj,
-                        index: index,
-                      );
+                      if (dinnerArr.isEmpty) {
+                        // If dinnerArr is empty, display a message
+                        return const Center(
+                          child: Text("Dinners not logged"),
+                        );
+                      } else {
+                        // If dinnerArr is not empty, display the list items
+                        var mObj = dinnerArr[index] as Map? ?? {};
+                        if (mealTypes.isNotEmpty) {
+                          MealType dObj = mealTypes.firstWhere((mealType) =>
+                              mObj['recipe']['meal_type_id'] == mealType.id);
+                          return MealFoodScheduleRow(
+                            mObj: mObj,
+                            dObj: dObj,
+                            index: index,
+                          );
+                        }
+                      }
                     }),
                 SizedBox(
                   height: media.width * 0.05,

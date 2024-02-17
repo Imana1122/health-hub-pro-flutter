@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:provider/provider.dart';
 
-class ChangePassword extends StatefulWidget {
-  const ChangePassword({super.key});
+class DieticianChangePassword extends StatefulWidget {
+  const DieticianChangePassword({super.key});
 
   @override
-  State<ChangePassword> createState() => _ChangePasswordState();
+  State<DieticianChangePassword> createState() =>
+      _DieticianChangePasswordState();
 }
 
-class _ChangePasswordState extends State<ChangePassword> {
+class _DieticianChangePasswordState extends State<DieticianChangePassword> {
   late TextEditingController oldPasswordController;
   late TextEditingController newPasswordController;
   late TextEditingController confirmPasswordController;
   bool obscureOldPassword = true;
   bool obscureNewPassword = true;
   bool obscureConfirmPassword = true;
-  late AuthProvider authProvider;
+  late DieticianAuthProvider authProvider;
   @override
   void initState() {
     super.initState();
-    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
       // If the user is not logged in, navigate to the login page
       WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -118,7 +119,8 @@ class _ChangePasswordState extends State<ChangePassword> {
               (value) => obscureConfirmPassword = value,
             ),
             const SizedBox(height: 16),
-            RoundButton(onPressed: _changePassword, title: "ChangePassword"),
+            RoundButton(
+                onPressed: _changePassword, title: "DieticianChangePassword"),
           ],
         ),
       ),

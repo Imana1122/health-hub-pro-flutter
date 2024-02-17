@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fyp_flutter/models/allergen.dart';
-import 'package:fyp_flutter/models/cuisine.dart';
-import 'package:fyp_flutter/models/health_condition.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/services/auth_service.dart';
@@ -121,9 +118,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> setCuisinePreferences({required List cuisines}) async {
     try {
-      List<Cuisine> userCuisines = await ProfileService()
+      List<dynamic> userCuisines = await ProfileService()
           .setCuisines(cuisines: cuisines, token: _user.token);
-
       _user.cuisines = userCuisines;
 
       return true;
@@ -135,9 +131,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> setAllergens({required List allergens}) async {
     try {
-      List<Allergen> userAllergens = await ProfileService()
+      List<dynamic> userAllergens = await ProfileService()
           .setAllergens(allergens: allergens, token: _user.token);
-
       _user.allergens = userAllergens;
 
       return true;
@@ -149,7 +144,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> setHealthConditions({required List healthConditions}) async {
     try {
-      List<HealthCondition> userHealthConditions = await ProfileService()
+      List<dynamic> userHealthConditions = await ProfileService()
           .setHealthConditions(
               healthConditions: healthConditions, token: _user.token);
 
@@ -235,6 +230,50 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       print(e);
       return false;
+    }
+  }
+
+  Future<bool> logMeal({required String recipeId}) async {
+    try {
+      List<dynamic> mealLogs = await ProfileService()
+          .logMeal(recipeId: recipeId, token: _user.token);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<bool> deleteLogMeal({required String id}) async {
+    try {
+      List<dynamic> mealLogs =
+          await ProfileService().deleteLogMeal(id: id, token: _user.token);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<List<dynamic>> getMealLogs() async {
+    try {
+      List<dynamic> mealLogs =
+          await ProfileService().getMealLogs(token: _user.token);
+      return mealLogs;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> getSpecificMealLogs({required String datetime}) async {
+    try {
+      List<dynamic> mealLogs = await ProfileService()
+          .getSpecificMealLogs(datetime: datetime, token: _user.token);
+      return mealLogs;
+    } catch (e) {
+      print(e);
+      return [];
     }
   }
 

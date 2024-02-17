@@ -5,6 +5,7 @@ class Dietician {
   String email;
   String phoneNumber;
   String cv;
+  String image;
   String speciality;
   String description;
   String esewaId;
@@ -22,6 +23,7 @@ class Dietician {
     required this.email,
     required this.phoneNumber,
     required this.cv,
+    required this.image,
     required this.speciality,
     required this.description,
     required this.esewaId,
@@ -42,14 +44,16 @@ class Dietician {
       email: json['email'],
       phoneNumber: json['phone_number'],
       cv: json['cv'],
+      image: json['image'],
       speciality: json['speciality'],
       description: json['description'],
       esewaId: json['esewa_id'],
-      bookingAmount: json['booking_amount'],
+      bookingAmount:
+          json['booking_amount'].toDouble(), // Changed from int to double
       bio: json['bio'],
       availabilityStatus: json['availability_status'],
       approvedStatus: json['approved_status'],
-      token: json['token'],
+      token: json['token'] ?? '',
       status: json['status'],
     );
   }
@@ -61,6 +65,7 @@ class Dietician {
         lastName = '',
         phoneNumber = '',
         cv = '',
+        image = '',
         speciality = '',
         description = '',
         esewaId = '',
@@ -79,6 +84,7 @@ class Pivot {
   String email;
   String phoneNumber;
   String cv;
+  String image;
   String speciality;
   String description;
   String esewaId;
@@ -96,6 +102,7 @@ class Pivot {
     required this.email,
     required this.phoneNumber,
     required this.cv,
+    required this.image,
     required this.speciality,
     required this.description,
     required this.esewaId,
@@ -116,6 +123,7 @@ class Pivot {
       email: json['email'],
       phoneNumber: json['phone_number'],
       cv: json['cv'],
+      image: json['image'],
       speciality: json['speciality'],
       description: json['description'],
       esewaId: json['esewa_id'],

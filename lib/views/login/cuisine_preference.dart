@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/profile_service.dart';
 import 'package:fyp_flutter/views/login/allergen_filter.dart';
-import 'package:fyp_flutter/views/login/welcome_view.dart';
+import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
 import '../../common_widget/round_button.dart';
 
 class CuisinePreference extends StatefulWidget {
-  const CuisinePreference({Key? key}) : super(key: key);
+  const CuisinePreference({super.key});
 
   @override
   State<CuisinePreference> createState() => _CuisinePreferenceState();
@@ -26,8 +25,21 @@ class _CuisinePreferenceState extends State<CuisinePreference> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    user = authProvider.getAuthenticatedUser();
-    _fetchCuisines();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isLoggedIn) {
+      // If the user is not logged in, navigate to the login page
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const LoginView(), // Replace LoginPage with your actual login page
+          ),
+        );
+      });
+    } else {
+      user = authProvider.getAuthenticatedUser();
+      _fetchCuisines();
+    }
   }
 
   _fetchCuisines() async {
@@ -35,10 +47,8 @@ class _CuisinePreferenceState extends State<CuisinePreference> {
       var cuisines = await authProvider.getCuisines();
       setState(() {
         cuisineArr = cuisines;
-
-        // Initialize selectedCuisines here
         selectedCuisines =
-            user.cuisines?.map((cuisine) => cuisine.id).toList() ?? [];
+            user.cuisines.map((cuisine) => cuisine['id'].toString()).toList();
       });
     } catch (e) {
       print("Error fetching cuisines: $e");
@@ -56,33 +66,24 @@ class _CuisinePreferenceState extends State<CuisinePreference> {
   }
 
   Future<void> _confirmButtonPressed() async {
-    if (selectedCuisines.isNotEmpty) {
-      try {
-        var result = await authProvider.setCuisinePreferences(
-            cuisines: selectedCuisines);
+    try {
+      var result =
+          await authProvider.setCuisinePreferences(cuisines: selectedCuisines);
 
-        if (result == true) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AllergenPreference(),
-            ),
-          );
-        } else {
-          print("Error setting cuisine preferences");
-          // Handle unsuccessful setCuisines, show an error message if needed
-        }
-      } catch (e) {
-        print("Error: $e");
-        // Handle errors, show a message to the user if needed
+      if (result == true) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AllergenPreference(),
+          ),
+        );
+      } else {
+        print("Error setting cuisine preferences");
+        // Handle unsuccessful setCuisines, show an error message if needed
       }
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AllergenPreference(),
-        ),
-      );
+    } catch (e) {
+      print("Error: $e");
+      // Handle errors, show a message to the user if needed
     }
   }
 

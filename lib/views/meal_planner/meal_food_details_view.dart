@@ -1,14 +1,14 @@
 import 'package:fyp_flutter/common_widget/meal_recommed_cell.dart';
-import 'package:flutter/material.dart';
+import 'package:fyp_flutter/common_widget/popular_meal_row.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/models/recipe_category.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/recipe_recommendation_service.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
 import '../../common_widget/meal_category_cell.dart';
-import '../../common_widget/popular_meal_row.dart';
 import 'food_info_details_view.dart';
 
 class MealFoodDetailsView extends StatefulWidget {
@@ -21,18 +21,19 @@ class MealFoodDetailsView extends StatefulWidget {
 
 class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
   TextEditingController txtSearch = TextEditingController();
-
   List<RecipeCategory> categoryArr = [];
   late AuthProvider authProvider;
   List recommendArr = [];
+  int currentPage = 1;
+  String selectedCategoryId = '';
+  int totalPages = 1;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    _loadCategories();
     _loadRecipes();
+    _loadCategories();
   }
 
   Future<void> _loadCategories() async {
@@ -44,10 +45,16 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
   }
 
   Future<void> _loadRecipes() async {
-    var recipes = await RecipeRecommendationService(authProvider)
-        .getRecipeRecommendations(mealTypeId: widget.eObj.id);
+    var data = await RecipeRecommendationService(authProvider)
+        .getRecipeRecommendations(
+            mealTypeId: widget.eObj.id,
+            currentPage: currentPage,
+            keyword: txtSearch.text.trim(),
+            category: selectedCategoryId);
     setState(() {
-      recommendArr = recipes;
+      recommendArr = data['recipes']['data'];
+      totalPages =
+          (data['recipes']['total'] / 10).ceil(); // Assuming 10 items per page
     });
   }
 
@@ -69,23 +76,6 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
       "kcal": "120kCal"
     },
   ];
-
-  // List recommendArr = [
-  //   {
-  //     "name": "Honey Pancake",
-  //     "image": "assets/img/rd_1.png",
-  //     "size": "Easy",
-  //     "time": "30mins",
-  //     "kcal": "180kCal"
-  //   },
-  //   {
-  //     "name": "Canai Bread",
-  //     "image": "assets/img/m_4.png",
-  //     "size": "Easy",
-  //     "time": "20mins",
-  //     "kcal": "230kCal"
-  //   },
-  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +162,7 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                           width: 25,
                           height: 25,
                         ),
-                        hintText: "Search Pancake"),
+                        hintText: "Search"),
                   )),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -181,7 +171,9 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                     color: TColor.gray.withOpacity(0.3),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      _loadRecipes();
+                    },
                     child: Image.asset(
                       "assets/img/Filter.png",
                       width: 25,
@@ -202,9 +194,27 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                   Text(
                     "Category",
                     style: TextStyle(
-                        color: TColor.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700),
+                      color: TColor.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedCategoryId = '';
+                      });
+                      _loadRecipes();
+                    },
+                    child: Text(
+                      'Clear',
+                      style: TextStyle(
+                        color: TColor.primaryColor2, // Adjust color as needed
+                        fontSize: 14, // Adjust font size as needed
+                        fontWeight:
+                            FontWeight.bold, // Adjust font weight as needed
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -220,6 +230,13 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                   return MealCategoryCell(
                     cObj: cObj,
                     index: index,
+                    isSelected: selectedCategoryId == cObj.id,
+                    onSelect: () {
+                      setState(() {
+                        selectedCategoryId = cObj.id;
+                      });
+                      _loadRecipes();
+                    },
                   );
                 },
               ),
@@ -246,10 +263,45 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                   itemBuilder: (context, index) {
                     var fObj = recommendArr[index] as Map? ?? {};
                     return MealRecommendCell(
-                      fObj: fObj,
-                      index: index,
-                    );
+                        fObj: fObj, index: index, eObj: widget.eObj);
                   }),
+            ),
+            SizedBox(
+              height: media.width * 0.05,
+            ),
+            SizedBox(
+              height: 20,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (currentPage > 1) {
+                        setState(() {
+                          currentPage--;
+                        });
+                      }
+                      _loadRecipes();
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  Text(
+                    'Page $currentPage of $totalPages',
+                    style: const TextStyle(fontSize: 9),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      if (currentPage < totalPages) {
+                        setState(() {
+                          currentPage++;
+                        });
+                      }
+                      _loadRecipes();
+                    },
+                    icon: const Icon(Icons.arrow_forward),
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: media.width * 0.05,

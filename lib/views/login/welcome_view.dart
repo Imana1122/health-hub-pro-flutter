@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
@@ -23,6 +24,18 @@ class _WelcomeViewState extends State<WelcomeView> {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     authenticatedUser = authProvider.getAuthenticatedUser();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isLoggedIn) {
+      // If the user is not logged in, navigate to the login page
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const LoginView(), // Replace LoginPage with your actual login page
+          ),
+        );
+      });
+    }
   }
 
   @override

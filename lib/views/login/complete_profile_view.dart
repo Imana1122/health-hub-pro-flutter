@@ -2,6 +2,7 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../common_widget/round_button.dart';
@@ -35,17 +36,28 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     userProfile = authProvider.getAuthenticatedUserProfile();
-
-    // Set initial values if userProfile is not empty
-    if (userProfile.isEmpty()) {
-      heightController.text = userProfile.height.toString();
-      weightController.text = userProfile.weight.toString();
-      waistController.text = userProfile.waist.toString();
-      hipsController.text = userProfile.hips.toString();
-      bustController.text = userProfile.bust.toString();
-      targetedWeightController.text = userProfile.targetedWeight.toString();
-      ageController.text = userProfile.age.toString();
-      selectedGender = userProfile.gender.toString();
+    if (!authProvider.isLoggedIn) {
+      // If the user is not logged in, navigate to the login page
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const LoginView(), // Replace LoginPage with your actual login page
+          ),
+        );
+      });
+    } else {
+      // Set initial values if userProfile is not empty
+      if (!userProfile.isEmpty()) {
+        heightController.text = userProfile.height.toString();
+        weightController.text = userProfile.weight.toString();
+        waistController.text = userProfile.waist.toString();
+        hipsController.text = userProfile.hips.toString();
+        bustController.text = userProfile.bust.toString();
+        targetedWeightController.text = userProfile.targetedWeight.toString();
+        ageController.text = userProfile.age.toString();
+        selectedGender = userProfile.gender.toString();
+      }
     }
   }
 

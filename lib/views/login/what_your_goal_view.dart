@@ -1,15 +1,17 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/weight_plan_service.dart';
 import 'package:fyp_flutter/views/login/cuisine_preference.dart';
+import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
 import '../../common_widget/round_button.dart';
 
 class WhatYourGoalView extends StatefulWidget {
-  const WhatYourGoalView({super.key});
+  const WhatYourGoalView({Key? key}) : super(key: key);
 
   @override
   State<WhatYourGoalView> createState() => _WhatYourGoalViewState();
@@ -19,21 +21,51 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
   CarouselController buttonCarouselController = CarouselController();
   List goalArr = [];
   int currentPage = 0; // Add this variable to track the current page index
+  late User user;
+  late AuthProvider authProvider;
+  bool isDataLoaded =
+      false; // Add a boolean flag to track whether the data is loaded
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isLoggedIn) {
+      // If the user is not logged in, navigate to the login page
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const LoginView(), // Replace LoginPage with your actual login page
+          ),
+        );
+      });
+    } else {
+      user = authProvider.getAuthenticatedUser();
+      _fetchWeightPlans();
+    }
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _fetchWeightPlans();
   }
 
-  _fetchWeightPlans() async {
+  Future<void> _fetchWeightPlans() async {
     try {
-      AuthProvider authProvider =
-          Provider.of<AuthProvider>(context, listen: true);
       var weightPlanService = WeightPlanService(authProvider);
       var weightPlans = await weightPlanService.getWeightPlans();
       setState(() {
         goalArr = weightPlans;
+        for (int i = 0; i < goalArr.length; i++) {
+          if (goalArr[i]["id"] == user.profile.weightPlanId) {
+            currentPage = i;
+            break;
+          }
+        }
+        isDataLoaded =
+            true; // Set the flag to true to indicate that the data is loaded
       });
     } catch (e) {
       print("Error fetching weight plans: $e");
@@ -42,15 +74,9 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
 
   Future<void> _confirmButtonPressed() async {
     try {
-      AuthProvider authProvider =
-          Provider.of<AuthProvider>(context, listen: false);
-      ;
       var weightPlanService = WeightPlanService(authProvider);
-
       String selectedGoalId = goalArr[currentPage]["id"];
-
       var result = await weightPlanService.setGoal(goal: selectedGoalId);
-
       if (result == true) {
         Navigator.push(
           context,
@@ -71,16 +97,13 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
   String breakTextIntoLines(String text, int wordsPerLine) {
     List<String> words = text.split(' ');
     List<String> lines = [];
-
     for (int i = 0; i < words.length; i += wordsPerLine) {
       int end = i + wordsPerLine;
       if (end > words.length) {
         end = words.length;
       }
-
       lines.add(words.sublist(i, end).join(' '));
     }
-
     return lines.join('\n');
   }
 
@@ -92,76 +115,80 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
       body: SafeArea(
         child: Stack(
           children: [
-            Center(
-              child: CarouselSlider(
-                items: goalArr
-                    .map(
-                      (gObj) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              colors: TColor.primaryG,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                            vertical: media.width * 0.1, horizontal: 25),
-                        alignment: Alignment.center,
-                        child: FittedBox(
-                          child: Column(
-                            children: [
-                              Image.network(
-                                'http://10.0.2.2:8000/uploads/weightPlan/thumb/${gObj["image"]}',
-                                width: media.width * 0.5,
-                                fit: BoxFit.fitWidth,
-                              ),
-                              SizedBox(
-                                height: media.width * 0.1,
-                              ),
-                              Text(
-                                gObj["title"].toString(),
-                                style: TextStyle(
-                                    color: TColor.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              Container(
-                                width: media.width * 0.1,
-                                height: 1,
-                                color: TColor.white,
-                              ),
-                              SizedBox(
-                                height: media.width * 0.02,
-                              ),
-                              Text(
-                                breakTextIntoLines(
-                                  gObj["subtitle"].toString(),
-                                  6, // Set the number of words per line
+            Visibility(
+              visible:
+                  isDataLoaded, // Show the carousel only when data is loaded
+              child: Center(
+                child: CarouselSlider(
+                  items: goalArr
+                      .map(
+                        (gObj) => Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: TColor.primaryG,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: media.width * 0.1, horizontal: 25),
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            child: Column(
+                              children: [
+                                Image.network(
+                                  'http://10.0.2.2:8000/uploads/weightPlan/thumb/${gObj["image"]}',
+                                  width: media.width * 0.5,
+                                  fit: BoxFit.fitWidth,
                                 ),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
+                                SizedBox(
+                                  height: media.width * 0.1,
+                                ),
+                                Text(
+                                  gObj["title"].toString(),
+                                  style: TextStyle(
+                                      color: TColor.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                                Container(
+                                  width: media.width * 0.1,
+                                  height: 1,
                                   color: TColor.white,
-                                  fontSize: 12,
                                 ),
-                              )
-                            ],
+                                SizedBox(
+                                  height: media.width * 0.02,
+                                ),
+                                Text(
+                                  breakTextIntoLines(
+                                    gObj["subtitle"].toString(),
+                                    6, // Set the number of words per line
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: TColor.white,
+                                    fontSize: 12,
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
-                carouselController: buttonCarouselController,
-                options: CarouselOptions(
-                  autoPlay: false,
-                  enlargeCenterPage: true,
-                  viewportFraction: 0.7,
-                  aspectRatio: 0.74,
-                  initialPage: 0,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      currentPage = index;
-                    });
-                  },
+                      )
+                      .toList(),
+                  carouselController: buttonCarouselController,
+                  options: CarouselOptions(
+                    autoPlay: false,
+                    enlargeCenterPage: true,
+                    viewportFraction: 0.7,
+                    aspectRatio: 0.74,
+                    initialPage: currentPage,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        currentPage = index;
+                      });
+                    },
+                  ),
                 ),
               ),
             ),

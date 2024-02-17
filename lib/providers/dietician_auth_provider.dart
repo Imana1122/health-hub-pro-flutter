@@ -33,7 +33,7 @@ class DieticianAuthProvider with ChangeNotifier {
     required bio,
   }) async {
     try {
-      Dietician dietician = await DieticianAuthService().register(
+      bool result = await DieticianAuthService().register(
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -47,10 +47,7 @@ class DieticianAuthProvider with ChangeNotifier {
         bio: bio,
       );
 
-      _dietician = dietician;
-      _isLoggedIn = true;
-
-      return true;
+      return result;
     } catch (e) {
       print(e);
       return false;
@@ -97,18 +94,18 @@ class DieticianAuthProvider with ChangeNotifier {
   }
 
   Future<bool> updatePersonalInfo({
-    required String name,
+    required String bio,
     required String phoneNumber,
     required String email,
   }) async {
     try {
       var dieticianData = await DieticianAuthService().updatePersonalInfo(
-          name: name,
+          bio: bio,
           phoneNumber: phoneNumber,
           email: email,
           token: _dietician.token);
 
-      _dietician.firstName = dieticianData['first_name'];
+      _dietician.firstName = dieticianData['bio'];
       _dietician.email = dieticianData['email'];
       _dietician.phoneNumber = dieticianData['phone_number'];
 

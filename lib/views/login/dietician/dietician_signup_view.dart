@@ -4,8 +4,8 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/login/dietician/dietician_login_view.dart';
-import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/views/widget/pdf_view.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -35,13 +35,22 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
   File? imageFile;
 
   void handleCVUpload() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
 
     if (result != null) {
       File file = File(result.files.single.path!);
       setState(() {
         cvFile = file;
       });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFViewerScreen(filePath: file.path),
+        ),
+      );
     }
   }
 
@@ -51,6 +60,24 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
     if (pickedFile != null) {
       setState(() {
         imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Access the authentication provider
+    DieticianAuthProvider authProvider =
+        Provider.of<DieticianAuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/dietician-profile'); // Replace '/dietician-profile' with the route of DieticianProfilePage
       });
     }
   }
@@ -250,9 +277,23 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                         ),
                         if (cvFile != null)
                           Flexible(
-                            child: Image.file(
-                              cvFile!,
-                              fit: BoxFit.cover,
+                            child: InkWell(
+                              onTap: () {
+                                // Open the selected PDF file
+                                // You can use a PDF viewer package or a web view to display the PDF
+                                // Here, I'm assuming you have a PDF viewer widget named PDFViewer
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PDFViewerScreen(filePath: cvFile!.path),
+                                  ),
+                                );
+                              },
+                              child: Icon(
+                                Icons.visibility,
+                                color: TColor.gray,
+                              ),
                             ),
                           ),
                       ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:fyp_flutter/views/login/welcome_view.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +26,21 @@ class _HealthConditionPreferenceState extends State<HealthConditionPreference> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    user = authProvider.getAuthenticatedUser();
-    _fetchHealthConditions();
+    if (!authProvider.isLoggedIn) {
+      // If the user is not logged in, navigate to the login page
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                const LoginView(), // Replace LoginPage with your actual login page
+          ),
+        );
+      });
+    } else {
+      // If the user is logged in, fetch the authenticated user data
+      user = authProvider.getAuthenticatedUser();
+      _fetchHealthConditions();
+    }
   }
 
   _fetchHealthConditions() async {
@@ -37,9 +51,8 @@ class _HealthConditionPreferenceState extends State<HealthConditionPreference> {
 
         // Initialize selectedHealthConditions here
         selectedHealthConditions = user.healthConditions
-                ?.map((healthCondition) => healthCondition.id)
-                .toList() ??
-            [];
+            .map((healthCondition) => healthCondition['id'].toString())
+            .toList();
       });
     } catch (e) {
       print("Error fetching healthConditions: $e");
@@ -57,33 +70,24 @@ class _HealthConditionPreferenceState extends State<HealthConditionPreference> {
   }
 
   Future<void> _confirmButtonPressed() async {
-    if (selectedHealthConditions.isNotEmpty) {
-      try {
-        var result = await authProvider.setHealthConditions(
-            healthConditions: selectedHealthConditions);
+    try {
+      var result = await authProvider.setHealthConditions(
+          healthConditions: selectedHealthConditions);
 
-        if (result == true) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const WelcomeView(),
-            ),
-          );
-        } else {
-          print("Error setting healthCondition preferences");
-          // Handle unsuccessful setHealthConditions, show an error message if needed
-        }
-      } catch (e) {
-        print("Error: $e");
-        // Handle errors, show a message to the user if needed
+      if (result == true) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const WelcomeView(),
+          ),
+        );
+      } else {
+        print("Error setting healthCondition preferences");
+        // Handle unsuccessful setHealthConditions, show an error message if needed
       }
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const WelcomeView(),
-        ),
-      );
+    } catch (e) {
+      print("Error: $e");
+      // Handle errors, show a message to the user if needed
     }
   }
 

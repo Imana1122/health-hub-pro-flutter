@@ -2,9 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
-import 'package:fyp_flutter/models/allergen.dart';
-import 'package:fyp_flutter/models/cuisine.dart';
-import 'package:fyp_flutter/models/health_condition.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:fyp_flutter/models/user.dart';
@@ -54,16 +51,42 @@ class AuthService {
         );
         return user;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("Errors: $data['errors']");
+        if (data.containsKey('error')) {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        } else {
+          Map<String, dynamic> errorMap = data['errors'];
+          List<String> errorMessages = [];
+
+          errorMap.forEach((field, errors) {
+            for (var error in errors) {
+              errorMessages.add('$field: $error');
+            }
+          });
+
+          Fluttertoast.showToast(
+            msg: errorMessages.join(
+                '\n\n'), // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['errors']}");
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -71,7 +94,7 @@ class AuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -84,6 +107,7 @@ class AuthService {
     required String password,
   }) async {
     var url = '$baseUrl/account/process-login';
+
     var headers = {'Content-Type': 'application/json'};
     var body = jsonEncode({
       'phone_number': phoneNumber,
@@ -107,24 +131,15 @@ class AuthService {
         user.token = 'Bearer $accessToken';
         user.profile = UserProfile.fromJson(profile);
 
-        List<dynamic> allergenDataList = data['userAllergens'];
-        List<Allergen> allergens = allergenDataList
-            .map((allergenData) => Allergen.fromJson(allergenData))
-            .toList();
+        List<dynamic> allergens = data['userAllergens'];
+
         user.allergens = allergens;
 
-        List<dynamic> cuisineDataList = data['userCuisines'];
-        List<Cuisine> cuisines = cuisineDataList
-            .map((cuisineData) => Cuisine.fromJson(cuisineData))
-            .toList();
+        List<dynamic> cuisines = data['userCuisines'];
 
         user.cuisines = cuisines;
 
-        List<dynamic> healthConditionDataList = data['userHealthConditions'];
-        List<HealthCondition> healthConditions = healthConditionDataList
-            .map((healthConditionData) =>
-                HealthCondition.fromJson(healthConditionData))
-            .toList();
+        List<dynamic> healthConditions = data['userHealthConditions'];
 
         user.healthConditions = healthConditions;
 
@@ -139,16 +154,42 @@ class AuthService {
         );
         return user;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("${data['errors']}");
+        if (data.containsKey('error')) {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        } else {
+          Map<String, dynamic> errorMap = data['errors'];
+          List<String> errorMessages = [];
+
+          errorMap.forEach((field, errors) {
+            for (var error in errors) {
+              errorMessages.add('$field: $error');
+            }
+          });
+
+          Fluttertoast.showToast(
+            msg: errorMessages.join(
+                '\n\n'), // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['errors']}");
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -156,7 +197,7 @@ class AuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -189,16 +230,42 @@ class AuthService {
         );
         return true;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("${data['errors']}");
+        if (data.containsKey('error')) {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        } else {
+          Map<String, dynamic> errorMap = data['errors'];
+          List<String> errorMessages = [];
+
+          errorMap.forEach((field, errors) {
+            for (var error in errors) {
+              errorMessages.add('$field: $error');
+            }
+          });
+
+          Fluttertoast.showToast(
+            msg: errorMessages.join(
+                '\n\n'), // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['errors']}");
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -263,16 +330,42 @@ class AuthService {
         );
         return userProfile;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("${data['errors']}");
+        if (data.containsKey('error')) {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        } else {
+          Map<String, dynamic> errorMap = data['errors'];
+          List<String> errorMessages = [];
+
+          errorMap.forEach((field, errors) {
+            for (var error in errors) {
+              errorMessages.add('$field: $error');
+            }
+          });
+
+          Fluttertoast.showToast(
+            msg: errorMessages.join(
+                '\n\n'), // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['errors']}");
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -324,16 +417,57 @@ class AuthService {
         );
         return true;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("${data['errors']}");
+        if (data.containsKey('error')) {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        } else {
+          if (data.containsKey('error')) {
+            Fluttertoast.showToast(
+              msg: data[
+                  'error'], // Concatenate elements with '\n' (newline) separator
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            throw Exception("${data['error']}");
+          } else {
+            Map<String, dynamic> errorMap = data['errors'];
+            List<String> errorMessages = [];
+
+            errorMap.forEach((field, errors) {
+              for (var error in errors) {
+                errorMessages.add('$field: $error');
+              }
+            });
+
+            Fluttertoast.showToast(
+              msg: errorMessages.join(
+                  '\n\n'), // Concatenate elements with '\n' (newline) separator
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            throw Exception("${data['errors']}");
+          }
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -386,16 +520,42 @@ class AuthService {
         );
         return userData;
       } else {
-        Fluttertoast.showToast(
-          msg: "${data['errors']}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        throw Exception("Errors: $data['errors']");
+        if (data.containsKey('error')) {
+          Fluttertoast.showToast(
+            msg: data[
+                'error'], // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['error']}");
+        } else {
+          Map<String, dynamic> errorMap = data['errors'];
+          List<String> errorMessages = [];
+
+          errorMap.forEach((field, errors) {
+            for (var error in errors) {
+              errorMessages.add('$field: $error');
+            }
+          });
+
+          Fluttertoast.showToast(
+            msg: errorMessages.join(
+                '\n\n'), // Concatenate elements with '\n' (newline) separator
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+
+          throw Exception("${data['errors']}");
+        }
       }
     } else {
       Fluttertoast.showToast(
@@ -410,6 +570,4 @@ class AuthService {
       throw Exception('Failed to Register');
     }
   }
-
-
 }
