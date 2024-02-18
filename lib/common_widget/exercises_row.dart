@@ -14,8 +14,8 @@ class ExercisesRow extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
-            child: Image.asset(
-              eObj["image"].toString(),
+            child: Image.network(
+              'http://10.0.2.2:8000/uploads/exercise/${eObj['image']}',
               width: 60,
               height: 60,
               fit: BoxFit.cover,
@@ -29,14 +29,14 @@ class ExercisesRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                eObj["title"].toString(),
+                eObj["name"].toString(),
                 style: TextStyle(
                     color: TColor.black,
                     fontSize: 14,
                     fontWeight: FontWeight.w500),
               ),
               Text(
-                eObj["value"].toString(),
+                eObj["description"].toString(),
                 style: TextStyle(
                   color: TColor.gray,
                   fontSize: 12,

@@ -16,7 +16,7 @@ class StepDetailRow extends StatelessWidget {
         SizedBox(
           width: 25,
           child: Text(
-            sObj["no"].toString(),
+            sObj["id"].toString(),
             style: TextStyle(
               color: TColor.secondaryColor1,
               fontSize: 14,
@@ -61,14 +61,14 @@ class StepDetailRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                sObj["title"].toString(),
+                sObj["name"].toString(),
                 style: TextStyle(
                   color: TColor.black,
                   fontSize: 14,
                 ),
               ),
               Text(
-                sObj["detail"].toString(),
+                sObj["description"].toString(),
                 style: TextStyle(color: TColor.gray, fontSize: 12),
               ),
             ],

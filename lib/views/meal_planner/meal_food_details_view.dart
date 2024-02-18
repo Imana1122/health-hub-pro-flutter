@@ -54,7 +54,7 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
     setState(() {
       recommendArr = data['recipes']['data'];
       totalPages =
-          (data['recipes']['total'] / 10).ceil(); // Assuming 10 items per page
+          (data['recipes']['total'] / 5).ceil(); // Assuming 10 items per page
     });
   }
 

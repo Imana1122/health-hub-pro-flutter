@@ -26,7 +26,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
   List<dynamic> filteredMealArr = [];
   List<MealType> findEatArr = [];
   late AuthProvider authProvider;
-  String selectedType = 'Monthly';
+  String selectedType = 'Daily';
   MealType? selectedMealType; // Make it nullable
   List<dynamic> lineChartData = []; // Updated lineChartData
   List<Map<String, dynamic>> parsedList = [];
@@ -63,11 +63,12 @@ class _MealPlannerViewState extends State<MealPlannerView> {
       color: TColor.gray,
       fontSize: 12,
     );
-
+    String doubleString = value.toString();
+    Widget text;
+    // Remove the dot from doubleString
+    doubleString = doubleString.replaceAll(".0", "");
     if (selectedType == "Monthly") {
-      String doubleString = value.toString();
-
-      Widget text;
+      // Parse the integer
       int month = int.parse(doubleString.substring(4));
       String yearString = doubleString.substring(0, 4);
 
@@ -109,7 +110,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
           text = Text("$yearString-Dec", style: style);
           break;
         default:
-          text = const Text('');
+          text = Text('None', style: style);
           break;
       }
 
@@ -119,16 +120,56 @@ class _MealPlannerViewState extends State<MealPlannerView> {
         child: text,
       );
     }
+    int month = int.parse(doubleString.substring(4, 6));
 
-    // Converting double back to DateTime
-    DateTime convertedDateTime =
-        DateTime.fromMicrosecondsSinceEpoch(value.toInt());
-    String formattedString = DateFormat('yyyy-MM-dd').format(convertedDateTime);
+    String yearString = doubleString.substring(0, 4);
+    String dayString = doubleString.substring(0, 4);
 
+    switch (month) {
+      case 1:
+        text = Text("$yearString-Jan-$dayString", style: style);
+        break;
+      case 2:
+        text = Text("$yearString-Feb-$dayString", style: style);
+        break;
+      case 3:
+        text = Text("$yearString-Mar-$dayString", style: style);
+        break;
+      case 4:
+        text = Text("$yearString-Apr-$dayString", style: style);
+        break;
+      case 5:
+        text = Text("$yearString-May-$dayString", style: style);
+        break;
+      case 6:
+        text = Text("$yearString-Jun-$dayString", style: style);
+        break;
+      case 7:
+        text = Text("$yearString-Jul-$dayString", style: style);
+        break;
+      case 8:
+        text = Text("$yearString-Aug-$dayString", style: style);
+        break;
+      case 9:
+        text = Text("$yearString-Sep-$dayString", style: style);
+        break;
+      case 10:
+        text = Text("$yearString-Oct-$dayString", style: style);
+        break;
+      case 11:
+        text = Text("$yearString-Nov-$dayString", style: style);
+        break;
+      case 12:
+        text = Text("$yearString-Dec-$dayString", style: style);
+        break;
+      default:
+        text = Text('None', style: style);
+        break;
+    }
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 10,
-      child: Text(formattedString + value.toString(), style: style),
+      child: text,
     );
   }
 
@@ -154,7 +195,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
     todayMealArr = await authProvider.getMealLogs();
   }
 
-  Future<void> _loadLineChartDetails({String type = 'monthly'}) async {
+  Future<void> _loadLineChartDetails({String type = 'daily'}) async {
     var chartData = await RecipeRecommendationService(authProvider)
         .getLineChartDetails(
             type: type.toLowerCase()); // Convert type to lowercase
@@ -167,8 +208,9 @@ class _MealPlannerViewState extends State<MealPlannerView> {
         double x;
         if (e['x'] is String && selectedType == "Daily") {
           // Parse the string value to double
-          DateTime dateTime = DateTime.parse(e['x']);
-          double doubleValue = dateTime.microsecondsSinceEpoch.toDouble();
+          String result = e['x'].replaceAll("-", "");
+          // DateTime result = DateTime.parse(e['x']);
+          double doubleValue = double.parse(result);
           x = doubleValue;
         } else if (e['x'] is String && selectedType == "Monthly") {
           String dateString = e['x'];
@@ -180,17 +222,19 @@ class _MealPlannerViewState extends State<MealPlannerView> {
         } else {
           x = 0.0;
         }
-        return FlSpot(x, e['y']);
+        double yValue = double.parse(e['y'].toStringAsFixed(1));
+
+        return FlSpot(x, yValue);
       }).toList();
-      print(spots);
 
       // Convert parsed list into list of FlSpot
       List<FlSpot> flSpots = parsedList.map((data) {
         double x;
         if (data['x'] is String && selectedType == "Daily") {
           // Parse the string value to double
-          DateTime dateTime = DateTime.parse(data['x']);
-          double doubleValue = dateTime.microsecondsSinceEpoch.toDouble();
+          String result = data['x'].replaceAll("-", "");
+          // DateTime result = DateTime.parse(e['x']);
+          double doubleValue = double.parse(result);
           x = doubleValue;
         } else if (data['x'] is String && selectedType == "Monthly") {
           String dateString = data['x'];
@@ -203,10 +247,9 @@ class _MealPlannerViewState extends State<MealPlannerView> {
         } else {
           x = 0.0;
         }
-        double y = data['y'];
-        return FlSpot(x, y);
+        double yValue = double.parse(data['y'].toStringAsFixed(1));
+        return FlSpot(x, yValue);
       }).toList();
-      print(flSpots);
       lineChartBarData1_1 = LineChartBarData(
         isCurved: true,
         gradient: LinearGradient(colors: [
@@ -375,8 +418,8 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                             scrollDirection: Axis.horizontal,
                             child: SizedBox(
                                 height: media.height *
-                                    0.5, // Set a fixed height for the chart container
-                                width: media.width * 0.5,
+                                    0.8, // Set a fixed height for the chart container
+                                width: media.width * 0.8,
                                 child: LineChart(
                                   LineChartData(
                                     showingTooltipIndicators:

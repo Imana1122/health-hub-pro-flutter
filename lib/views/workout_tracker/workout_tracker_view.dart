@@ -1,5 +1,9 @@
 import 'package:fyp_flutter/common/color_extension.dart';
-import './workour_detail_view.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/workout_recommendation_service.dart';
+import 'package:fyp_flutter/views/home/activity_tracker_view.dart';
+import 'package:provider/provider.dart';
+import 'workout_detail_view.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -27,27 +31,23 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
       "time": "June 05, 02:00pm"
     },
   ];
+  late AuthProvider authProvider;
+  List whatArr = [];
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-  List whatArr = [
-    {
-      "image": "assets/img/what_1.png",
-      "title": "Fullbody Workout",
-      "exercises": "11 Exercises",
-      "time": "32mins"
-    },
-    {
-      "image": "assets/img/what_2.png",
-      "title": "Lowebody Workout",
-      "exercises": "12 Exercises",
-      "time": "40mins"
-    },
-    {
-      "image": "assets/img/what_3.png",
-      "title": "AB Workout",
-      "exercises": "14 Exercises",
-      "time": "20mins"
-    }
-  ];
+    _loadWorkouts();
+  }
+
+  Future<void> _loadWorkouts() async {
+    var result = await WorkoutRecommendationService(authProvider)
+        .getWorkoutRecommendations();
+    setState(() {
+      whatArr = result;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +152,7 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
                           (LineChartBarData barData, List<int> spotIndexes) {
                         return spotIndexes.map((index) {
                           return TouchedSpotIndicatorData(
-                            FlLine(
+                            const FlLine(
                               color: Colors.transparent,
                             ),
                             FlDotData(
@@ -264,21 +264,21 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
                               fontWeight: FontWeight.w700),
                         ),
                         SizedBox(
-                          width: 70,
-                          height: 25,
+                          width: 90,
+                          height: 30,
                           child: RoundButton(
                             title: "Check",
                             type: RoundButtonType.bgGradient,
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                             onPressed: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) =>
-                              //         const ActivityTrackerView(),
-                              //   ),
-                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ActivityTrackerView(),
+                                ),
+                              );
                             },
                           ),
                         )

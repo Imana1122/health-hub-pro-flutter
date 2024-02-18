@@ -25,6 +25,7 @@ class RecipeRecommendationService {
     if (category != '') {
       url += '&category=$category';
     }
+    print(url);
     String token = authProvider.user.token;
     var headers = {
       'Content-Type': 'application/json',

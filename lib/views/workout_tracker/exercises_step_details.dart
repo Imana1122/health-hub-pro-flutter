@@ -1,46 +1,32 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/models/user.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
 
 import '../../common/color_extension.dart';
 import '../../common_widget/round_button.dart';
-import '../../common_widget/step_detail_row.dart';
 
 class ExercisesStepDetails extends StatefulWidget {
   final Map eObj;
-  const ExercisesStepDetails({super.key, required this.eObj});
+  ExercisesStepDetails({super.key, required this.eObj}) {}
 
   @override
   State<ExercisesStepDetails> createState() => _ExercisesStepDetailsState();
 }
 
 class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
-  List stepArr = [
-    {
-      "no": "01",
-      "title": "Spread Your Arms",
-      "detail":
-          "To make the gestures feel more relaxed, stretch your arms as you start this movement. No bending of hands."
-    },
-    {
-      "no": "02",
-      "title": "Rest at The Toe",
-      "detail":
-          "The basis of this movement is jumping. Now, what needs to be considered is that you have to use the tips of your feet"
-    },
-    {
-      "no": "03",
-      "title": "Adjust Foot Movement",
-      "detail":
-          "Jumping Jack is not just an ordinary jump. But, you also have to pay close attention to leg movements."
-    },
-    {
-      "no": "04",
-      "title": "Clapping Both Hands",
-      "detail":
-          "This cannot be taken lightly. You see, without realizing it, the clapping of your hands helps you to keep your rhythm while doing the Jumping Jack"
-    },
-  ];
+  double burned = 0.0;
+  late AuthProvider authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    User user = authProvider.getAuthenticatedUser();
+    burned = (widget.eObj['metabolic_equivalent'] * user.profile.weight) / 60.0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +93,8 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                     decoration: BoxDecoration(
                         gradient: LinearGradient(colors: TColor.primaryG),
                         borderRadius: BorderRadius.circular(20)),
-                    child: Image.asset(
-                      "assets/img/video_temp.png",
+                    child: Image.network(
+                      'http://10.0.2.2:8000/uploads/exercise/${widget.eObj['image']}',
                       width: media.width,
                       height: media.width * 0.43,
                       fit: BoxFit.contain,
@@ -121,21 +107,13 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                         color: TColor.black.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20)),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Image.asset(
-                      "assets/img/Play.png",
-                      width: 30,
-                      height: 30,
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(
                 height: 15,
               ),
               Text(
-                widget.eObj["title"].toString(),
+                widget.eObj["name"].toString(),
                 style: TextStyle(
                     color: TColor.black,
                     fontSize: 16,
@@ -145,7 +123,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                 height: 4,
               ),
               Text(
-                "Easy | 390 Calories Burn",
+                "Easy |${burned.toStringAsFixed(2)} per minute",
                 style: TextStyle(
                   color: TColor.gray,
                   fontSize: 12,
@@ -165,7 +143,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                 height: 4,
               ),
               ReadMoreText(
-                'A jumping jack, also known as a star jump and called a side-straddle hop in the US military, is a physical jumping exercise performed by jumping to a position with the legs spread wide A jumping jack, also known as a star jump and called a side-straddle hop in the US military, is a physical jumping exercise performed by jumping to a position with the legs spread wide',
+                widget.eObj['description'].toString(),
                 trimLines: 4,
                 colorClickableText: TColor.black,
                 trimMode: TrimMode.Line,
@@ -181,38 +159,6 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
               const SizedBox(
                 height: 15,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "How To Do It",
-                    style: TextStyle(
-                        color: TColor.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "${stepArr.length} Sets",
-                      style: TextStyle(color: TColor.gray, fontSize: 12),
-                    ),
-                  )
-                ],
-              ),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: stepArr.length,
-                itemBuilder: ((context, index) {
-                  var sObj = stepArr[index] as Map? ?? {};
-
-                  return StepDetailRow(
-                    sObj: sObj,
-                    isLast: stepArr.last == sObj,
-                  );
-                }),
-              ),
               Text(
                 "Custom Repetitions",
                 style: TextStyle(
@@ -221,7 +167,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                     fontWeight: FontWeight.w700),
               ),
               SizedBox(
-                height: 150,
+                height: 200,
                 child: CupertinoPicker.builder(
                   itemExtent: 40,
                   selectionOverlay: Container(
@@ -249,7 +195,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                           fit: BoxFit.contain,
                         ),
                         Text(
-                          " ${(index + 1) * 15} Calories Burn",
+                          "${((index + 1) * burned).toStringAsFixed(2)} Calories Burn",
                           style: TextStyle(color: TColor.gray, fontSize: 10),
                         ),
                         Text(
@@ -260,7 +206,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                               fontWeight: FontWeight.w500),
                         ),
                         Text(
-                          " times",
+                          " minutes",
                           style: TextStyle(color: TColor.gray, fontSize: 16),
                         )
                       ],

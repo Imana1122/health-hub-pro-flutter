@@ -1,3 +1,5 @@
+import 'package:fyp_flutter/views/workout_tracker/workout_detail_view.dart';
+
 import './round_button.dart';
 import 'package:flutter/material.dart';
 
@@ -31,7 +33,7 @@ class WhatTrainRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      wObj["title"].toString(),
+                      wObj["name"].toString(),
                       style: TextStyle(
                           color: TColor.black,
                           fontSize: 14,
@@ -41,7 +43,7 @@ class WhatTrainRow extends StatelessWidget {
                       height: 4,
                     ),
                     Text(
-                      "${wObj["exercises"].toString()} | ${wObj["time"].toString()}",
+                      "${"${wObj["exercises"].length} exercises"} | ${"${wObj["exercises"].length} mins"}",
                       style: TextStyle(
                         color: TColor.gray,
                         fontSize: 12,
@@ -59,7 +61,14 @@ class WhatTrainRow extends StatelessWidget {
                           type: RoundButtonType.textGradient,
                           elevation: 0.05,
                           fontWeight: FontWeight.w400,
-                          onPressed: () {}),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => WorkoutDetailView(
+                                          dObj: wObj,
+                                        )));
+                          }),
                     )
                   ],
                 ),
@@ -80,8 +89,8 @@ class WhatTrainRow extends StatelessWidget {
                   ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      wObj["image"].toString(),
+                    child: Image.network(
+                      'http://10.0.2.2:8000/uploads/workout/${wObj['image']}',
                       width: 90,
                       height: 90,
                       fit: BoxFit.contain,

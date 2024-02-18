@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/icon_title_next_row.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
-import './exercises_stpe_details.dart';
+import 'package:fyp_flutter/models/user.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+import 'exercises_step_details.dart';
 import './workout_schedule_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../common_widget/exercises_set_section.dart';
 
@@ -16,6 +22,49 @@ class WorkoutDetailView extends StatefulWidget {
 }
 
 class _WorkoutDetailViewState extends State<WorkoutDetailView> {
+  final List<Map<dynamic, dynamic>> exerciseSets = [];
+  double totalCaloriesBurned = 0.0;
+  late AuthProvider authProvider;
+  // Define a timer for the workout
+  late Timer _workoutTimer;
+  int _currentExerciseIndex = 0;
+  int _currentExerciseIndexInSet = 0;
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _loadWorkouts();
+    User user = authProvider.getAuthenticatedUser();
+    // Assuming widget.dObj["exercises"] is a Map<int, Map<String, dynamic>>
+    double minutes = widget.dObj["exercises"].keys.toList().length.toDouble();
+
+    // Iterate over each exercise and accumulate total calories burned
+    widget.dObj["exercises"].forEach((key, exercise) {
+      double calories =
+          exercise["metabolic_equivalent"] * user.profile.weight * minutes / 60;
+      totalCaloriesBurned += calories;
+    });
+  }
+
+  Future<void> _loadWorkouts() async {
+    setState(() {
+      final exerciseKeys = widget.dObj['exercises'].keys.toList();
+
+      for (int i = 0; i < exerciseKeys.length; i += 3) {
+        final endIndex =
+            (i + 3 < exerciseKeys.length) ? i + 3 : exerciseKeys.length;
+        final setKeys = exerciseKeys.sublist(i, endIndex);
+        final setExercises =
+            setKeys.map((key) => widget.dObj['exercises'][key]).toList();
+        final Map<dynamic, dynamic> setMap = {};
+        for (int j = 0; j < setKeys.length; j++) {
+          setMap[setKeys[j]] = setExercises[j];
+        }
+        exerciseSets.add(setMap);
+      }
+    });
+  }
+
   List latestArr = [
     {
       "image": "assets/img/Workout1.png",
@@ -34,55 +83,119 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
     {"image": "assets/img/skipping_rope.png", "title": "Skipping Rope"},
     {"image": "assets/img/bottle.png", "title": "Bottle 1 Liters"},
   ];
-
-  List exercisesArr = [
-    {
-      "name": "Set 1",
-      "set": [
-        {"image": "assets/img/img_1.png", "title": "Warm Up", "value": "05:00"},
-        {
-          "image": "assets/img/img_2.png",
-          "title": "Jumping Jack",
-          "value": "12x"
-        },
-        {"image": "assets/img/img_1.png", "title": "Skipping", "value": "15x"},
-        {"image": "assets/img/img_2.png", "title": "Squats", "value": "20x"},
-        {
-          "image": "assets/img/img_1.png",
-          "title": "Arm Raises",
-          "value": "00:53"
-        },
-        {
-          "image": "assets/img/img_2.png",
-          "title": "Rest and Drink",
-          "value": "02:00"
-        },
-      ],
-    },
-    {
-      "name": "Set 2",
-      "set": [
-        {"image": "assets/img/img_1.png", "title": "Warm Up", "value": "05:00"},
-        {
-          "image": "assets/img/img_2.png",
-          "title": "Jumping Jack",
-          "value": "12x"
-        },
-        {"image": "assets/img/img_1.png", "title": "Skipping", "value": "15x"},
-        {"image": "assets/img/img_2.png", "title": "Squats", "value": "20x"},
-        {
-          "image": "assets/img/img_1.png",
-          "title": "Arm Raises",
-          "value": "00:53"
-        },
-        {
-          "image": "assets/img/img_2.png",
-          "title": "Rest and Drink",
-          "value": "02:00"
-        },
-      ],
+  void _displayExercise(media) {
+    var currentSet = {};
+    // Get the current set
+    if (exerciseSets != []) {
+      currentSet = exerciseSets[_currentExerciseIndex];
+    } else {
+      print(exerciseSets);
     }
-  ];
+    if (currentSet != {}) {
+      // Get the current exercise in the set
+      var currentExercise =
+          currentSet.values.elementAt(_currentExerciseIndexInSet);
+        flutterTts.speak('OK');
+
+      // Show the exercise image fullscreen
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // Prevents dismissing the dialog on tap outside
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Stack(
+              children: [
+                Image.network(
+                  'http://10.0.2.2:8000/uploads/exercise/${currentExercise['image']}',
+                  height: media.height * 1,
+                  width: media.width,
+                  fit: BoxFit.contain,
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                          _nextExercise(media);
+                        },
+                        child: const Text('Next'),
+                      ),
+                      SizedBox(width: 10), // Add some spacing between buttons
+                      TextButton(
+                        onPressed: () {
+                          dispose();
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Increment the exercise index for the next iteration
+      _currentExerciseIndexInSet++;
+
+      // Check if the current set is finished
+      if (_currentExerciseIndexInSet >= currentSet.length) {
+        // Wait for 30 seconds before moving to the next set
+        Future.delayed(Duration(seconds: 30), () {
+          _nextSet(media);
+        });
+      } else {
+        // Wait for 10 seconds before displaying the next exercise in the same set
+        Future.delayed(Duration(seconds: 10), () {
+          _displayExercise(media);
+        });
+      }
+    }
+  }
+
+  void _nextExercise(media) {
+    // Close the fullscreen exercise image dialog
+    Navigator.of(context).pop();
+
+    // Check if all sets have been displayed
+    if (_currentExerciseIndexInSet >= exerciseSets.length) {
+      // Workout finished
+      return;
+    }
+
+    // Display the next exercise
+    _displayExercise(media);
+  }
+
+  void _nextSet(media) {
+    // Check if all sets have been displayed
+    if (_currentExerciseIndex >= exerciseSets.length) {
+      // Workout finished
+      return;
+    }
+    // Increment the set index for the next iteration
+    _currentExerciseIndex++;
+
+    // Reset the exercise index in the set
+    _currentExerciseIndexInSet = 0;
+
+    // Display the next set
+    _displayExercise(media);
+  }
+
+  @override
+  void dispose() {
+    // Dispose the timer when the screen is disposed
+    _workoutTimer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,14 +304,14 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.dObj["title"].toString(),
+                                  widget.dObj["name"].toString(),
                                   style: TextStyle(
                                       color: TColor.black,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700),
                                 ),
                                 Text(
-                                  "${widget.dObj["exercises"].toString()} | ${widget.dObj["time"].toString()} | 320 Calories Burn",
+                                  "${widget.dObj["exercises"].length} exercises | ${widget.dObj["exercises"].length} mins | ${totalCaloriesBurned.round()} Calories Burn",
                                   style: TextStyle(
                                       color: TColor.gray, fontSize: 12),
                                 ),
@@ -333,11 +446,12 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                           padding: EdgeInsets.zero,
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: exercisesArr.length,
+                          itemCount: exerciseSets.length,
                           itemBuilder: (context, index) {
-                            var sObj = exercisesArr[index] as Map? ?? {};
+                            var sObj = exerciseSets[index] as Map? ?? {};
                             return ExercisesSetSection(
                               sObj: sObj,
+                              set: index.toString(),
                               onPressed: (obj) {
                                 Navigator.push(
                                   context,
@@ -361,7 +475,11 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      RoundButton(title: "Start Workout", onPressed: () {})
+                      RoundButton(
+                          title: "Start Workout",
+                          onPressed: () {
+                            _displayExercise(media);
+                          })
                     ],
                   ),
                 )
