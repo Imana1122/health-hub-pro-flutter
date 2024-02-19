@@ -28,7 +28,7 @@ class _CuisinePreferenceState extends State<CuisinePreference> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
       // If the user is not logged in, navigate to the login page
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) =>
@@ -134,7 +134,7 @@ class _CuisinePreferenceState extends State<CuisinePreference> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      margin: EdgeInsets.symmetric(
+                      margin: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ),

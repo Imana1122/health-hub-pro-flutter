@@ -32,6 +32,15 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
     _loadRecipes();
     _loadCategories();
   }

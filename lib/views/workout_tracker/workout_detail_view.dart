@@ -5,6 +5,8 @@ import 'package:fyp_flutter/common_widget/icon_title_next_row.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/workout_recommendation_service.dart';
+import 'package:fyp_flutter/views/workout_tracker/workout_tracker_view.dart';
 import 'package:provider/provider.dart';
 import 'exercises_step_details.dart';
 import './workout_schedule_view.dart';
@@ -23,18 +25,29 @@ class WorkoutDetailView extends StatefulWidget {
 
 class _WorkoutDetailViewState extends State<WorkoutDetailView> {
   final List<Map<dynamic, dynamic>> exerciseSets = [];
-  double totalCaloriesBurned = 0.0;
+  double caloriesBurned = 0.0;
   late AuthProvider authProvider;
   // Define a timer for the workout
-  late Timer _workoutTimer;
   int _currentExerciseIndex = 0;
   int _currentExerciseIndexInSet = 0;
+  final FlutterTts flutterTts = FlutterTts();
+  int gapBetweenExercises = 2;
+  int exerciseDuration = 5;
+  int gapBetweenSets = 3;
+  int noOfDialogs = 1;
+  double totalCaloriesBurned = 0;
+  late User user;
+  String startedAt = '';
+  String endedAt = '';
+  int completionStatus = 0;
+  bool continueCountdown = true; // Add a flag to control the countdown
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     _loadWorkouts();
-    User user = authProvider.getAuthenticatedUser();
+    user = authProvider.getAuthenticatedUser();
     // Assuming widget.dObj["exercises"] is a Map<int, Map<String, dynamic>>
     double minutes = widget.dObj["exercises"].keys.toList().length.toDouble();
 
@@ -42,7 +55,7 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
     widget.dObj["exercises"].forEach((key, exercise) {
       double calories =
           exercise["metabolic_equivalent"] * user.profile.weight * minutes / 60;
-      totalCaloriesBurned += calories;
+      caloriesBurned += calories;
     });
   }
 
@@ -83,7 +96,7 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
     {"image": "assets/img/skipping_rope.png", "title": "Skipping Rope"},
     {"image": "assets/img/bottle.png", "title": "Bottle 1 Liters"},
   ];
-  void _displayExercise(media) {
+  Future<void> _displayExercise(media) async {
     var currentSet = {};
     // Get the current set
     if (exerciseSets != []) {
@@ -91,12 +104,21 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
     } else {
       print(exerciseSets);
     }
+
     if (currentSet != {}) {
       // Get the current exercise in the set
       var currentExercise =
           currentSet.values.elementAt(_currentExerciseIndexInSet);
-        flutterTts.speak('OK');
-
+      // var language = 'en-US';
+      // var isLanguageAvailable = await flutterTts.isLanguageAvailable(language);
+      // if (isLanguageAvailable) {
+      //   await flutterTts.setLanguage(language);
+      //   await flutterTts.speak(currentExercise["name"]);
+      // } else {
+      //   print('Language $language is not available on this device.');
+      // }
+      noOfDialogs += 1;
+      startedAt = DateTime.now().toIso8601String();
       // Show the exercise image fullscreen
       showDialog(
         context: context,
@@ -120,16 +142,19 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                          _nextExercise(media);
-                        },
-                        child: const Text('Next'),
-                      ),
-                      SizedBox(width: 10), // Add some spacing between buttons
-                      TextButton(
-                        onPressed: () {
-                          dispose();
-                          Navigator.of(context).pop(); // Close the dialog
+                          popContextMultipleTimes(context);
+                          endedAt = DateTime.now().toIso8601String();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(
+                                'Workout cancelled!',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                          submitWorkoutDone();
+                          return;
                         },
                         child: const Text('Cancel'),
                       ),
@@ -148,53 +173,266 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
       // Check if the current set is finished
       if (_currentExerciseIndexInSet >= currentSet.length) {
         // Wait for 30 seconds before moving to the next set
-        Future.delayed(Duration(seconds: 30), () {
-          _nextSet(media);
+        Future.delayed(Duration(seconds: exerciseDuration), () {
+          double calories = currentExercise["metabolic_equivalent"] *
+              user.profile.weight /
+              60;
+          totalCaloriesBurned += calories;
+          showCountdownDialog(media, gapBetweenSets, 'REST AND START NEW SET');
+
+          Future.delayed(Duration(seconds: gapBetweenSets), () {
+            _nextSet(media);
+          });
         });
       } else {
-        // Wait for 10 seconds before displaying the next exercise in the same set
-        Future.delayed(Duration(seconds: 10), () {
-          _displayExercise(media);
+        // Wait for 45 seconds before displaying the next exercise in the same set
+        Future.delayed(Duration(seconds: exerciseDuration), () async {
+          // if (isLanguageAvailable) {
+          //   var currentExercise =
+          //       currentSet.values.elementAt(_currentExerciseIndexInSet);
+          //   await flutterTts.setLanguage(language);
+          //   await flutterTts.speak(currentExercise["name"]);
+          // } else {
+          //   print('Language $language is not available on this device.');
+          // }
+
+          showCountdownDialog(media, gapBetweenExercises,
+              'REST AND BE READY FOR NEXT EXERCISE');
+          Future.delayed(Duration(seconds: gapBetweenExercises), () {
+            _displayExercise(media);
+          });
         });
       }
     }
   }
 
-  void _nextExercise(media) {
-    // Close the fullscreen exercise image dialog
-    Navigator.of(context).pop();
+  void popContextMultipleTimes(BuildContext context) {
+    continueCountdown = false;
 
-    // Check if all sets have been displayed
-    if (_currentExerciseIndexInSet >= exerciseSets.length) {
-      // Workout finished
-      return;
+    for (int i = 0; i < noOfDialogs; i++) {
+      Navigator.pop(context);
     }
+  }
 
-    // Display the next exercise
-    _displayExercise(media);
+  void showCountdownDialog(Size media, int seconds, String txt) {
+    if (seconds > 0 && continueCountdown) {
+      noOfDialogs += 1;
+
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // Prevents dismissing the dialog on tap outside
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Stack(
+              children: [
+                SizedBox(
+                  height: media.height * 1,
+                  width: media.width,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$txt | ${(_currentExerciseIndex + 1).toString()} Set",
+                          style: const TextStyle(fontSize: 30),
+                        ),
+                        const SizedBox(height: 10), // Add spacing
+                        Text(
+                          "$seconds remaining", // Countdown timer
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          popContextMultipleTimes(context);
+                          endedAt = DateTime.now().toIso8601String();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(
+                                'Workout cancelled!',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                          submitWorkoutDone();
+
+                          return;
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Decrement seconds and schedule the next dialog
+      Future.delayed(const Duration(seconds: 1), () {
+        if (continueCountdown) {
+          seconds -= 1;
+
+          showCountdownDialog(media, seconds, txt); // Recursive call
+        }
+      });
+    }
+  }
+
+  void _startWorkout(Size media, int seconds) {
+    if (seconds > 0 && continueCountdown) {
+      noOfDialogs += 1;
+
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // Prevents dismissing the dialog on tap outside
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Stack(
+              children: [
+                SizedBox(
+                  height: media.height * 1,
+                  width: media.width,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "BE READY FOR WORKOUT | ${(_currentExerciseIndex + 1).toString()} Set",
+                          style: const TextStyle(fontSize: 30),
+                        ),
+                        const SizedBox(height: 10), // Add spacing
+                        Text(
+                          "$seconds remaining", // Countdown timer
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          popContextMultipleTimes(context);
+                          endedAt = DateTime.now().toIso8601String();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(
+                                'Workout cancelled!',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                          submitWorkoutDone();
+
+                          return;
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Decrement seconds and schedule the next dialog
+      Future.delayed(const Duration(seconds: 1), () {
+        if (continueCountdown) {
+          setState(() {
+            seconds -= 1;
+          });
+
+          _startWorkout(media, seconds); // Recursive call
+        }
+      });
+    } else {
+      _displayExercise(media);
+    }
   }
 
   void _nextSet(media) {
-    // Check if all sets have been displayed
-    if (_currentExerciseIndex >= exerciseSets.length) {
-      // Workout finished
-      return;
-    }
     // Increment the set index for the next iteration
     _currentExerciseIndex++;
 
-    // Reset the exercise index in the set
-    _currentExerciseIndexInSet = 0;
+    // Check if all sets have been displayed
+    if (_currentExerciseIndex >= exerciseSets.length) {
+      // Workout finished
+      popContextMultipleTimes(context);
+      endedAt = DateTime.now().toIso8601String();
+      completionStatus = 1;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: TColor.secondaryColor1,
+          content: const Text(
+            'Congratulations! You successfully completed workout.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+      submitWorkoutDone();
 
-    // Display the next set
-    _displayExercise(media);
+      return;
+    } else {
+      // Reset the exercise index in the set
+      _currentExerciseIndexInSet = 0;
+
+      // Display the next set
+      _displayExercise(media);
+    }
   }
 
-  @override
-  void dispose() {
-    // Dispose the timer when the screen is disposed
-    _workoutTimer.cancel();
-    super.dispose();
+  Future<void> submitWorkoutDone() async {
+    try {
+      var result = await WorkoutRecommendationService(authProvider).logWorkout(
+          workoutId: widget.dObj['id'],
+          caloriesBurned: totalCaloriesBurned,
+          workoutName: widget.dObj['name'],
+          startAt: startedAt,
+          endAt: endedAt,
+          completionStatus: completionStatus,
+          exercises: widget.dObj['exercises']);
+
+      if (result == true) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WorkoutDetailView(
+              dObj: widget.dObj,
+            ),
+          ),
+        );
+      } else {
+        print("Error setting cuisine preferences");
+        // Handle unsuccessful setCuisines, show an error message if needed
+      }
+    } catch (e) {
+      print("Error: $e");
+      // Handle errors, show a message to the user if needed
+    }
   }
 
   @override
@@ -212,7 +450,12 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
               elevation: 0,
               leading: InkWell(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WorkoutTrackerView(),
+                    ),
+                  );
                 },
                 child: Container(
                   margin: const EdgeInsets.all(8),
@@ -311,7 +554,7 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                                       fontWeight: FontWeight.w700),
                                 ),
                                 Text(
-                                  "${widget.dObj["exercises"].length} exercises | ${widget.dObj["exercises"].length} mins | ${totalCaloriesBurned.round()} Calories Burn",
+                                  "${widget.dObj["exercises"].length} exercises | ${widget.dObj["exercises"].length} mins | ${caloriesBurned.round()} Calories Burn",
                                   style: TextStyle(
                                       color: TColor.gray, fontSize: 12),
                                 ),
@@ -478,7 +721,9 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                       RoundButton(
                           title: "Start Workout",
                           onPressed: () {
-                            _displayExercise(media);
+                            _currentExerciseIndex = 0;
+                            _currentExerciseIndexInSet = 0;
+                            _startWorkout(media, 5);
                           })
                     ],
                   ),

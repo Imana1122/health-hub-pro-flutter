@@ -6,9 +6,10 @@ import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
-  String baseUrl = 'http://10.0.2.2:8000/api';
+  String baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:8000/api';
 
   Future<User> register({
     required String name,
@@ -273,7 +274,7 @@ class AuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -373,7 +374,7 @@ class AuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -475,7 +476,7 @@ class AuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -563,7 +564,7 @@ class AuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );

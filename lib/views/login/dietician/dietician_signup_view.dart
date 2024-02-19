@@ -75,7 +75,7 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
     // Check if the user is already logged in
     if (authProvider.isLoggedIn) {
       // Navigate to DieticianProfilePage and replace the current route
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context,
             '/dietician-profile'); // Replace '/dietician-profile' with the route of DieticianProfilePage
       });

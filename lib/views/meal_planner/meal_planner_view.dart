@@ -1,10 +1,8 @@
-import 'package:calendar_agenda/calendar_agenda.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/recipe_recommendation_service.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
@@ -42,6 +40,14 @@ class _MealPlannerViewState extends State<MealPlannerView> {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
 
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
     _loadCategories();
     _loadMealLogs();
     _loadLineChartDetails();
@@ -506,8 +512,8 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                                     maxY: 2000,
                                     titlesData: FlTitlesData(
                                       show: true,
-                                      leftTitles: AxisTitles(),
-                                      topTitles: AxisTitles(),
+                                      leftTitles: const AxisTitles(),
+                                      topTitles: const AxisTitles(),
                                       bottomTitles: AxisTitles(
                                         sideTitles: bottomTitles,
                                       ),
@@ -631,6 +637,8 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                                   return meal['recipe']['meal_type_id'] ==
                                       selectedType.id;
                                 }).toList();
+                                print(filteredMealArr[0]);
+                                print(selectedMealType);
 
                                 // Update the state with the filtered list
                                 setState(() {
@@ -658,7 +666,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount:
-                        filteredMealArr.isEmpty ? 1 : filteredMealArr.length,
+                        filteredMealArr.isEmpty ? 0 : filteredMealArr.length,
                     itemBuilder: (context, index) {
                       if (filteredMealArr.isEmpty) {
                         // If filteredMealArr is empty, show a message

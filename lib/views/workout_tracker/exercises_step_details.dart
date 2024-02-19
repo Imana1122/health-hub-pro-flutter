@@ -10,7 +10,7 @@ import '../../common_widget/round_button.dart';
 
 class ExercisesStepDetails extends StatefulWidget {
   final Map eObj;
-  ExercisesStepDetails({super.key, required this.eObj}) {}
+  const ExercisesStepDetails({super.key, required this.eObj});
 
   @override
   State<ExercisesStepDetails> createState() => _ExercisesStepDetailsState();

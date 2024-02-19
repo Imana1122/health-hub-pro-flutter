@@ -6,7 +6,6 @@ import 'package:fyp_flutter/common_widget/title_subtitle_cell.dart';
 import 'package:fyp_flutter/models/dietician.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
-import 'package:fyp_flutter/views/login/complete_profile_view.dart';
 import 'package:provider/provider.dart';
 
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';

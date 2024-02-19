@@ -47,6 +47,7 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
     setState(() {
       whatArr = result;
     });
+    print(whatArr);
   }
 
   @override
@@ -190,8 +191,8 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
                     maxY: 110,
                     titlesData: FlTitlesData(
                         show: true,
-                        leftTitles: AxisTitles(),
-                        topTitles: AxisTitles(),
+                        leftTitles: const AxisTitles(),
+                        topTitles: const AxisTitles(),
                         bottomTitles: AxisTitles(
                           sideTitles: bottomTitles,
                         ),
@@ -381,7 +382,7 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
         color: TColor.white,
         barWidth: 4,
         isStrokeCapRound: true,
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
         spots: const [
           FlSpot(1, 35),
@@ -399,7 +400,7 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
         color: TColor.white.withOpacity(0.5),
         barWidth: 2,
         isStrokeCapRound: true,
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: false,
         ),

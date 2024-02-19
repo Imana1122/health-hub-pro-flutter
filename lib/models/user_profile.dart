@@ -77,4 +77,22 @@ class UserProfile {
         createdAt.isEmpty &&
         updatedAt.isEmpty;
   }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['height'] = height;
+    data['weight'] = weight;
+    data['waist'] = waist;
+    data['hips'] = hips;
+    data['bust'] = bust;
+    data['targeted_weight'] = targetedWeight;
+    data['age'] = age;
+    data['gender'] = gender;
+    data['weight_plan_id'] = weightPlanId;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    return data;
+  }
 }

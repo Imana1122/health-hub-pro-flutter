@@ -25,7 +25,7 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
     authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
       // If the dietician is not logged in, navigate to the login page
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) =>

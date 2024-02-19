@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common_widget/on_boarding_page.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/login/signup_view.dart';
+import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
 
@@ -19,6 +21,18 @@ class _OnBoardingViewState extends State<OnBoardingView> {
   void initState() {
     super.initState();
 
+    // Access the authentication provider
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
     controller.addListener(() {
       selectPage = controller.page?.round() ?? 0;
 

@@ -4,9 +4,10 @@ import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/models/recipe_category.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RecipeRecommendationService {
-  String baseUrl = 'http://10.0.2.2:8000/api';
+  String baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:8000/api';
   var authProvider = AuthProvider();
   RecipeRecommendationService(this.authProvider);
 

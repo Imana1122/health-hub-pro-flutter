@@ -1,5 +1,7 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/tab_button.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import './select_view.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,21 @@ class _MainTabViewState extends State<MainTabView> {
   int selectTab = 0;
   final PageStorageBucket pageBucket = PageStorageBucket();
   Widget currentTab = const HomeView();
+  @override
+  void initState() {
+    super.initState();
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to the home screen and replace the current route
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/');
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

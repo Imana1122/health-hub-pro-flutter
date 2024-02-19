@@ -9,7 +9,7 @@ import '../../common_widget/round_button.dart';
 import '../../common_widget/round_textfield.dart';
 
 class CompleteProfileView extends StatefulWidget {
-  const CompleteProfileView({Key? key}) : super(key: key);
+  const CompleteProfileView({super.key});
 
   @override
   State<CompleteProfileView> createState() => _CompleteProfileViewState();
@@ -38,7 +38,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
     userProfile = authProvider.getAuthenticatedUserProfile();
     if (!authProvider.isLoggedIn) {
       // If the user is not logged in, navigate to the login page
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) =>

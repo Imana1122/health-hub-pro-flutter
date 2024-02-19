@@ -3,7 +3,6 @@ import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/login/health_condition_filter.dart';
 import 'package:fyp_flutter/views/login/login_view.dart';
-import 'package:fyp_flutter/views/login/welcome_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/color_extension.dart';
@@ -28,7 +27,7 @@ class _AllergenPreferenceState extends State<AllergenPreference> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
       // If the user is not logged in, navigate to the login page
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) =>
@@ -138,7 +137,7 @@ class _AllergenPreferenceState extends State<AllergenPreference> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      margin: EdgeInsets.symmetric(
+                      margin: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ),

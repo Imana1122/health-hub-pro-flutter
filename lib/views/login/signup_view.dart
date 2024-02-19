@@ -27,6 +27,23 @@ class _SignUpViewState extends State<SignUpView> {
 
   bool isLoading = false;
   bool isCheck = false;
+  @override
+  void initState() {
+    super.initState();
+
+    // Access the authentication provider
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,6 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/round_textfield.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/views/login/complete_profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +19,23 @@ class _LoginViewState extends State<LoginView> {
   bool obscurePassword = true;
 
   bool isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+
+    // Access the authentication provider
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

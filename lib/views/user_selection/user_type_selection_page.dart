@@ -65,7 +65,7 @@ class UserTypeSelectionPage extends StatelessWidget {
                   );
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               RoundButton(
                 title: "Regular User",
                 onPressed: () {

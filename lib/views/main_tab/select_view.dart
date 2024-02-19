@@ -1,17 +1,36 @@
 import 'package:fyp_flutter/common_widget/round_button.dart';
-import '../meal_planner/meal_planner_view.dart';
-import '../workout_tracker/workout_tracker_view.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/views/chat/main_chat_screen.dart';
+import 'package:fyp_flutter/views/dietician_booking/dietician_list.dart';
+import 'package:fyp_flutter/views/meal_planner/meal_planner_view.dart';
+import 'package:fyp_flutter/views/workout_tracker/workout_tracker_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../sleep_tracker/sleep_tracker_view.dart';
-
-class SelectView extends StatelessWidget {
+class SelectView extends StatefulWidget {
   const SelectView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // var media = MediaQuery.of(context).size;
+  State<SelectView> createState() => _SelectViewState();
+}
 
+class _SelectViewState extends State<SelectView> {
+  @override
+  void initState() {
+    super.initState();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to the home screen and replace the current route
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -19,41 +38,52 @@ class SelectView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             RoundButton(
-                title: "Workout Tracker",
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WorkoutTrackerView(),
-                    ),
-                  );
-                }),
-            const SizedBox(
-              height: 15,
+              title: "Workout Tracker",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WorkoutTrackerView(),
+                  ),
+                );
+              },
             ),
+            const SizedBox(height: 15),
             RoundButton(
-                title: "Meal Planner",
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MealPlannerView(),
-                    ),
-                  );
-                }),
-            const SizedBox(
-              height: 15,
+              title: "Meal Planner",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MealPlannerView(),
+                  ),
+                );
+              },
             ),
+            const SizedBox(height: 15),
             RoundButton(
-                title: "Sleep Tracker",
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SleepTrackerView(),
-                    ),
-                  );
-                })
+              title: "Book Dietician",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DieticianListView(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            RoundButton(
+              title: "Chat",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainChatScreen(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

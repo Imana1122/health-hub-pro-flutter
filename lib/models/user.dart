@@ -10,18 +10,18 @@ class User {
   List<dynamic> cuisines; // Make the list dynamic
   List<dynamic> allergens; // Make the list dynamic
   List<dynamic> healthConditions; // Make the list dynamic
-
-  User({
-    required this.id,
-    required this.email,
-    required this.name,
-    required this.phoneNumber,
-    required this.token,
-    required this.profile,
-    required this.cuisines, // Update the parameter to be dynamic
-    required this.allergens, // Update the parameter to be dynamic
-    required this.healthConditions, // Update the parameter to be dynamic
-  });
+  String image = '';
+  User(
+      {required this.id,
+      required this.email,
+      required this.name,
+      required this.phoneNumber,
+      required this.token,
+      required this.profile,
+      required this.cuisines, // Update the parameter to be dynamic
+      required this.allergens, // Update the parameter to be dynamic
+      required this.healthConditions, // Update the parameter to be dynamic
+      String image = ''});
 
   // Named constructor with default values
   User.empty()
@@ -30,6 +30,7 @@ class User {
         name = '',
         phoneNumber = '',
         token = '',
+        image = '',
         profile = UserProfile.empty(),
         cuisines = [], // Initialize the list as empty
         allergens = [], // Initialize the list as empty
@@ -56,5 +57,20 @@ class User {
       healthConditions: healthConditionsJson ?? [],
       allergens: allergensJson ?? [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['email'] = email;
+    data['phone_number'] =
+        phoneNumber; // Assuming 'phone_number' is the key for phoneNumber
+    data['token'] = token;
+    data['profile'] = profile.toJson();
+    data['cuisines'] = cuisines;
+    data['health_conditions'] = healthConditions;
+    data['allergens'] = allergens;
+    return data;
   }
 }

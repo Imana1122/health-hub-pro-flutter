@@ -11,7 +11,7 @@ import '../../common/color_extension.dart';
 import '../../common_widget/round_button.dart';
 
 class WhatYourGoalView extends StatefulWidget {
-  const WhatYourGoalView({Key? key}) : super(key: key);
+  const WhatYourGoalView({super.key});
 
   @override
   State<WhatYourGoalView> createState() => _WhatYourGoalViewState();
@@ -33,7 +33,7 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
       // If the user is not logged in, navigate to the login page
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) =>

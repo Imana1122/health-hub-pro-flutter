@@ -30,6 +30,14 @@ class _ProfileViewState extends State<ProfileView> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     authenticatedUser = authProvider.getAuthenticatedUser();
     userProfile = authProvider.getAuthenticatedUserProfile();
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
   }
 
   int selectTab = 0;

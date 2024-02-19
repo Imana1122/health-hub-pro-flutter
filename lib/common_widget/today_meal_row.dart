@@ -21,7 +21,11 @@ class TodayMealRow extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(30),
               child: Image.network(
-                'http://10.0.2.2:8000/uploads/recipes/small/${mObj["recipe"]['images'][0]['image']}',
+                mObj["recipe"]['images'] != null &&
+                        (mObj["recipe"]['images'] as List).isNotEmpty &&
+                        mObj["recipe"]['images'][0]['image'] != null
+                    ? 'http://10.0.2.2:8000/uploads/recipes/small/${mObj["recipe"]['images'][0]['image']}'
+                    : 'http://10.0.2.2:8000/admin-assets/img/default-150x150.png',
                 width: 40,
                 height: 40,
                 fit: BoxFit.cover,

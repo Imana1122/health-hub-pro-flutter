@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
+import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_change_password.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
@@ -19,9 +20,13 @@ import 'package:fyp_flutter/views/profile/profile_view.dart';
 import 'package:fyp_flutter/views/user_selection/user_type_selection_page.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fyp_flutter/common/theme.dart' as theme;
+import 'package:fyp_flutter/common/settings.dart' as settings;
 
-void main() {
-  runApp(MyApp(key: UniqueKey()));
+void main() async {
+  await dotenv.load(); // Load the environment variables from the .env file
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -36,13 +41,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => DieticianAuthProvider()),
+        ChangeNotifierProvider(create: (context) => ConversationProvider()),
       ],
       child: MaterialApp(
         title: 'HealthHub Pro',
-        theme: ThemeData(
-          primaryColor: TColor.primaryColor1,
-          fontFamily: "Poppins",
-        ),
+        theme: settings.isDarkMode ? theme.darkTheme : theme.lightTheme,
         routes: {
           '/': (context) => const AuthWrapper(),
           '/login': (context) => const LoginView(),

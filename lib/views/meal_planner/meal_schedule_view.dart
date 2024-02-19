@@ -33,6 +33,15 @@ class _MealScheduleViewState extends State<MealScheduleView> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if the user is already logged in
+    if (!authProvider.isLoggedIn) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context,
+            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+      });
+    }
     _loadMealLogs();
     _loadCategories();
   }
@@ -347,6 +356,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                         );
                       }
                     }
+                    return null;
                   },
                 ),
                 Padding(
@@ -395,6 +405,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                           );
                         }
                       }
+                      return null;
                     }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -442,6 +453,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                           );
                         }
                       }
+                      return null;
                     }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -489,6 +501,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                           );
                         }
                       }
+                      return null;
                     }),
                 SizedBox(
                   height: media.width * 0.05,

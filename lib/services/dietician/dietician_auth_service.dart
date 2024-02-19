@@ -29,6 +29,7 @@ class DieticianAuthService {
 
     // Create a multipart request body
     var request = http.MultipartRequest('POST', Uri.parse(url));
+    request.headers.addAll(headers);
 
     // Add fields to the request
     request.fields['first_name'] = firstName;
@@ -48,7 +49,6 @@ class DieticianAuthService {
     try {
       // Send the request
       var streamedResponse = await request.send();
-
       // Read and decode the response
       var response = await http.Response.fromStream(streamedResponse);
       // Check the response status code
@@ -69,16 +69,42 @@ class DieticianAuthService {
 
           return true;
         } else {
-          Fluttertoast.showToast(
-            msg: "${data['errors']}",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Color.fromARGB(255, 231, 105, 96),
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-          throw Exception("Errors: ${data['errors']}");
+          if (data.containsKey('error')) {
+            Fluttertoast.showToast(
+              msg: data[
+                  'error'], // Concatenate elements with '\n' (newline) separator
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            throw Exception("${data['error']}");
+          } else {
+            Map<String, dynamic> errorMap = data['errors'];
+            List<String> errorMessages = [];
+
+            errorMap.forEach((field, errors) {
+              for (var error in errors) {
+                errorMessages.add('$field: $error');
+              }
+            });
+
+            Fluttertoast.showToast(
+              msg: errorMessages.join(
+                  '\n\n'), // Concatenate elements with '\n' (newline) separator
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            throw Exception("${data['errors']}");
+          }
         }
       } else {
         Fluttertoast.showToast(
@@ -86,7 +112,7 @@ class DieticianAuthService {
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
+          backgroundColor: const Color.fromARGB(255, 231, 105, 96),
           textColor: Colors.white,
           fontSize: 16.0,
         );
@@ -218,7 +244,7 @@ class DieticianAuthService {
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
+          backgroundColor: const Color.fromARGB(255, 231, 105, 96),
           textColor: Colors.white,
           fontSize: 16.0,
         );
@@ -230,7 +256,7 @@ class DieticianAuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -279,7 +305,7 @@ class DieticianAuthService {
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
+          backgroundColor: const Color.fromARGB(255, 231, 105, 96),
           textColor: Colors.white,
           fontSize: 16.0,
         );
@@ -291,7 +317,7 @@ class DieticianAuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -341,7 +367,7 @@ class DieticianAuthService {
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
-          backgroundColor: Color.fromARGB(255, 231, 105, 96),
+          backgroundColor: const Color.fromARGB(255, 231, 105, 96),
           textColor: Colors.white,
           fontSize: 16.0,
         );
@@ -353,7 +379,7 @@ class DieticianAuthService {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Color.fromARGB(255, 231, 105, 96),
+        backgroundColor: const Color.fromARGB(255, 231, 105, 96),
         textColor: Colors.white,
         fontSize: 16.0,
       );

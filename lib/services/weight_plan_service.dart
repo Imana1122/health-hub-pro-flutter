@@ -5,9 +5,10 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class WeightPlanService {
-  String baseUrl = 'http://10.0.2.2:8000/api';
+  String baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:8000/api';
   var authProvider = AuthProvider();
   WeightPlanService(this.authProvider);
 

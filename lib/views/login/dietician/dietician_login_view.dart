@@ -30,7 +30,7 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
     // Check if the user is already logged in
     if (authProvider.isLoggedIn) {
       // Navigate to DieticianProfilePage and replace the current route
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context,
             '/dietician-profile'); // Replace '/dietician-profile' with the route of DieticianProfilePage
       });
@@ -97,7 +97,7 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
               style: TextStyle(color: TColor.gray, fontSize: 16),
             ),
             Text(
-              "Please Login",
+              "Please Login.",
               style: TextStyle(
                 color: TColor.white,
                 fontSize: 20,
@@ -118,6 +118,8 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Text(
+                    "If you did not recieve message about your account activation within 4 days then request register again."),
                 SizedBox(
                   height: media.width * 0.05,
                 ),
