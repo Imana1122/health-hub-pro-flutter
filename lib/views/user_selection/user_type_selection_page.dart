@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
-import 'package:fyp_flutter/views/login/dietician/dietician_signup_view.dart';
+import 'package:fyp_flutter/views/dietician/login/dietician_signup_view.dart';
 import 'package:fyp_flutter/views/on_boarding/on_boarding_view.dart';
 
 class UserTypeSelectionPage extends StatelessWidget {

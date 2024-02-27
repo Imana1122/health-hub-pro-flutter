@@ -203,7 +203,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
 
   Future<void> _loadLineChartDetails({String type = 'daily'}) async {
     var chartData = await RecipeRecommendationService(authProvider)
-        .getLineChartDetails(
+        .getMealLineChartDetails(
             type: type.toLowerCase()); // Convert type to lowercase
     setState(() {
       lineChartData = chartData;

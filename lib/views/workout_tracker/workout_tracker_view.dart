@@ -2,6 +2,7 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/home/activity_tracker_view.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'workout_detail_view.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -33,11 +34,40 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
   ];
   late AuthProvider authProvider;
   List whatArr = [];
+  List<dynamic> lineChartData = []; // Updated lineChartData
+  List<Map<String, dynamic>> parsedList = [];
+  List<FlSpot> spots = [];
+  LineChartBarData lineChartBarData1_1 = LineChartBarData(
+    // Initialize with default values or values that make sense as placeholders
+    isCurved: true,
+    color: TColor.primaryColor2,
+    barWidth: 2,
+    isStrokeCapRound: true,
+    dotData: FlDotData(
+      show: true,
+      getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+        radius: 3,
+        color: Colors.white,
+        strokeWidth: 1,
+        strokeColor: TColor.primaryColor2,
+      ),
+    ),
+    belowBarData: BarAreaData(show: false),
+    spots: [], // Placeholder list of FlSpot
+  );
+  List<int> showingTooltipOnSpots = []; // Assuming this is a list of integers
+  LineChartBarData tooltipsOnBar =
+      LineChartBarData(); // Assuming this is LineChartBarData
+  List<LineChartBarData> lineBarsData =
+      []; // Assuming this is a list of LineChartBarData
+  String selectedType = 'Daily';
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
 
+    _loadLineChartDetails();
     _loadWorkouts();
   }
 
@@ -47,7 +77,193 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
     setState(() {
       whatArr = result;
     });
-    print(whatArr);
+  }
+
+  Widget rightTitleWidgets(double value, TitleMeta meta) {
+    return Text(
+      value.toString(),
+      style: TextStyle(
+        color: TColor.gray,
+        fontSize: 12,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    var style = TextStyle(
+      color: TColor.gray,
+      fontSize: 12,
+    );
+
+    if (selectedType == "Monthly") {
+      String doubleString = value.toString();
+
+      Widget text;
+      int month = int.parse(doubleString.substring(4));
+      String yearString = doubleString.substring(0, 4);
+
+      switch (month) {
+        case 1:
+          text = Text("$yearString-Jan", style: style);
+          break;
+        case 2:
+          text = Text("$yearString-Feb", style: style);
+          break;
+        case 3:
+          text = Text("$yearString-Mar", style: style);
+          break;
+        case 4:
+          text = Text("$yearString-Apr", style: style);
+          break;
+        case 5:
+          text = Text("$yearString-May", style: style);
+          break;
+        case 6:
+          text = Text("$yearString-Jun", style: style);
+          break;
+        case 7:
+          text = Text("$yearString-Jul", style: style);
+          break;
+        case 8:
+          text = Text("$yearString-Aug", style: style);
+          break;
+        case 9:
+          text = Text("$yearString-Sep", style: style);
+          break;
+        case 10:
+          text = Text("$yearString-Oct", style: style);
+          break;
+        case 11:
+          text = Text("$yearString-Nov", style: style);
+          break;
+        case 12:
+          text = Text("$yearString-Dec", style: style);
+          break;
+        default:
+          text = const Text('');
+          break;
+      }
+
+      return SideTitleWidget(
+        axisSide: meta.axisSide,
+        space: 10,
+        child: text,
+      );
+    }
+
+    // Converting double back to DateTime
+    DateTime convertedDateTime =
+        DateTime.fromMicrosecondsSinceEpoch(value.toInt());
+    String formattedString = DateFormat('yyyy-MM-dd').format(convertedDateTime);
+
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 10,
+      child: Text(formattedString + value.toString(), style: style),
+    );
+  }
+
+  SideTitles get rightTitles => SideTitles(
+        getTitlesWidget: rightTitleWidgets,
+        showTitles: true,
+        interval: 400,
+        reservedSize: 40,
+      );
+
+  SideTitles get bottomTitles => SideTitles(
+        showTitles: true,
+        reservedSize: 32,
+        interval: 1,
+        getTitlesWidget: bottomTitleWidgets,
+      );
+
+  List<LineChartBarData> get lineBarsData1 => [
+        lineChartBarData1_1,
+      ];
+
+  Future<void> _loadLineChartDetails({String type = 'daily'}) async {
+    var chartData = await WorkoutRecommendationService(authProvider)
+        .getWorkoutLineChartDetails(
+            type: type.toLowerCase()); // Convert type to lowercase
+    print(chartData);
+    setState(() {
+      lineChartData = chartData;
+      parsedList = lineChartData.map<Map<String, dynamic>>((item) {
+        return Map<String, dynamic>.from(item);
+      }).toList();
+      spots = parsedList.map((e) {
+        double x;
+        if (e['x'] is String && selectedType == "Daily") {
+          // Parse the string value to double
+          DateTime dateTime = DateTime.parse(e['x']);
+          double doubleValue = dateTime.microsecondsSinceEpoch.toDouble();
+          x = doubleValue;
+        } else if (e['x'] is String && selectedType == "Monthly") {
+          String dateString = e['x'];
+          List<String> dateParts = dateString.split("-");
+          int year = int.parse(dateParts[0]);
+          int month = int.parse(dateParts[1]);
+          int numericDate = year * 100 + month;
+          x = numericDate.toDouble();
+        } else {
+          x = 0.0;
+        }
+        return FlSpot(x, e['y']);
+      }).toList();
+      print(spots);
+      print(parsedList);
+
+      // Convert parsed list into list of FlSpot
+      List<FlSpot> flSpots = parsedList.map((data) {
+        double x;
+        if (data['x'] is String && selectedType == "Daily") {
+          // Parse the string value to double
+          DateTime dateTime = DateTime.parse(data['x']);
+          double doubleValue = dateTime.microsecondsSinceEpoch.toDouble();
+          x = doubleValue;
+        } else if (data['x'] is String && selectedType == "Monthly") {
+          String dateString = data['x'];
+          List<String> dateParts = dateString.split("-");
+          int year = int.parse(dateParts[0]);
+          int month = int.parse(dateParts[1]);
+          int numericDate = year * 100 +
+              month; // For example, 2022-02 becomes 202202.0 as a int
+          x = numericDate.toDouble();
+        } else {
+          x = 0.0;
+        }
+        double y = data['y'];
+        return FlSpot(x, y);
+      }).toList();
+      print(flSpots);
+      lineChartBarData1_1 = LineChartBarData(
+        isCurved: true,
+        gradient: LinearGradient(colors: [
+          TColor.primaryColor2,
+          TColor.primaryColor1,
+        ]),
+        barWidth: 2,
+        isStrokeCapRound: true,
+        belowBarData: BarAreaData(
+          show: true,
+          gradient: LinearGradient(
+            colors:
+                TColor.primaryG.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+        ),
+        dotData: FlDotData(
+          show: true,
+          getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+            radius: 3,
+            color: Colors.white,
+            strokeWidth: 1,
+            strokeColor: TColor.primaryColor2,
+          ),
+        ),
+        spots: flSpots,
+      );
+    });
   }
 
   @override
@@ -120,105 +336,130 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
               leading: const SizedBox(),
               expandedHeight: media.width * 0.5,
               flexibleSpace: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.only(left: 15),
                 height: media.width * 0.5,
                 width: double.maxFinite,
-                child: LineChart(
-                  LineChartData(
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      handleBuiltInTouches: false,
-                      touchCallback:
-                          (FlTouchEvent event, LineTouchResponse? response) {
-                        if (response == null || response.lineBarSpots == null) {
-                          return;
-                        }
-                        // if (event is FlTapUpEvent) {
-                        //   final spotIndex =
-                        //       response.lineBarSpots!.first.spotIndex;
-                        //   showingTooltipOnSpots.clear();
-                        //   setState(() {
-                        //     showingTooltipOnSpots.add(spotIndex);
-                        //   });
-                        // }
-                      },
-                      mouseCursorResolver:
-                          (FlTouchEvent event, LineTouchResponse? response) {
-                        if (response == null || response.lineBarSpots == null) {
-                          return SystemMouseCursors.basic;
-                        }
-                        return SystemMouseCursors.click;
-                      },
-                      getTouchedSpotIndicator:
-                          (LineChartBarData barData, List<int> spotIndexes) {
-                        return spotIndexes.map((index) {
-                          return TouchedSpotIndicatorData(
-                            const FlLine(
-                              color: Colors.transparent,
-                            ),
-                            FlDotData(
-                              show: true,
-                              getDotPainter: (spot, percent, barData, index) =>
-                                  FlDotCirclePainter(
-                                radius: 3,
-                                color: Colors.white,
-                                strokeWidth: 3,
-                                strokeColor: TColor.secondaryColor1,
+                child: lineChartData.isNotEmpty
+                    ? SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                            height: media.height *
+                                0.5, // Set a fixed height for the chart container
+                            width: media.width * 0.9,
+                            child: LineChart(
+                              LineChartData(
+                                showingTooltipIndicators:
+                                    showingTooltipOnSpots.map((index) {
+                                  return ShowingTooltipIndicators([
+                                    LineBarSpot(
+                                      tooltipsOnBar,
+                                      lineBarsData.indexOf(tooltipsOnBar),
+                                      tooltipsOnBar.spots[index],
+                                    ),
+                                  ]);
+                                }).toList(),
+                                lineTouchData: LineTouchData(
+                                  enabled: true,
+                                  handleBuiltInTouches: false,
+                                  touchCallback: (FlTouchEvent event,
+                                      LineTouchResponse? response) {
+                                    if (response == null ||
+                                        response.lineBarSpots == null) {
+                                      return;
+                                    }
+                                    if (event is FlTapUpEvent) {
+                                      final spotIndex = response
+                                          .lineBarSpots!.first.spotIndex;
+                                      showingTooltipOnSpots.clear();
+                                      setState(() {
+                                        showingTooltipOnSpots.add(spotIndex);
+                                      });
+                                    }
+                                  },
+                                  mouseCursorResolver: (FlTouchEvent event,
+                                      LineTouchResponse? response) {
+                                    if (response == null ||
+                                        response.lineBarSpots == null) {
+                                      return SystemMouseCursors.basic;
+                                    }
+                                    return SystemMouseCursors.click;
+                                  },
+                                  getTouchedSpotIndicator:
+                                      (LineChartBarData barData,
+                                          List<int> spotIndexes) {
+                                    return spotIndexes.map((index) {
+                                      return TouchedSpotIndicatorData(
+                                        const FlLine(
+                                          color: Colors.transparent,
+                                        ),
+                                        FlDotData(
+                                          show: true,
+                                          getDotPainter:
+                                              (spot, percent, barData, index) =>
+                                                  FlDotCirclePainter(
+                                            radius: 3,
+                                            color: Colors.white,
+                                            strokeWidth: 3,
+                                            strokeColor: TColor.secondaryColor1,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList();
+                                  },
+                                  touchTooltipData: LineTouchTooltipData(
+                                    tooltipBgColor: TColor.secondaryColor1,
+                                    tooltipRoundedRadius: 20,
+                                    getTooltipItems:
+                                        (List<LineBarSpot> lineBarsSpot) {
+                                      return lineBarsSpot.map((lineBarSpot) {
+                                        return LineTooltipItem(
+                                          "${lineBarSpot.x.toInt()} mins ago",
+                                          const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ),
+                                lineBarsData: lineBarsData1,
+                                minY: 0,
+                                maxY: 2000,
+                                titlesData: FlTitlesData(
+                                  show: true,
+                                  leftTitles: AxisTitles(),
+                                  topTitles: AxisTitles(),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: bottomTitles,
+                                  ),
+                                  rightTitles: AxisTitles(
+                                    sideTitles: rightTitles,
+                                  ),
+                                ),
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawHorizontalLine: true,
+                                  horizontalInterval: 25,
+                                  drawVerticalLine: false,
+                                  getDrawingHorizontalLine: (value) {
+                                    return FlLine(
+                                      color: TColor.gray.withOpacity(0.15),
+                                      strokeWidth: 2,
+                                    );
+                                  },
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                    color: Colors.transparent,
+                                  ),
+                                ),
                               ),
-                            ),
-                          );
-                        }).toList();
-                      },
-                      touchTooltipData: LineTouchTooltipData(
-                        tooltipBgColor: TColor.secondaryColor1,
-                        tooltipRoundedRadius: 20,
-                        getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
-                          return lineBarsSpot.map((lineBarSpot) {
-                            return LineTooltipItem(
-                              "${lineBarSpot.x.toInt()} mins ago",
-                              const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
-                    lineBarsData: lineBarsData1,
-                    minY: -0.5,
-                    maxY: 110,
-                    titlesData: FlTitlesData(
-                        show: true,
-                        leftTitles: const AxisTitles(),
-                        topTitles: const AxisTitles(),
-                        bottomTitles: AxisTitles(
-                          sideTitles: bottomTitles,
-                        ),
-                        rightTitles: AxisTitles(
-                          sideTitles: rightTitles,
-                        )),
-                    gridData: FlGridData(
-                      show: true,
-                      drawHorizontalLine: true,
-                      horizontalInterval: 25,
-                      drawVerticalLine: false,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: TColor.white.withOpacity(0.15),
-                          strokeWidth: 2,
-                        );
-                      },
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(
-                        color: Colors.transparent,
-                      ),
-                    ),
-                  ),
-                ),
+                            )),
+                      )
+                    : const SizedBox(), // If lineChartData is empty, show an empty SizedBox
               ),
             ),
           ];
@@ -372,29 +613,6 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
         ),
       );
 
-  List<LineChartBarData> get lineBarsData1 => [
-        lineChartBarData1_1,
-        lineChartBarData1_2,
-      ];
-
-  LineChartBarData get lineChartBarData1_1 => LineChartBarData(
-        isCurved: true,
-        color: TColor.white,
-        barWidth: 4,
-        isStrokeCapRound: true,
-        dotData: const FlDotData(show: false),
-        belowBarData: BarAreaData(show: false),
-        spots: const [
-          FlSpot(1, 35),
-          FlSpot(2, 70),
-          FlSpot(3, 40),
-          FlSpot(4, 80),
-          FlSpot(5, 25),
-          FlSpot(6, 70),
-          FlSpot(7, 35),
-        ],
-      );
-
   LineChartBarData get lineChartBarData1_2 => LineChartBarData(
         isCurved: true,
         color: TColor.white.withOpacity(0.5),
@@ -414,91 +632,4 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
           FlSpot(7, 60),
         ],
       );
-
-  SideTitles get rightTitles => SideTitles(
-        getTitlesWidget: rightTitleWidgets,
-        showTitles: true,
-        interval: 20,
-        reservedSize: 40,
-      );
-
-  Widget rightTitleWidgets(double value, TitleMeta meta) {
-    String text;
-    switch (value.toInt()) {
-      case 0:
-        text = '0%';
-        break;
-      case 20:
-        text = '20%';
-        break;
-      case 40:
-        text = '40%';
-        break;
-      case 60:
-        text = '60%';
-        break;
-      case 80:
-        text = '80%';
-        break;
-      case 100:
-        text = '100%';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text,
-        style: TextStyle(
-          color: TColor.white,
-          fontSize: 12,
-        ),
-        textAlign: TextAlign.center);
-  }
-
-  SideTitles get bottomTitles => SideTitles(
-        showTitles: true,
-        reservedSize: 32,
-        interval: 1,
-        getTitlesWidget: bottomTitleWidgets,
-      );
-
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    var style = TextStyle(
-      color: TColor.white,
-      fontSize: 12,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 1:
-        text = Text('Sun', style: style);
-        break;
-      case 2:
-        text = Text('Mon', style: style);
-        break;
-      case 3:
-        text = Text('Tue', style: style);
-        break;
-      case 4:
-        text = Text('Wed', style: style);
-        break;
-      case 5:
-        text = Text('Thu', style: style);
-        break;
-      case 6:
-        text = Text('Fri', style: style);
-        break;
-      case 7:
-        text = Text('Sat', style: style);
-        break;
-      default:
-        text = const Text('');
-        break;
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 10,
-      child: text,
-    );
-  }
 }

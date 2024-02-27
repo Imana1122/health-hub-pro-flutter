@@ -6,7 +6,7 @@ class RoundTextField extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType? keyboardType;
   final String hitText;
-  final String icon;
+  final Widget icon;
   final Widget? rigtIcon;
   final bool obscureText;
   final EdgeInsets? margin;
@@ -25,29 +25,33 @@ class RoundTextField extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-          color: TColor.lightGray, borderRadius: BorderRadius.circular(15)),
+          color: TColor.lightGray, borderRadius: BorderRadius.circular(5)),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscureText,
         decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             hintText: hitText,
+            border: const OutlineInputBorder(),
+            labelText: hitText,
             suffixIcon: rigtIcon,
             prefixIcon: Container(
-                alignment: Alignment.center,
-                width: 20,
-                height: 20,
-                child: Image.asset(
-                  icon,
-                  width: 20,
-                  height: 20,
-                  fit: BoxFit.contain,
-                  color: TColor.gray,
-                )),
+              width: 50, // Adjust width as needed
+              height: 52,
+              margin: const EdgeInsets.only(right: 3),
+              decoration: const BoxDecoration(
+                shape: BoxShape.rectangle, // Makes the container circular
+                color: Color.fromARGB(255, 182, 208,
+                    229), // Change the background color as desired
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                ),
+              ),
+              child: icon,
+            ),
             hintStyle: TextStyle(color: TColor.gray, fontSize: 12)),
       ),
     );

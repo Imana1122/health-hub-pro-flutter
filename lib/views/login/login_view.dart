@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/round_textfield.dart';
@@ -13,9 +14,9 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  TextEditingController phoneNumberController = TextEditingController(text: '');
+  TextEditingController phoneNumberController = TextEditingController();
 
-  TextEditingController passwordController = TextEditingController(text: '');
+  TextEditingController passwordController = TextEditingController();
   bool obscurePassword = true;
 
   bool isLoading = false;
@@ -126,8 +127,7 @@ class _LoginViewState extends State<LoginView> {
                 RoundTextField(
                   hitText: "Phone Number",
                   controller: phoneNumberController,
-                  icon: "assets/img/email.png",
-                  keyboardType: TextInputType.emailAddress,
+                  icon: Icon(Icons.phone),
                 ),
                 SizedBox(
                   height: media.width * 0.04,
@@ -135,7 +135,7 @@ class _LoginViewState extends State<LoginView> {
                 RoundTextField(
                   hitText: "Password",
                   controller: passwordController,
-                  icon: "assets/img/lock.png",
+                  icon: const Icon(Icons.lock),
                   obscureText: obscurePassword,
                   rigtIcon: TextButton(
                       onPressed: () {

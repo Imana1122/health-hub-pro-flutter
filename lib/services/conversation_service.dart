@@ -4,12 +4,18 @@ import 'package:http/http.dart';
 import './base_api.dart';
 
 class ConversationService extends BaseApi {
-  Future<Response> getConversation() async {
-    return await api.httpGet('conversations', query: {});
+  Future<Response> getConversation({required String token}) async {
+    return await api.conversationGet('conversations', query: {}, token: token);
   }
 
-  Future<Response> storeMessage(MessageModal message) async {
-    return await api.httpPost('messages',
-        {'body': message.body, 'conversation_id': message.conversationId});
+  Future<Response> storeMessage(MessageModal message,
+      {required String token}) async {
+    return await api.conversationPost(
+        'messages',
+        {
+          'body': message.body,
+          'conversation_id': message.conversationId,
+        },
+        token: token);
   }
 }

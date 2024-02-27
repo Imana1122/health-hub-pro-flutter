@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
-import 'package:fyp_flutter/views/login/dietician/dietician_login_view.dart';
+import 'package:fyp_flutter/views/dietician/login/dietician_login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/views/widget/pdf_view.dart';
 import 'package:image_picker/image_picker.dart';

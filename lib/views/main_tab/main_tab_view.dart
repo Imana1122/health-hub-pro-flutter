@@ -20,20 +20,6 @@ class _MainTabViewState extends State<MainTabView> {
   int selectTab = 0;
   final PageStorageBucket pageBucket = PageStorageBucket();
   Widget currentTab = const HomeView();
-  @override
-  void initState() {
-    super.initState();
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-
-    // Check if the user is already logged in
-    if (!authProvider.isLoggedIn) {
-      // Navigate to the home screen and replace the current route
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/');
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +64,8 @@ class _MainTabViewState extends State<MainTabView> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             TabButton(
-                icon: "assets/img/home_tab.png",
-                selectIcon: "assets/img/home_tab_select.png",
+                icon: const Icon(Icons.home, color: Colors.white),
+                selectIcon: Icon(Icons.home, color: TColor.secondaryColor1),
                 isActive: selectTab == 0,
                 onTap: () {
                   selectTab = 0;
@@ -89,8 +75,9 @@ class _MainTabViewState extends State<MainTabView> {
                   }
                 }),
             TabButton(
-                icon: "assets/img/activity_tab.png",
-                selectIcon: "assets/img/activity_tab_select.png",
+                icon: const Icon(Icons.local_activity, color: Colors.white),
+                selectIcon:
+                    Icon(Icons.local_activity, color: TColor.secondaryColor1),
                 isActive: selectTab == 1,
                 onTap: () {
                   selectTab = 1;
@@ -103,8 +90,9 @@ class _MainTabViewState extends State<MainTabView> {
               width: 40,
             ),
             TabButton(
-                icon: "assets/img/camera_tab.png",
-                selectIcon: "assets/img/camera_tab_select.png",
+                icon: const Icon(Icons.bar_chart, color: Colors.white),
+                selectIcon:
+                    Icon(Icons.bar_chart, color: TColor.secondaryColor1),
                 isActive: selectTab == 2,
                 onTap: () {
                   selectTab = 2;
@@ -114,8 +102,8 @@ class _MainTabViewState extends State<MainTabView> {
                   }
                 }),
             TabButton(
-                icon: "assets/img/profile_tab.png",
-                selectIcon: "assets/img/profile_tab_select.png",
+                icon: const Icon(Icons.person, color: Colors.white),
+                selectIcon: Icon(Icons.person, color: TColor.secondaryColor1),
                 isActive: selectTab == 3,
                 onTap: () {
                   selectTab = 3;

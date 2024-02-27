@@ -62,9 +62,10 @@ class ConversationProvider extends BaseProvider {
   ];
   List<ConversationModel> get conversations => _conversations;
 
-  Future<List<ConversationModel>> getConversations() async {
+  Future<List<ConversationModel>> getConversations(
+      {required String token}) async {
     setBusy(true);
-    var response = await _conversationService.getConversation();
+    var response = await _conversationService.getConversation(token: token);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.toString());
       data['data'].forEach((conversations) =>
@@ -78,9 +79,11 @@ class ConversationProvider extends BaseProvider {
     return _conversations;
   }
 
-  Future<MessageModal> storeMessage(MessageModal message) async {
+  Future<MessageModal> storeMessage(MessageModal message,
+      {required String token}) async {
     setBusy(true);
-    var response = await _conversationService.storeMessage(message);
+    var response =
+        await _conversationService.storeMessage(message, token: token);
     if (response.statusCode == 201) {
       var data = jsonDecode(response.toString());
       notifyListeners();

@@ -3,6 +3,7 @@ import 'package:fyp_flutter/common_widget/cards/friend_message_card.dart';
 import 'package:fyp_flutter/common_widget/cards/my_message_card.dart';
 import 'package:fyp_flutter/models/conversation_model.dart';
 import 'package:fyp_flutter/models/message_model.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/views/chat/size_config.dart';
@@ -13,20 +14,21 @@ class ChatScreen extends StatefulWidget {
 
   const ChatScreen({super.key, required this.conversation});
   @override
-  _ChatScreenState createState() => _ChatScreenState(conversation);
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final ConversationModel conversation;
   TextEditingController messageTextController = TextEditingController();
   late MessageModal message;
   late ScrollController _scrollController;
 
-  _ChatScreenState(this.conversation);
+  late AuthProvider authProvider;
 
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     message = MessageModal(
         id: 'kdjfkl',
         body: 'ldjfkdk;lj',
@@ -35,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
         conversationId: 'ldkfjd;kl',
         createdAt: '2022-09-09',
         updatedAt: '2022-09-09');
-    message.conversationId = conversation.id;
+    message.conversationId = widget.conversation.id;
     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
@@ -53,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
           onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: Text('${conversation.user?.name}'),
+        title: Text('${widget.conversation.user?.name}'),
         centerTitle: true,
       ),
       body: Column(
@@ -65,14 +67,15 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: EdgeInsets.symmetric(
                 horizontal: SizeConfig.safeBlockHorizontal * 3,
                 vertical: SizeConfig.safeBlockHorizontal * 3),
-            itemCount: conversation.messages.length,
-            itemBuilder: (context, index) =>
-                conversation.messages[index].userId == conversation.user!.id
-                    ? FriendMessageCard(
-                        message: conversation.messages[index],
-                        image: conversation.user!.image,
-                      )
-                    : MyMessageCard(message: conversation.messages[index]),
+            itemCount: widget.conversation.messages.length,
+            itemBuilder: (context, index) => widget
+                        .conversation.messages[index].userId ==
+                    widget.conversation.user!.id
+                ? FriendMessageCard(
+                    message: widget.conversation.messages[index],
+                    image: widget.conversation.user!.image,
+                  )
+                : MyMessageCard(message: widget.conversation.messages[index]),
             // const FriendMessageCard(message: '',image:''),
             // MyMessageCard(),
           )),
@@ -103,12 +106,12 @@ class _ChatScreenState extends State<ChatScreen> {
                           FocusScope.of(context).requestFocus(FocusNode());
                           if (messageTextController.text.trim().isEmpty) return;
                           message.body = messageTextController.text.trim();
-                          var messageStored =
-                              await Provider.of<ConversationProvider>(context,
-                                      listen: false)
-                                  .storeMessage(message);
+                          var messageStored = await Provider.of<
+                                  ConversationProvider>(context, listen: false)
+                              .storeMessage(message,
+                                  token: authProvider.getAuthenticatedToken());
                           messageTextController.clear();
-                          conversation.messages.add(messageStored);
+                          widget.conversation.messages.add(messageStored);
                           _scrollController.jumpTo(
                               _scrollController.position.maxScrollExtent + 30);
                         },

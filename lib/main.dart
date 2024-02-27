@@ -8,8 +8,8 @@ import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart'
 import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
 import 'package:fyp_flutter/views/login/change_password.dart';
 import 'package:fyp_flutter/views/login/complete_profile_view.dart';
-import 'package:fyp_flutter/views/login/dietician/dietician_login_view.dart';
-import 'package:fyp_flutter/views/login/dietician/dietician_signup_view.dart';
+import 'package:fyp_flutter/views/dietician/login/dietician_login_view.dart';
+import 'package:fyp_flutter/views/dietician/login/dietician_signup_view.dart';
 import 'package:fyp_flutter/views/login/login_view.dart';
 import 'package:fyp_flutter/views/login/signup_view.dart';
 import 'package:fyp_flutter/views/login/update_personal_info.dart';

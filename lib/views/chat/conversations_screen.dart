@@ -8,17 +8,22 @@ import 'package:fyp_flutter/views/chat/size_config.dart';
 import 'package:provider/provider.dart';
 
 class ConversationsScreen extends StatefulWidget {
+  const ConversationsScreen({super.key});
+
   @override
-  _ConversationsScreenState createState() => _ConversationsScreenState();
+  State<ConversationsScreen> createState() => _ConversationsScreenState();
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
+  late AuthProvider authProvider;
+
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ConversationProvider>(context, listen: false)
-          .getConversations();
+          .getConversations(token: authProvider.getAuthenticatedToken());
     });
   }
 

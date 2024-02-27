@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/icon_title_next_row.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
@@ -7,6 +8,7 @@ import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/workout_tracker/workout_tracker_view.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'exercises_step_details.dart';
 import './workout_schedule_view.dart';
@@ -187,6 +189,10 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
       } else {
         // Wait for 45 seconds before displaying the next exercise in the same set
         Future.delayed(Duration(seconds: exerciseDuration), () async {
+          double calories = currentExercise["metabolic_equivalent"] *
+              user.profile.weight /
+              60;
+          totalCaloriesBurned += calories;
           // if (isLanguageAvailable) {
           //   var currentExercise =
           //       currentSet.values.elementAt(_currentExerciseIndexInSet);
@@ -246,35 +252,6 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: 10,
-                  right: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          popContextMultipleTimes(context);
-                          endedAt = DateTime.now().toIso8601String();
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(
-                                'Workout cancelled!',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          );
-                          submitWorkoutDone();
-
-                          return;
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           );
@@ -322,35 +299,6 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                         ),
                       ],
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          popContextMultipleTimes(context);
-                          endedAt = DateTime.now().toIso8601String();
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(
-                                'Workout cancelled!',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          );
-                          submitWorkoutDone();
-
-                          return;
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
                   ),
                 ),
               ],
@@ -426,7 +374,7 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
           ),
         );
       } else {
-        print("Error setting cuisine preferences");
+        print("Error logging workout");
         // Handle unsuccessful setCuisines, show an error message if needed
       }
     } catch (e) {

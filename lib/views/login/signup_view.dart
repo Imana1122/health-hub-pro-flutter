@@ -132,7 +132,7 @@ class _SignUpViewState extends State<SignUpView> {
                 RoundTextField(
                   hitText: "First Name",
                   controller: nameController,
-                  icon: "assets/img/user_text.png",
+                  icon: Icon(Icons.person),
                 ),
                 SizedBox(
                   height: media.width * 0.04,
@@ -140,7 +140,7 @@ class _SignUpViewState extends State<SignUpView> {
                 RoundTextField(
                   hitText: "Email",
                   controller: emailController,
-                  icon: "assets/img/email.png",
+                  icon: Icon(Icons.email),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 SizedBox(
@@ -149,7 +149,7 @@ class _SignUpViewState extends State<SignUpView> {
                 RoundTextField(
                   hitText: "Phone Number",
                   controller: phoneNumberController,
-                  icon: "assets/img/email.png",
+                  icon: Icon(Icons.phone),
                 ),
                 SizedBox(
                   height: media.width * 0.04,
@@ -157,7 +157,7 @@ class _SignUpViewState extends State<SignUpView> {
                 RoundTextField(
                   hitText: "Password",
                   controller: passwordController,
-                  icon: "assets/img/lock.png",
+                  icon: Icon(Icons.lock),
                   obscureText: obscurePassword,
                   rigtIcon: TextButton(
                       onPressed: () {
@@ -177,10 +177,13 @@ class _SignUpViewState extends State<SignUpView> {
                             color: TColor.gray,
                           ))),
                 ),
+                SizedBox(
+                  height: media.width * 0.04,
+                ),
                 RoundTextField(
                   hitText: "Password",
                   controller: confirmPasswordController,
-                  icon: "assets/img/lock.png",
+                  icon: Icon(Icons.lock),
                   obscureText: obscureConfirmPassword,
                   rigtIcon: TextButton(
                       onPressed: () {

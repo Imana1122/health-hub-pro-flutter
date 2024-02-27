@@ -8,7 +8,7 @@ class MainChatScreen extends StatefulWidget {
   const MainChatScreen({super.key});
 
   @override
-  _MainChatScreenState createState() => _MainChatScreenState();
+  State<MainChatScreen> createState() => _MainChatScreenState();
 }
 
 class _MainChatScreenState extends State<MainChatScreen> {

@@ -129,7 +129,7 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
                 RoundTextField(
                   hitText: "Phone Number",
                   controller: phoneNumberController,
-                  icon: "assets/img/email.png",
+                  icon: Icon(Icons.phone),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 SizedBox(
@@ -138,7 +138,7 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
                 RoundTextField(
                   hitText: "Password",
                   controller: passwordController,
-                  icon: "assets/img/lock.png",
+                  icon: Icon(Icons.password),
                   obscureText: obscurePassword,
                   rigtIcon: TextButton(
                       onPressed: () {

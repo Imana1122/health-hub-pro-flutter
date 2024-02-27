@@ -16,19 +16,6 @@ class SelectView extends StatefulWidget {
 
 class _SelectViewState extends State<SelectView> {
   @override
-  void initState() {
-    super.initState();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // Check if the user is already logged in
-    if (!authProvider.isLoggedIn) {
-      // Navigate to the home screen and replace the current route
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/');
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

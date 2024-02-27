@@ -25,23 +25,10 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
   Future<void> _bookDietician(String dieticianId) async {
     try {
       print("dietician :  $dieticianId");
-      bool bookingSuccess = await DieticianBookingService(authProvider)
+      await DieticianBookingService(authProvider)
           .bookDietician(dieticianId: dieticianId);
-      if (bookingSuccess) {
-        await _loadDieticians();
-      } else {
-        // Handle booking failure
-        // For example, show a snackbar message indicating the failure
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(
-              'Problems in booking.',
-              textAlign: TextAlign.center,
-            ),
-          ),
-        );
-      }
+
+      await _loadDieticians();
     } catch (e) {
       // Handle any errors that occur during booking
       // For example, show a toast message with the error
@@ -54,6 +41,7 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
           ),
         ),
       );
+      print("Error: $e");
     }
   }
 
@@ -98,8 +86,8 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
                   child: SizedBox(
                     height: 200,
                     child: Padding(
-                      padding:
-                          const EdgeInsets.all(8.0), // Adjust the padding as needed
+                      padding: const EdgeInsets.all(
+                          8.0), // Adjust the padding as needed
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius:
