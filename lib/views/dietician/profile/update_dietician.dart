@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
-import 'package:fyp_flutter/views/login/login_view.dart';
-import 'package:fyp_flutter/views/profile/profile_view.dart';
+import 'package:fyp_flutter/views/account/login/login_view.dart';
+import 'package:fyp_flutter/views/account/profile/profile_view.dart';
 import 'package:provider/provider.dart';
 
 class DieticianProfileEditView extends StatefulWidget {
@@ -16,6 +16,7 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
   late TextEditingController bioController;
   late TextEditingController emailController;
   late TextEditingController phoneNumberController;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -43,6 +44,9 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
   }
 
   Future<void> _saveProfile() async {
+    setState(() {
+      isLoading = true;
+    });
     DieticianAuthProvider authProvider =
         Provider.of<DieticianAuthProvider>(context, listen: false);
     bool success = await authProvider.updatePersonalInfo(
@@ -68,41 +72,64 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
         ),
       );
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: bioController,
-              decoration: const InputDecoration(labelText: 'Name'),
+    var media = MediaQuery.of(context).size;
+
+    return isLoading
+        ? SizedBox(
+            height: media.height, // Adjust height as needed
+            width: media.width, // Adjust width as needed
+            child: const Center(
+              child: SizedBox(
+                width: 50, // Adjust size of the CircularProgressIndicator
+                height: 50, // Adjust size of the CircularProgressIndicator
+                child: CircularProgressIndicator(
+                  strokeWidth:
+                      4, // Adjust thickness of the CircularProgressIndicator
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue), // Change color
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text('Edit Profile'),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: phoneNumberController,
-              decoration: const InputDecoration(labelText: 'Phone Number'),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: bioController,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(labelText: 'Email'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: phoneNumberController,
+                    decoration:
+                        const InputDecoration(labelText: 'Phone Number'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _saveProfile,
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _saveProfile,
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
   }
 }

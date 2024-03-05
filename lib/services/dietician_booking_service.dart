@@ -31,9 +31,9 @@ class DieticianBookingService extends BaseApi {
   Future<dynamic> bookDietician({
     required String dieticianId,
   }) async {
-    var url = 'account/book-dieticians';
+    var url = '${dotenv.env['BASE_URL']}/api/account/book-dieticians';
     String token = authProvider.user.token;
-
+    print(url);
     var headers = {
       'Content-Type': 'application/json',
       HttpHeaders.authorizationHeader: token,
@@ -64,7 +64,56 @@ class DieticianBookingService extends BaseApi {
             fontSize: 16.0,
           );
 
-          
+          try {
+            EsewaFlutterSdk.initPayment(
+              esewaConfig: EsewaConfig(
+                  environment: Environment.test,
+                  clientId: data['data']['dietician']['esewa_client_id'] ??
+                      dotenv.env['CLIENT_ID'],
+                  secretId: data['data']['dietician']['esewa_secret_key'] ??
+                      dotenv.env['SECRET_KEY']),
+              esewaPayment: EsewaPayment(
+                productId: data['data']['id'],
+                productName: data['data']['dietician']['first_name'] +
+                    data['data']['dietician']['last_name'],
+                productPrice:
+                    data['data']['dietician']['booking_amount'].toString(),
+                callbackUrl: '',
+              ),
+              onPaymentSuccess: (EsewaPaymentSuccessResult data) async {
+                debugPrint(":::SUCCESS::: => $data");
+                bool result = await verifyTransactionStatus(data);
+
+                return result;
+              },
+              onPaymentFailure: (data) {
+                Fluttertoast.showToast(
+                  msg: "Booking Payment Failed.",
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.orange,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+                debugPrint(":::FAILURE::: => $data");
+              },
+              onPaymentCancellation: (data) {
+                Fluttertoast.showToast(
+                  msg: "Booking Payment Cancelled.",
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.orange,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+                debugPrint(":::CANCELLATION::: => $data");
+              },
+            );
+          } on Exception catch (e) {
+            debugPrint("EXCEPTION : ${e.toString()}");
+          }
         } else {
           Fluttertoast.showToast(
             msg: "Dietician booking not initiated.",

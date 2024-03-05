@@ -30,7 +30,7 @@ class RoundButton extends StatelessWidget {
                 ? TColor.secondaryG
                 : TColor.primaryG,
           ),
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(5),
           boxShadow: type == RoundButtonType.bgGradient ||
                   type == RoundButtonType.bgSGradient
               ? const [

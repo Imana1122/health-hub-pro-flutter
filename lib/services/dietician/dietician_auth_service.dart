@@ -1,13 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:http/http.dart' as http;
 import 'package:fyp_flutter/models/dietician.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class DieticianAuthService {
-  String baseUrl = 'http://10.0.2.2:8000/api';
+  String baseUrl = '';
+
+  // Initialize the field in the constructor
+  DieticianAuthService() {
+    baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:8000';
+    baseUrl += '/api';
+  }
 
   Future<bool> register({
     required String firstName,
@@ -18,7 +25,8 @@ class DieticianAuthService {
     required File image,
     required String speciality,
     required String description,
-    required String esewaId,
+    required String esewaClientId,
+    required String esewaSecretKey,
     required String bookingAmount,
     required String bio,
   }) async {
@@ -38,7 +46,9 @@ class DieticianAuthService {
     request.fields['phone_number'] = phoneNumber;
     request.fields['speciality'] = speciality;
     request.fields['description'] = description;
-    request.fields['esewa_id'] = esewaId;
+    request.fields['esewa_client_id'] = esewaClientId;
+    request.fields['esewa_secret_key'] = esewaSecretKey;
+
     request.fields['booking_amount'] = bookingAmount;
     request.fields['bio'] = bio;
 

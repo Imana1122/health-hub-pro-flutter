@@ -37,6 +37,7 @@ class AuthProvider with ChangeNotifier {
           passwordConfirmation: passwordConfirmation);
 
       _user = user;
+
       _isLoggedIn = true;
 
       return true;

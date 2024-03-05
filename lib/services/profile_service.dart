@@ -1,10 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/services/base_api.dart';
-import 'package:http/http.dart' as http;
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProfileService extends BaseApi {

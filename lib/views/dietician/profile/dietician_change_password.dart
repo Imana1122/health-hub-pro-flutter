@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
-import 'package:fyp_flutter/views/login/login_view.dart';
+import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:provider/provider.dart';
 
 class DieticianChangePassword extends StatefulWidget {
@@ -20,6 +20,8 @@ class _DieticianChangePasswordState extends State<DieticianChangePassword> {
   bool obscureNewPassword = true;
   bool obscureConfirmPassword = true;
   late DieticianAuthProvider authProvider;
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +44,9 @@ class _DieticianChangePasswordState extends State<DieticianChangePassword> {
   }
 
   Future<void> _changePassword() async {
+    setState(() {
+      isLoading = true;
+    });
     bool success = await authProvider.changePassword(
       oldPassword: oldPasswordController.text,
       password: newPasswordController.text,
@@ -60,6 +65,9 @@ class _DieticianChangePasswordState extends State<DieticianChangePassword> {
         ),
       );
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Widget buildPasswordTextField(
@@ -88,42 +96,62 @@ class _DieticianChangePasswordState extends State<DieticianChangePassword> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Change Password'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 16),
-            buildPasswordTextField(
-              oldPasswordController,
-              'Old Password',
-              obscureOldPassword,
-              (value) => obscureOldPassword = value,
+    var media = MediaQuery.of(context).size;
+
+    return isLoading
+        ? SizedBox(
+            height: media.height, // Adjust height as needed
+            width: media.width, // Adjust width as needed
+            child: const Center(
+              child: SizedBox(
+                width: 50, // Adjust size of the CircularProgressIndicator
+                height: 50, // Adjust size of the CircularProgressIndicator
+                child: CircularProgressIndicator(
+                  strokeWidth:
+                      4, // Adjust thickness of the CircularProgressIndicator
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue), // Change color
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            buildPasswordTextField(
-              newPasswordController,
-              'New Password',
-              obscureNewPassword,
-              (value) => obscureNewPassword = value,
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text('Change Password'),
             ),
-            const SizedBox(height: 16),
-            buildPasswordTextField(
-              confirmPasswordController,
-              'Confirm Password',
-              obscureConfirmPassword,
-              (value) => obscureConfirmPassword = value,
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16),
+                  buildPasswordTextField(
+                    oldPasswordController,
+                    'Old Password',
+                    obscureOldPassword,
+                    (value) => obscureOldPassword = value,
+                  ),
+                  const SizedBox(height: 16),
+                  buildPasswordTextField(
+                    newPasswordController,
+                    'New Password',
+                    obscureNewPassword,
+                    (value) => obscureNewPassword = value,
+                  ),
+                  const SizedBox(height: 16),
+                  buildPasswordTextField(
+                    confirmPasswordController,
+                    'Confirm Password',
+                    obscureConfirmPassword,
+                    (value) => obscureConfirmPassword = value,
+                  ),
+                  const SizedBox(height: 16),
+                  RoundButton(
+                      onPressed: _changePassword,
+                      title: "DieticianChangePassword"),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            RoundButton(
-                onPressed: _changePassword, title: "DieticianChangePassword"),
-          ],
-        ),
-      ),
-    );
+          );
   }
 }

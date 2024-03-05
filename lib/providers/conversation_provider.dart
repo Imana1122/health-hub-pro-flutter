@@ -1,103 +1,78 @@
-import 'dart:convert';
-
-import 'package:fyp_flutter/models/conversation_model.dart';
-import 'package:fyp_flutter/models/message_model.dart';
-import 'package:fyp_flutter/models/user.dart';
-import 'package:fyp_flutter/models/user_profile.dart';
+import 'package:fyp_flutter/models/chat_message.dart';
+import 'package:fyp_flutter/models/dietician_chat_model.dart';
 import 'package:fyp_flutter/providers/base_provider.dart';
 import 'package:fyp_flutter/services/conversation_service.dart';
 
 class ConversationProvider extends BaseProvider {
   final ConversationService _conversationService = ConversationService();
-  final List<ConversationModel> _conversations = [
-    ConversationModel(
-      id: '1',
-      user: User(
-        id: '1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        phoneNumber: '1234567890',
-        token: 'abc123',
-        profile: UserProfile(
-          id: '1',
-          userId: '1',
-          height: 180,
-          weight: 75,
-          waist: 32,
-          hips: 40,
-          bust: 36,
-          targetedWeight: 70,
-          age: 30,
-          gender: 'male',
-          weightPlanId: '1',
-          createdAt: '2024-02-18',
-          updatedAt: '2024-02-18',
-        ),
-        cuisines: ['Italian', 'Chinese'],
-        healthConditions: ['Hypertension', 'Diabetes'],
-        allergens: ['Peanuts', 'Gluten'],
-      ),
-      createdAt: '2024-02-18',
-      messages: [
-        MessageModal(
-          id: '1',
-          body: 'Hello!',
-          read: 0,
-          userId: '1',
-          conversationId: '1',
-          createdAt: '2024-02-18',
-          updatedAt: '2024-02-18',
-        ),
-        MessageModal(
-          id: '2',
-          body: 'Hi there!',
-          read: 0,
-          userId: '2',
-          conversationId: '1',
-          createdAt: '2024-02-18',
-          updatedAt: '2024-02-18',
-        ),
-      ],
-    ),
-  ];
-  List<ConversationModel> get conversations => _conversations;
+  List<DieticianChatModel> _chatParticipants = [];
 
-  Future<List<ConversationModel>> getConversations(
+  List<DieticianChatModel> get conversations => _chatParticipants;
+
+  Future<List<DieticianChatModel>> getChatParticipants(
       {required String token}) async {
     setBusy(true);
-    var response = await _conversationService.getConversation(token: token);
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.toString());
-      data['data'].forEach((conversations) =>
-          _conversations.add(ConversationModel.fromJson(conversations)));
-      print(response.toString());
-      notifyListeners();
-      setBusy(false);
-    } else if (response.statusCode == 404) {
-      setMessage(response.toString());
-    }
-    return _conversations;
+
+    var data = await _conversationService.getChatParticipants(token: token);
+    List<DieticianChatModel> chatParticipants = List<DieticianChatModel>.from(
+        data['data']
+            .map((participant) => DieticianChatModel.fromJson(participant)));
+
+    _chatParticipants = chatParticipants;
+
+    notifyListeners();
+    setBusy(false);
+
+    return _chatParticipants;
   }
 
-  Future<MessageModal> storeMessage(MessageModal message,
-      {required String token}) async {
+  Future<dynamic> saveMessage({required ChatMessage chatMessage}) async {
     setBusy(true);
-    var response =
-        await _conversationService.storeMessage(message, token: token);
-    if (response.statusCode == 201) {
-      var data = jsonDecode(response.toString());
-      notifyListeners();
-      setBusy(false);
-      return MessageModal.fromJson(data['data']);
+    // Iterate over chatParticipants
+    for (var chatParticipant in _chatParticipants) {
+      if (chatMessage.senderId == chatParticipant.id) {
+        // Add the new message directly to the list without reloading
+        chatParticipant.messages.insert(0, chatMessage);
+      }
     }
+
+    notifyListeners();
     setBusy(false);
-    return MessageModal(
-        id: '',
-        body: '',
-        read: 0,
-        userId: '',
-        conversationId: '',
-        createdAt: '',
-        updatedAt: '');
+  }
+
+  Future<ChatMessage> storeMessage(String message,
+      {required String token, required String dieticianId}) async {
+    setBusy(true);
+    var data = await _conversationService.storeMessage(message,
+        dieticianId: dieticianId, token: token);
+
+    notifyListeners();
+    setBusy(false);
+    return ChatMessage.fromJson(data);
+  }
+
+  Future<dynamic> readMessages(
+      {required String senderId, required String token}) async {
+    var data = await _conversationService.readMessage(
+        senderId: senderId, token: token);
+    if (data == true) {
+      // Find the conversation with the given senderId
+      var conversation = _chatParticipants.firstWhere(
+        (conversation) => conversation.id == senderId,
+        orElse: () => const DieticianChatModel.empty(),
+      );
+
+      // If conversation found, mark its messages as read
+      if (conversation != const DieticianChatModel.empty()) {
+        for (var message in conversation.messages) {
+          if (message.senderId == conversation.id) {
+            message.read = 1;
+          }
+        }
+        notifyListeners();
+      }
+    }
+
+    return true;
   }
 }

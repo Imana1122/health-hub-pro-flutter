@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/common/color_extension.dart';
-import 'package:fyp_flutter/views/chat/size_config.dart';
+import 'package:fyp_flutter/common/size_config.dart';
 
 class PrimaryButton extends StatelessWidget {
   final Widget child;

@@ -32,13 +32,36 @@ class RecipeRecommendationService extends BaseApi {
   Future<List<RecipeCategory>> getRecipeCategories() async {
     var url = 'account/recipe-categories';
     String token = authProvider.user.token;
-    return await api.httpGet(url, token: token);
+    try {
+      var result = await api.httpGet(url, token: token);
+      // Check if the result is not null and is a List
+      if (result != null && result is List) {
+        // Map each JSON object to a RecipeCategory object
+        return result.map((json) => RecipeCategory.fromJson(json)).toList();
+      } else {
+        // If the result is null or not a List, return an empty list
+        return [];
+      }
+    } catch (e) {
+      // If an error occurs during the HTTP request, handle it here
+      print('Error fetching recipe categories: $e');
+      // Return an empty list or rethrow the exception as needed
+      return [];
+    }
   }
 
   Future<List<MealType>> getMealTypes() async {
     var url = 'account/recipe-meal-types';
     String token = authProvider.user.token;
-    return await api.httpGet(url, token: token);
+    var result = await api.httpGet(url, token: token);
+
+    List<dynamic> jsonList = result;
+
+    // Map each JSON object to a MealType instance
+    List<MealType> mealTypes =
+        jsonList.map((json) => MealType.fromJson(json)).toList();
+
+    return mealTypes;
   }
 
   Future<dynamic> getMealLineChartDetails({required String type}) async {

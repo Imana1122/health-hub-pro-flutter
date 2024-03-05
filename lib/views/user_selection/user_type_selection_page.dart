@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
+import 'package:fyp_flutter/views/dietician/login/dietician_login_view.dart';
 import 'package:fyp_flutter/views/dietician/login/dietician_signup_view.dart';
-import 'package:fyp_flutter/views/on_boarding/on_boarding_view.dart';
+import 'package:fyp_flutter/views/account/on_boarding/on_boarding_view.dart';
 
 class UserTypeSelectionPage extends StatelessWidget {
   const UserTypeSelectionPage({super.key});
@@ -48,7 +49,7 @@ class UserTypeSelectionPage extends StatelessWidget {
             children: [
               Image.asset(
                 'assets/img/logo.gif',
-                width: media.width * 0.5,
+                width: media.width * 0.8,
                 fit: BoxFit.fitWidth,
               ),
               SizedBox(
@@ -60,7 +61,7 @@ class UserTypeSelectionPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const DieticianSignUpView(),
+                      builder: (context) => const DieticianLoginView(),
                     ),
                   );
                 },

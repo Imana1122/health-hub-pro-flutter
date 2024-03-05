@@ -1,4 +1,4 @@
-import 'package:fyp_flutter/views/workout_tracker/workout_detail_view.dart';
+import 'package:fyp_flutter/views/account/workout_tracker/workout_detail_view.dart';
 
 import './round_button.dart';
 import 'package:flutter/material.dart';

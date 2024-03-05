@@ -80,162 +80,181 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
     }
 
     var media = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [TColor.primaryColor2, TColor.primaryColor1],
-            ),
-          ),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Hey Dietician,",
-              style: TextStyle(color: TColor.gray, fontSize: 16),
-            ),
-            Text(
-              "Please Login.",
-              style: TextStyle(
-                color: TColor.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+    return isLoading
+        ? SizedBox(
+            height: media.height, // Adjust height as needed
+            width: media.width, // Adjust width as needed
+            child: const Center(
+              child: SizedBox(
+                width: 50, // Adjust size of the CircularProgressIndicator
+                height: 50, // Adjust size of the CircularProgressIndicator
+                child: CircularProgressIndicator(
+                  strokeWidth:
+                      4, // Adjust thickness of the CircularProgressIndicator
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue), // Change color
+                ),
               ),
             ),
-          ],
-        ),
-        centerTitle: true, // Center the title horizontally
-        elevation: 4, // Add some elevation to the app bar
-      ),
-      backgroundColor: TColor.white,
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Container(
-            height: media.height * 0.8,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                    "If you did not recieve message about your account activation within 4 days then request register again."),
-                SizedBox(
-                  height: media.width * 0.05,
+          )
+        : Scaffold(
+            appBar: AppBar(
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [TColor.primaryColor2, TColor.primaryColor1],
+                  ),
                 ),
-                SizedBox(
-                  height: media.width * 0.04,
-                ),
-                RoundTextField(
-                  hitText: "Phone Number",
-                  controller: phoneNumberController,
-                  icon: Icon(Icons.phone),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                SizedBox(
-                  height: media.width * 0.04,
-                ),
-                RoundTextField(
-                  hitText: "Password",
-                  controller: passwordController,
-                  icon: Icon(Icons.password),
-                  obscureText: obscurePassword,
-                  rigtIcon: TextButton(
-                      onPressed: () {
-                        setState(() {
-                          obscurePassword = !obscurePassword;
-                        });
-                      },
-                      child: Container(
-                          alignment: Alignment.center,
-                          width: 20,
-                          height: 20,
-                          child: Image.asset(
-                            "assets/img/show_password.png",
-                            width: 20,
-                            height: 20,
-                            fit: BoxFit.contain,
-                            color: TColor.gray,
-                          ))),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      "Forgot your password?",
-                      style: TextStyle(
-                          color: TColor.gray,
-                          fontSize: 10,
-                          decoration: TextDecoration.none),
+              ),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Hey Dietician,",
+                    style: TextStyle(color: TColor.gray, fontSize: 16),
+                  ),
+                  Text(
+                    "Please Login.",
+                    style: TextStyle(
+                      color: TColor.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ],
-                ),
-                const Spacer(),
-                RoundButton(
-                  title: "Login",
-                  onPressed: () => handleSignIn(),
-                ),
-                SizedBox(
-                  height: media.width * 0.04,
-                ),
-                Row(
-                  // crossAxisAlignment: CrossAxisAlignment.,
-                  children: [
-                    Expanded(
-                        child: Container(
-                      height: 1,
-                      color: TColor.gray.withOpacity(0.5),
-                    )),
-                    Text(
-                      "  Or  ",
-                      style: TextStyle(color: TColor.black, fontSize: 12),
-                    ),
-                    Expanded(
-                        child: Container(
-                      height: 1,
-                      color: TColor.gray.withOpacity(0.5),
-                    )),
-                  ],
-                ),
-                SizedBox(
-                  height: media.width * 0.04,
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  ),
+                ],
+              ),
+              centerTitle: true, // Center the title horizontally
+              elevation: 4, // Add some elevation to the app bar
+            ),
+            backgroundColor: TColor.white,
+            body: SingleChildScrollView(
+              child: SafeArea(
+                child: Container(
+                  height: media.height * 0.8,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        "Don’t have an account yet? ",
-                        style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 14,
-                        ),
+                      const Text(
+                          "If you did not recieve message about your account activation within 4 days then request register again."),
+                      SizedBox(
+                        height: media.width * 0.05,
                       ),
-                      GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/register-dietician');
-                          },
-                          child: Text(
-                            "Register",
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
+                      RoundTextField(
+                        hitText: "Phone Number",
+                        controller: phoneNumberController,
+                        icon: Icon(Icons.phone),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
+                      RoundTextField(
+                        hitText: "Password",
+                        controller: passwordController,
+                        icon: Icon(Icons.password),
+                        obscureText: obscurePassword,
+                        rigtIcon: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                obscurePassword = !obscurePassword;
+                              });
+                            },
+                            child: Container(
+                                alignment: Alignment.center,
+                                width: 20,
+                                height: 20,
+                                child: Image.asset(
+                                  "assets/img/show_password.png",
+                                  width: 20,
+                                  height: 20,
+                                  fit: BoxFit.contain,
+                                  color: TColor.gray,
+                                ))),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Forgot your password?",
                             style: TextStyle(
+                                color: TColor.gray,
+                                fontSize: 10,
+                                decoration: TextDecoration.none),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      RoundButton(
+                        title: "Login",
+                        onPressed: () => handleSignIn(),
+                      ),
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
+                      Row(
+                        // crossAxisAlignment: CrossAxisAlignment.,
+                        children: [
+                          Expanded(
+                              child: Container(
+                            height: 1,
+                            color: TColor.gray.withOpacity(0.5),
+                          )),
+                          Text(
+                            "  Or  ",
+                            style: TextStyle(color: TColor.black, fontSize: 12),
+                          ),
+                          Expanded(
+                              child: Container(
+                            height: 1,
+                            color: TColor.gray.withOpacity(0.5),
+                          )),
+                        ],
+                      ),
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Don’t have an account yet? ",
+                              style: TextStyle(
                                 color: TColor.black,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w700),
-                          ))
+                              ),
+                            ),
+                            GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, '/register-dietician');
+                                },
+                                child: Text(
+                                  "Register",
+                                  style: TextStyle(
+                                      color: TColor.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
+                                ))
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: media.width * 0.04,
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
   }
 }

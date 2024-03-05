@@ -1,54 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/common/color_extension.dart';
+import 'package:fyp_flutter/views/dietician/chat/dietician_conversations_screen.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
 
-class CommonLayout extends StatelessWidget {
-  final Widget child;
+class DieticianCommonLayout extends StatefulWidget {
+  const DieticianCommonLayout({super.key});
 
-  const CommonLayout({super.key, required this.child});
+  @override
+  State<DieticianCommonLayout> createState() => _DieticianCommonLayoutState();
+}
+
+class _DieticianCommonLayoutState extends State<DieticianCommonLayout> {
+  int currentIndex = 0;
+  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox.expand(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: child,
-              ),
-            ),
-            BottomAppBar(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chat),
-                    onPressed: () {
-                      // Navigate to chat screen
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.people),
-                    onPressed: () {
-                      // Navigate to clients screen
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.person),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DieticianProfileView()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        children: <Widget>[
+          const DieticianProfileView(), // Replace with your conversations screen widget
+          const DieticianConversationScreen(),
+          Container(color: Colors.blue),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        backgroundColor: TColor.primaryColor1,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white.withOpacity(0.6),
+        onTap: (int index) {
+          setState(() {
+            currentIndex = index;
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Home',
+          ),
+        ],
       ),
     );
   }

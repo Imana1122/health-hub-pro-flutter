@@ -1,5 +1,5 @@
 import 'package:fyp_flutter/models/meal_type.dart';
-import 'package:fyp_flutter/views/meal_planner/food_info_details_view.dart';
+import 'package:fyp_flutter/views/account/cheat_meal/food_info_details_view.dart';
 
 import './round_button.dart';
 import 'package:flutter/material.dart';

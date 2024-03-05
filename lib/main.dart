@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
+import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
+import 'package:fyp_flutter/views/account/login/allergen_filter.dart';
+import 'package:fyp_flutter/views/account/login/cuisine_preference.dart';
+import 'package:fyp_flutter/views/account/login/health_condition_filter.dart';
+import 'package:fyp_flutter/views/dietician/layout.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_change_password.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
 import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
-import 'package:fyp_flutter/views/login/change_password.dart';
-import 'package:fyp_flutter/views/login/complete_profile_view.dart';
+import 'package:fyp_flutter/views/account/login/change_password.dart';
+import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
 import 'package:fyp_flutter/views/dietician/login/dietician_login_view.dart';
 import 'package:fyp_flutter/views/dietician/login/dietician_signup_view.dart';
-import 'package:fyp_flutter/views/login/login_view.dart';
-import 'package:fyp_flutter/views/login/signup_view.dart';
-import 'package:fyp_flutter/views/login/update_personal_info.dart';
-import 'package:fyp_flutter/views/login/what_your_goal_view.dart';
-import 'package:fyp_flutter/views/main_tab/main_tab_view.dart';
-import 'package:fyp_flutter/views/meal_planner/meal_planner_view.dart';
-import 'package:fyp_flutter/views/profile/profile_view.dart';
+import 'package:fyp_flutter/views/account/login/login_view.dart';
+import 'package:fyp_flutter/views/account/login/signup_view.dart';
+import 'package:fyp_flutter/views/account/login/update_personal_info.dart';
+import 'package:fyp_flutter/views/account/login/what_your_goal_view.dart';
+import 'package:fyp_flutter/views/account/main_tab/main_tab_view.dart';
+import 'package:fyp_flutter/views/account/cheat_meal/meal_planner_view.dart';
+import 'package:fyp_flutter/views/account/profile/profile_view.dart';
 import 'package:fyp_flutter/views/user_selection/user_type_selection_page.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
@@ -26,6 +30,7 @@ import 'package:fyp_flutter/common/settings.dart' as settings;
 
 void main() async {
   await dotenv.load(); // Load the environment variables from the .env file
+
   runApp(const MyApp());
 }
 
@@ -42,6 +47,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => DieticianAuthProvider()),
         ChangeNotifierProvider(create: (context) => ConversationProvider()),
+        ChangeNotifierProvider(
+            create: (context) => DieticianConversationProvider()),
       ],
       child: MaterialApp(
         title: 'HealthHub Pro',
@@ -53,6 +60,11 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => const ProfileView(),
           '/complete-profile': (context) => const CompleteProfileView(),
           '/choose-goal': (context) => const WhatYourGoalView(),
+          '/cuisine-preferences': (context) => const CuisinePreference(),
+          '/allergen-filtration': (context) => const AllergenPreference(),
+          '/health-condition-filtration': (context) =>
+              const HealthConditionPreference(),
+
           '/update-personal-data': (context) => const ProfileEditView(),
           '/dashboard': (context) => const WhatYourGoalView(),
           '/personal-activity': (context) => const WhatYourGoalView(),
@@ -87,7 +99,7 @@ class AuthWrapper extends StatelessWidget {
     if (authProvider.isLoggedIn) {
       return const MainTabView();
     } else if (dieticianAuthProvider.isLoggedIn) {
-      return const DieticianProfileView();
+      return const DieticianCommonLayout();
     } else {
       return const UserTypeSelectionPage();
     }

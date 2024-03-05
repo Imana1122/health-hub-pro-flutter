@@ -9,7 +9,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
-  String baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:8000/api';
+  String baseUrl = '';
+
+  // Initialize the field in the constructor
+  AuthService() {
+    baseUrl = dotenv.env['BASE_URL'] ?? 'http://10.0.2.2:8000';
+    baseUrl += '/api';
+  }
 
   Future<User> register({
     required String name,
@@ -41,6 +47,10 @@ class AuthService {
 
         User user = User.fromJson(userData);
         user.token = 'Bearer $accessToken';
+        user.profile = UserProfile.empty();
+        user.allergens = [];
+        user.cuisines = [];
+        user.healthConditions = [];
         Fluttertoast.showToast(
           msg: "Successfully registered.",
           toastLength: Toast.LENGTH_LONG,
@@ -293,6 +303,7 @@ class AuthService {
       required String gender,
       required String token}) async {
     var url = '$baseUrl/account/complete-profile';
+    print(url);
     var headers = {
       'Content-Type': 'application/json',
       HttpHeaders.authorizationHeader: token,
@@ -378,7 +389,7 @@ class AuthService {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      throw Exception('Failed to connect');
+      throw Exception(response.body);
     }
   }
 
