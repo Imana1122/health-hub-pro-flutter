@@ -2,7 +2,7 @@ import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/chat/main_chat_screen.dart';
 import 'package:fyp_flutter/views/account/dietician_booking/dietician_list.dart';
-import 'package:fyp_flutter/views/account/cheat_meal/meal_planner_view.dart';
+import 'package:fyp_flutter/views/account/meal_recipes/meal_planner_view.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_tracker_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

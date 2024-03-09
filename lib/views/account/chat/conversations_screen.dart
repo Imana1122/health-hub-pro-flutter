@@ -44,7 +44,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   void connectPusher() async {
     PusherService pusherService =
         PusherService(); // Create an instance of PusherService
-    await pusherService.getMessagesForUser(
+    await pusherService.getMessages(
       channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
       convProvider: convProvider,
     );

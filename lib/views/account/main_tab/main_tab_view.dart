@@ -33,10 +33,9 @@ class _MainTabViewState extends State<MainTabView> {
         height: 70,
         child: InkWell(
           onTap: () {
-            Navigator.pushAndRemoveUntil(
+            Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const MealPlans()),
-              (route) => false,
             );
           },
           child: Container(

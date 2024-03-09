@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/recipe_recommendation_service.dart';
+import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
@@ -183,7 +183,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
   SideTitles get rightTitles => SideTitles(
         getTitlesWidget: rightTitleWidgets,
         showTitles: true,
-        interval: 400,
+        interval: selectedType == 'Monthly' ? 20000 : 400,
         reservedSize: 40,
       );
 
@@ -283,7 +283,14 @@ class _MealPlannerViewState extends State<MealPlannerView> {
             strokeColor: TColor.primaryColor2,
           ),
         ),
-        belowBarData: BarAreaData(show: false),
+        belowBarData: BarAreaData(
+          show: true,
+          gradient: LinearGradient(
+            colors: TColor.secondaryG
+                .map((color) => color.withOpacity(0.3))
+                .toList(),
+          ),
+        ),
         spots: flSpots,
       );
       isLoading = false;
@@ -436,7 +443,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                                         icon: Icon(Icons.expand_more,
                                             color: TColor.white),
                                         hint: Text(
-                                          "Select a meal type",
+                                          "Select a graph type",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             color: TColor.white,
@@ -571,7 +578,9 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                                                 ),
                                                 lineBarsData: lineBarsData1,
                                                 minY: 0,
-                                                maxY: 2000,
+                                                maxY: selectedType == 'Monthly'
+                                                    ? 60000
+                                                    : 2000,
                                                 titlesData: FlTitlesData(
                                                   show: true,
                                                   leftTitles:

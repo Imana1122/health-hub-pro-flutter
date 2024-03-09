@@ -10,6 +10,7 @@ class UserChatModel {
   final String createdAt;
   final String updatedAt;
   final String otherUserId;
+  int currentMessagePage;
 
   final List<ChatMessage> messages;
 
@@ -24,13 +25,28 @@ class UserChatModel {
     required this.updatedAt,
     required this.otherUserId,
     required this.messages,
+    required this.currentMessagePage,
   });
+
+  // Named constructor with default values
+  UserChatModel.empty()
+      : id = '',
+        name = '',
+        email = '',
+        phoneNumber = '',
+        image = '',
+        status = 0,
+        createdAt = '',
+        updatedAt = '',
+        otherUserId = '',
+        currentMessagePage = 0,
+        messages = const [];
 
   factory UserChatModel.fromJson(Map<String, dynamic> json) {
     List<ChatMessage> messageList = [];
-    if (json['messages'] != null) {
-      messageList = List<ChatMessage>.from(
-          json['messages'].map((message) => ChatMessage.fromJson(message)));
+    if (json['messages']['data'] != null) {
+      messageList = List<ChatMessage>.from(json['messages']['data']
+          .map((message) => ChatMessage.fromJson(message)));
     }
     return UserChatModel(
       id: json['id'],
@@ -43,6 +59,7 @@ class UserChatModel {
       updatedAt: json['updated_at'],
       otherUserId: json['otherUserId'],
       messages: messageList,
+      currentMessagePage: json['messages']['current_page'],
     );
   }
 }

@@ -1,8 +1,7 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/workout_recommendation_service.dart';
+import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/home/activity_tracker_view.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'workout_detail_view.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -61,6 +60,9 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
       []; // Assuming this is a list of LineChartBarData
   String selectedType = 'Monthly';
   bool isLoading = false;
+  int pageNumber = 1;
+  int totalPages = 1;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
@@ -69,6 +71,29 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
 
     _loadLineChartDetails(type: selectedType);
     _loadWorkouts();
+    _scrollController = ScrollController()..addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
+      if (totalPages > pageNumber) {
+        setState(() {
+          pageNumber += 1;
+        });
+        _loadWorkouts();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadWorkouts() async {
@@ -76,156 +101,19 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
       isLoading = true;
     });
     var result = await WorkoutRecommendationService(authProvider)
-        .getWorkoutRecommendations();
+        .getWorkoutRecommendations(currentPage: pageNumber);
     setState(() {
-      whatArr = result;
+      if (whatArr.isEmpty) {
+        whatArr = result['data'];
+      } else {
+        whatArr.addAll(result['data']);
+      }
+      pageNumber = result['current_page'];
+      totalPages = result['to'];
+
       isLoading = false;
     });
   }
-
-  Widget rightTitleWidgets(double value, TitleMeta meta) {
-    return Text(
-      value.toString(),
-      style: TextStyle(
-        color: TColor.gray,
-        fontSize: 12,
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    var style = TextStyle(
-      color: TColor.gray,
-      fontSize: 12,
-    );
-    String doubleString = value.toString();
-    print("DoubleString ::: $doubleString");
-    Widget text;
-    // Remove the dot from doubleString
-    doubleString = doubleString.replaceAll(".0", "");
-    if (selectedType == "Monthly") {
-      // Parse the integer
-      int month = int.parse(doubleString.substring(4));
-      String yearString = doubleString.substring(0, 4);
-
-      switch (month) {
-        case 1:
-          text = Text("$yearString-Jan", style: style);
-          break;
-        case 2:
-          text = Text("$yearString-Feb", style: style);
-          break;
-        case 3:
-          text = Text("$yearString-Mar", style: style);
-          break;
-        case 4:
-          text = Text("$yearString-Apr", style: style);
-          break;
-        case 5:
-          text = Text("$yearString-May", style: style);
-          break;
-        case 6:
-          text = Text("$yearString-Jun", style: style);
-          break;
-        case 7:
-          text = Text("$yearString-Jul", style: style);
-          break;
-        case 8:
-          text = Text("$yearString-Aug", style: style);
-          break;
-        case 9:
-          text = Text("$yearString-Sep", style: style);
-          break;
-        case 10:
-          text = Text("$yearString-Oct", style: style);
-          break;
-        case 11:
-          text = Text("$yearString-Nov", style: style);
-          break;
-        case 12:
-          text = Text("$yearString-Dec", style: style);
-          break;
-        default:
-          text = Text('None', style: style);
-          break;
-      }
-
-      return SideTitleWidget(
-        axisSide: meta.axisSide,
-        space: 10,
-        child: text,
-      );
-    } else {
-      int month = int.parse(doubleString.substring(4, 6));
-      String yearString = doubleString.substring(0, 4);
-      String dayString = doubleString.substring(6);
-      switch (month) {
-        case 1:
-          text = Text("$yearString-Jan-$dayString", style: style);
-          break;
-        case 2:
-          text = Text("$yearString-Feb-$dayString", style: style);
-          break;
-        case 3:
-          text = Text("$yearString-Mar-$dayString", style: style);
-          break;
-        case 4:
-          text = Text("$yearString-Apr-$dayString", style: style);
-          break;
-        case 5:
-          text = Text("$yearString-May-$dayString", style: style);
-          break;
-        case 6:
-          text = Text("$yearString-Jun-$dayString", style: style);
-          break;
-        case 7:
-          text = Text("$yearString-Jul-$dayString", style: style);
-          break;
-        case 8:
-          text = Text("$yearString-Aug-$dayString", style: style);
-          break;
-        case 9:
-          text = Text("$yearString-Sep-$dayString", style: style);
-          break;
-        case 10:
-          text = Text("$yearString-Oct-$dayString", style: style);
-          break;
-        case 11:
-          text = Text("$yearString-Nov-$dayString", style: style);
-          break;
-        case 12:
-          text = Text("$yearString-Dec-$dayString", style: style);
-          break;
-        default:
-          text = Text('None', style: style);
-          break;
-      }
-      return SideTitleWidget(
-        axisSide: meta.axisSide,
-        space: 10,
-        child: text,
-      );
-    }
-  }
-
-  SideTitles get rightTitles => SideTitles(
-        getTitlesWidget: rightTitleWidgets,
-        showTitles: true,
-        interval: 50,
-        reservedSize: 40,
-      );
-
-  SideTitles get bottomTitles => SideTitles(
-        showTitles: true,
-        reservedSize: 32,
-        interval: 999999,
-        getTitlesWidget: bottomTitleWidgets,
-      );
-
-  List<LineChartBarData> get lineBarsData1 => [
-        lineChartBarData1_1,
-      ];
 
   Future<void> _loadLineChartDetails({required String type}) async {
     setState(() {
@@ -270,7 +158,6 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
           String result = data['x'].replaceAll("-", "");
           double doubleValue = double.parse(result);
           x = doubleValue;
-          print("X-VALUE :: $x");
         } else if (data['x'] is String && selectedType == "Monthly") {
           String dateString = data['x'];
           List<String> dateParts = dateString.split("-");
@@ -724,8 +611,9 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
                           ],
                         ),
                         ListView.builder(
+                            controller: _scrollController,
+                            scrollDirection: Axis.vertical,
                             padding: EdgeInsets.zero,
-                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: whatArr.length,
                             itemBuilder: (context, index) {
@@ -745,6 +633,18 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
                         SizedBox(
                           height: media.width * 0.1,
                         ),
+                        pageNumber < totalPages
+                            ? RoundButton(
+                                title: 'More',
+                                onPressed: () {
+                                  if (pageNumber < totalPages) {
+                                    setState(() {
+                                      pageNumber += 1;
+                                    });
+                                    _loadWorkouts();
+                                  }
+                                })
+                            : const SizedBox()
                       ],
                     ),
                   ),
@@ -753,4 +653,147 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
             ),
           );
   }
+
+  Widget rightTitleWidgets(double value, TitleMeta meta) {
+    return Text(
+      value.toString(),
+      style: TextStyle(
+        color: TColor.gray,
+        fontSize: 12,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    var style = TextStyle(
+      color: TColor.gray,
+      fontSize: 12,
+    );
+    String doubleString = value.toString();
+    Widget text;
+    // Remove the dot from doubleString
+    doubleString = doubleString.replaceAll(".0", "");
+    if (selectedType == "Monthly") {
+      // Parse the integer
+      int month = int.parse(doubleString.substring(4));
+      String yearString = doubleString.substring(0, 4);
+
+      switch (month) {
+        case 1:
+          text = Text("$yearString-Jan", style: style);
+          break;
+        case 2:
+          text = Text("$yearString-Feb", style: style);
+          break;
+        case 3:
+          text = Text("$yearString-Mar", style: style);
+          break;
+        case 4:
+          text = Text("$yearString-Apr", style: style);
+          break;
+        case 5:
+          text = Text("$yearString-May", style: style);
+          break;
+        case 6:
+          text = Text("$yearString-Jun", style: style);
+          break;
+        case 7:
+          text = Text("$yearString-Jul", style: style);
+          break;
+        case 8:
+          text = Text("$yearString-Aug", style: style);
+          break;
+        case 9:
+          text = Text("$yearString-Sep", style: style);
+          break;
+        case 10:
+          text = Text("$yearString-Oct", style: style);
+          break;
+        case 11:
+          text = Text("$yearString-Nov", style: style);
+          break;
+        case 12:
+          text = Text("$yearString-Dec", style: style);
+          break;
+        default:
+          text = Text('None', style: style);
+          break;
+      }
+
+      return SideTitleWidget(
+        axisSide: meta.axisSide,
+        space: 10,
+        child: text,
+      );
+    } else {
+      int month = int.parse(doubleString.substring(4, 6));
+      String yearString = doubleString.substring(0, 4);
+      String dayString = doubleString.substring(6);
+      switch (month) {
+        case 1:
+          text = Text("$yearString-Jan-$dayString", style: style);
+          break;
+        case 2:
+          text = Text("$yearString-Feb-$dayString", style: style);
+          break;
+        case 3:
+          text = Text("$yearString-Mar-$dayString", style: style);
+          break;
+        case 4:
+          text = Text("$yearString-Apr-$dayString", style: style);
+          break;
+        case 5:
+          text = Text("$yearString-May-$dayString", style: style);
+          break;
+        case 6:
+          text = Text("$yearString-Jun-$dayString", style: style);
+          break;
+        case 7:
+          text = Text("$yearString-Jul-$dayString", style: style);
+          break;
+        case 8:
+          text = Text("$yearString-Aug-$dayString", style: style);
+          break;
+        case 9:
+          text = Text("$yearString-Sep-$dayString", style: style);
+          break;
+        case 10:
+          text = Text("$yearString-Oct-$dayString", style: style);
+          break;
+        case 11:
+          text = Text("$yearString-Nov-$dayString", style: style);
+          break;
+        case 12:
+          text = Text("$yearString-Dec-$dayString", style: style);
+          break;
+        default:
+          text = Text('None', style: style);
+          break;
+      }
+      return SideTitleWidget(
+        axisSide: meta.axisSide,
+        space: 10,
+        child: text,
+      );
+    }
+  }
+
+  SideTitles get rightTitles => SideTitles(
+        getTitlesWidget: rightTitleWidgets,
+        showTitles: true,
+        interval: 50,
+        reservedSize: 40,
+      );
+
+  SideTitles get bottomTitles => SideTitles(
+        showTitles: true,
+        reservedSize: 32,
+        interval: 999999,
+        getTitlesWidget: bottomTitleWidgets,
+      );
+
+  List<LineChartBarData> get lineBarsData1 => [
+        lineChartBarData1_1,
+      ];
 }

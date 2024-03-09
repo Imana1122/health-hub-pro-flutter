@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
-import 'package:fyp_flutter/services/auth_service.dart';
-import 'package:fyp_flutter/services/profile_service.dart';
+import 'package:fyp_flutter/services/account/auth_service.dart';
+import 'package:fyp_flutter/services/account/profile_service.dart';
 
 class AuthProvider with ChangeNotifier {
   late User _user;
@@ -108,7 +108,6 @@ class AuthProvider with ChangeNotifier {
           gender: gender,
           token: _user.token);
       _user.profile = userProfile;
-      _userProfile = userProfile;
 
       return true;
     } catch (e) {
@@ -236,8 +235,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> logMeal({required String recipeId}) async {
     try {
-      List<dynamic> mealLogs = await ProfileService()
-          .logMeal(recipeId: recipeId, token: _user.token);
+      await ProfileService().logMeal(recipeId: recipeId, token: _user.token);
       return true;
     } catch (e) {
       print(e);
@@ -247,8 +245,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> deleteLogMeal({required String id}) async {
     try {
-      List<dynamic> mealLogs =
-          await ProfileService().deleteLogMeal(id: id, token: _user.token);
+      await ProfileService().deleteLogMeal(id: id, token: _user.token);
       return true;
     } catch (e) {
       print(e);
@@ -256,7 +253,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<List<dynamic>> getMealLogs() async {
+  Future<dynamic> getMealLogs() async {
     try {
       List<dynamic> mealLogs =
           await ProfileService().getMealLogs(token: _user.token);

@@ -1,7 +1,8 @@
 import 'package:calendar_agenda/calendar_agenda.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/recipe_recommendation_service.dart';
+import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
@@ -28,11 +29,14 @@ class _MealScheduleViewState extends State<MealScheduleView> {
   late AuthProvider authProvider;
   bool isLoading = false;
   List nutritionArr = [];
+  DateTime selectedDate = DateTime.now();
+  late User user;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
+    user = authProvider.getAuthenticatedUser();
 
     // Check if the user is already logged in
     if (!authProvider.isLoggedIn) {
@@ -62,7 +66,10 @@ class _MealScheduleViewState extends State<MealScheduleView> {
     setState(() {
       isLoading = true;
     });
-    List<dynamic> mealLogs = await authProvider.getMealLogs();
+
+    var result = await authProvider.getMealLogs();
+    List<dynamic> mealLogs = result['recipeLogs'];
+    var userNutrients = result['userNutrients'];
     setState(() {
       lunchArr = mealLogs.where((meal) {
         // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
@@ -104,28 +111,36 @@ class _MealScheduleViewState extends State<MealScheduleView> {
           "image": "assets/img/burn.png",
           "unit_name": "kCal",
           "value": totalCalories.toString(),
-          "max_value": "2500",
+          "max_value": userNutrients != null
+              ? userNutrients['calories']
+              : user.profile.calories,
         },
         {
           "title": "Proteins",
           "image": "assets/img/proteins.png",
           "unit_name": "g",
           "value": totalProteins.toString(),
-          "max_value": "1000",
+          "max_value": userNutrients != null
+              ? userNutrients['protein']
+              : user.profile.protein,
         },
         {
           "title": "Fats",
           "image": "assets/img/egg.png",
           "unit_name": "g",
           "value": totalFats.toString(),
-          "max_value": "1000",
+          "max_value": userNutrients != null
+              ? userNutrients['total_fat']
+              : user.profile.totalFat,
         },
         {
           "title": "Carbo",
           "image": "assets/img/carbo.png",
           "unit_name": "g",
           "value": totalCarbo.toString(),
-          "max_value": "1000",
+          "max_value": userNutrients != null
+              ? userNutrients['carbohydrates']
+              : user.profile.carbohydrates,
         },
       ];
       isLoading = false;
@@ -136,6 +151,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
     setState(() {
       isLoading = true;
     });
+
     // Handle the retrieved meal logs as needed
     List<dynamic> mealLogs = await authProvider.getSpecificMealLogs(
         datetime: selectedDate.toIso8601String());
@@ -182,28 +198,28 @@ class _MealScheduleViewState extends State<MealScheduleView> {
           "image": "assets/img/burn.png",
           "unit_name": "kCal",
           "value": totalCalories.toString(),
-          "max_value": "2500",
+          "max_value": user.profile.calories,
         },
         {
           "title": "Proteins",
           "image": "assets/img/proteins.png",
           "unit_name": "g",
           "value": totalProteins.toString(),
-          "max_value": "1000",
+          "max_value": user.profile.protein,
         },
         {
           "title": "Fats",
           "image": "assets/img/egg.png",
           "unit_name": "g",
           "value": totalFats.toString(),
-          "max_value": "1000",
+          "max_value": user.profile.totalFat,
         },
         {
           "title": "Carbo",
           "image": "assets/img/carbo.png",
           "unit_name": "g",
           "value": totalCarbo.toString(),
-          "max_value": "1000",
+          "max_value": user.profile.carbohydrates,
         },
       ];
       isLoading = false;
@@ -318,12 +334,15 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                   dateColor: Colors.black,
                   locale: 'en',
 
-                  initialDate: DateTime.now(),
+                  initialDate: selectedDate,
                   calendarEventColor: TColor.primaryColor2,
                   firstDate: DateTime.now().subtract(const Duration(days: 140)),
                   lastDate: DateTime.now().add(const Duration(days: 60)),
 
                   onDateSelected: (date) {
+                    setState(() {
+                      selectedDate = date;
+                    });
                     _loadSpecificMealLogs(date);
                   },
                   selectedDayLogo: Container(

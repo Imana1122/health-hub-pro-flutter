@@ -53,7 +53,7 @@ class _ProfileViewState extends State<ProfileView> {
     },
     {
       "image": "assets/img/p_choose_goal.png",
-      "name": "Personal Data",
+      "name": "Choose Goal",
       "tag": "1",
       "url": "/choose-goal"
     },

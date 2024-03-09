@@ -14,4 +14,14 @@ class MealPlanService extends BaseApi {
 
     return await api.httpGet(url, token: token);
   }
+
+  Future<List<dynamic>> selectMealPlan(
+      {required String mealPlanId, required String token}) async {
+    var url = 'account/select-meal-plan';
+    String now = DateTime.now().toIso8601String();
+
+    var body = {'meal_plan_id': mealPlanId, 'created_at': now};
+    print(body);
+    return await api.httpPost(url, body: body, token: token);
+  }
 }

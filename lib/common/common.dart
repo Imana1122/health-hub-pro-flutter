@@ -17,9 +17,7 @@ DateTime stringToDate(String dateStr,
     {String formatStr = "yyyy-MM-ddTHH:mm:ss.SSSSSSZ"}) {
   try {
     // Removing the 'Z' at the end since it indicates UTC and it's not part of the format
-    dateStr = dateStr.replaceAll('Z', '');
-    var format = DateFormat(formatStr);
-    return format.parse(dateStr);
+    return DateTime.parse(dateStr).toLocal();
   } catch (e) {
     // Handle parsing error, return current date as fallback
     print("Error parsing date: $e");

@@ -1,11 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/base_api.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class WorkoutRecommendationService extends BaseApi {
   var authProvider = AuthProvider();
@@ -40,16 +34,15 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
-  Future<List<dynamic>> logWorkout(
-      {required String workoutId,
-      required double caloriesBurned,
-      required String workoutName,
-      required String startAt,
-      required String endAt,
-      required int completionStatus,
-      required dynamic exercises}) async {
+  Future<List<dynamic>> logWorkout({
+    required String workoutId,
+    required double caloriesBurned,
+    required String workoutName,
+    required String startAt,
+    required String endAt,
+    required int completionStatus,
+  }) async {
     var url = 'account/log-workout';
-    String now = DateTime.now().toIso8601String();
     String token = authProvider.user.token;
 
     var body = {
@@ -57,7 +50,6 @@ class WorkoutRecommendationService extends BaseApi {
       'start_at': startAt,
       'end_at': endAt,
       'calories_burned': caloriesBurned,
-      'exercises': exercises,
       'workout_name': workoutName,
       'completion_status': completionStatus
     };

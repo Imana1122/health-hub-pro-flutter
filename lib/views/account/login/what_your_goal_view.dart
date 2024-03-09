@@ -2,7 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/weight_plan_service.dart';
+import 'package:fyp_flutter/services/account/weight_plan_service.dart';
 import 'package:fyp_flutter/views/account/login/cuisine_preference.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:fyp_flutter/views/account/profile/profile_view.dart';
@@ -82,6 +82,12 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
       if (result == true || result != null) {
         if (user.profile.weightPlanId == '') {
           user.profile.weightPlanId = result['weight_plan_id'];
+          user.profile.calories = result['calories'];
+          user.profile.protein = result['protein'];
+          user.profile.totalFat = result['total_fat'];
+          user.profile.carbohydrates = result['carbohydrates'];
+          user.profile.sodium = result['sodium'];
+          user.profile.sugar = result['sugar'];
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -90,7 +96,14 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
           );
         } else {
           user.profile.weightPlanId = result['weight_plan_id'];
-          Navigator.pushNamed(context, '/choose-goal');
+          user.profile.calories = result['calories'];
+          user.profile.protein = result['protein'];
+          user.profile.totalFat = result['total_fat'];
+          user.profile.carbohydrates = result['carbohydrates'];
+          user.profile.sodium = result['sodium'];
+          user.profile.sugar = result['sugar'];
+
+          Navigator.pushNamed(context, '/profile');
         }
       } else {
         print("Error setting goal");

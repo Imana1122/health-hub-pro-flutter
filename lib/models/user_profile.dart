@@ -12,6 +12,15 @@ class UserProfile {
   String weightPlanId;
   String createdAt;
   String updatedAt;
+  String activityLevel;
+  double calories;
+  double carbohydrates;
+  double protein;
+  double totalFat;
+  int sodium;
+  int sugar;
+  double bmi;
+  int notification;
 
   UserProfile({
     required this.id,
@@ -27,6 +36,15 @@ class UserProfile {
     required this.weightPlanId,
     required this.createdAt,
     required this.updatedAt,
+    required this.activityLevel,
+    required this.calories,
+    required this.carbohydrates,
+    required this.protein,
+    required this.totalFat,
+    required this.sodium,
+    required this.sugar,
+    required this.bmi,
+    required this.notification,
   });
 
   // Named constructor with default values
@@ -43,7 +61,16 @@ class UserProfile {
         gender = '',
         weightPlanId = '',
         createdAt = '',
-        updatedAt = '';
+        updatedAt = '',
+        activityLevel = '',
+        calories = 0,
+        carbohydrates = 0,
+        protein = 0,
+        totalFat = 0,
+        sodium = 0,
+        sugar = 0,
+        bmi = 0,
+        notification = 1;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
@@ -60,6 +87,15 @@ class UserProfile {
       weightPlanId: json['weight_plan_id'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
+      activityLevel: json['activity_level'] ?? '',
+      calories: json['calories'] ?? 0,
+      carbohydrates: json['carbohydrates'] ?? 0,
+      protein: json['protein'] ?? 0,
+      totalFat: json['total_fat'] ?? 0,
+      sodium: json['sodium'] ?? 0,
+      sugar: json['sugar'] ?? 0,
+      bmi: json['bmi'] ?? 0,
+      notification: json['notification'] ?? 0,
     );
   }
 
@@ -75,7 +111,16 @@ class UserProfile {
         gender.isEmpty &&
         weightPlanId.isEmpty &&
         createdAt.isEmpty &&
-        updatedAt.isEmpty;
+        updatedAt.isEmpty &&
+        activityLevel == '' &&
+        calories == 0 &&
+        carbohydrates == 0 &&
+        protein == 0 &&
+        totalFat == 0 &&
+        sodium == 0 &&
+        sugar == 0 &&
+        bmi == 0 &&
+        notification == 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -93,6 +138,15 @@ class UserProfile {
     data['weight_plan_id'] = weightPlanId;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
+    data['activity_level'] = activityLevel;
+    data['calories'] = calories;
+    data['carbohydrates'] = carbohydrates;
+    data['protein'] = protein;
+    data['total_fat'] = totalFat;
+    data['sodium'] = sodium;
+    data['sugar'] = sugar;
+    data['bmi'] = bmi;
+    data['notification'] = notification;
     return data;
   }
 }

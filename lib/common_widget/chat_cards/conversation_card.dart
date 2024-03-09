@@ -21,7 +21,7 @@ class ConversationCard extends StatelessWidget {
     }).length;
 
     final lastMessage =
-        conversation.messages.isNotEmpty ? conversation.messages.first : null;
+        conversation.messages.isNotEmpty ? conversation.messages.last : null;
 
     return ListTile(
       onTap: onTap,

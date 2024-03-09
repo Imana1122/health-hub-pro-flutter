@@ -1,7 +1,7 @@
 import 'package:fyp_flutter/common/common.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/views/account/cheat_meal/food_info_details_view.dart';
+import 'package:fyp_flutter/views/account/meal_recipes/food_info_details_view.dart';
 import 'package:provider/provider.dart';
 
 import '../common/color_extension.dart';

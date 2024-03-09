@@ -1,6 +1,6 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/dietician_booking_service.dart';
+import 'package:fyp_flutter/services/account/dietician_booking_service.dart';
 import 'package:fyp_flutter/views/account/dietician_booking/dietician_details.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +112,6 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
                           );
                         },
                         child: SizedBox(
-                          height: 200,
                           child: Padding(
                             padding: const EdgeInsets.all(
                                 8.0), // Adjust the padding as needed

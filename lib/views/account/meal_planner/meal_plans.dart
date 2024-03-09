@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common/size_config.dart';
+import 'package:fyp_flutter/common_widget/meal_plans_cards/meal_plan_card.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/meal_plan_service.dart';
+import 'package:fyp_flutter/services/account/meal_plan_service.dart';
 import 'package:provider/provider.dart';
 
 class MealPlans extends StatefulWidget {
@@ -16,6 +17,8 @@ class MealPlans extends StatefulWidget {
 class _MealPlansState extends State<MealPlans> {
   late AuthProvider authProvider;
   List<dynamic> mealPlans = [];
+  int pageNumber = 1;
+  int lastPage = 1;
   bool isLoading = false;
   @override
   void initState() {
@@ -43,9 +46,30 @@ class _MealPlansState extends State<MealPlans> {
         .getMealPlans(); // Convert type to lowercase
 
     setState(() {
-      mealPlans = fetchedData;
+      mealPlans = fetchedData['data'];
+      pageNumber = fetchedData['current_page'];
+      lastPage = fetchedData['to'];
       isLoading = false;
     });
+  }
+
+  Future<void> _loadMore() async {
+    if (pageNumber < lastPage) {
+      setState(() {
+        isLoading = true;
+        pageNumber += 1;
+      });
+      var fetchedData = await MealPlanService(authProvider)
+          .getMealPlans(currentPage: pageNumber); // Convert type to lowercase
+
+      setState(() {
+        mealPlans.addAll(fetchedData['data']);
+
+        pageNumber = fetchedData['current_page'];
+        lastPage = fetchedData['to'];
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -55,36 +79,56 @@ class _MealPlansState extends State<MealPlans> {
     SizeConfig().init(context);
     return isLoading
         ? SizedBox(
-            height: media.height,
-            width: media.width,
-            child: const CircularProgressIndicator())
+            height: media.height, // Adjust height as needed
+            width: media.width, // Adjust width as needed
+            child: const Center(
+              child: SizedBox(
+                width: 50, // Adjust size of the CircularProgressIndicator
+                height: 50, // Adjust size of the CircularProgressIndicator
+                child: CircularProgressIndicator(
+                  strokeWidth:
+                      4, // Adjust thickness of the CircularProgressIndicator
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue), // Change color
+                ),
+              ),
+            ),
+          )
         : Scaffold(
-            backgroundColor: Colors.black,
+            backgroundColor: TColor.lightGray,
             appBar: AppBar(
               backgroundColor: TColor.primaryColor1,
-              leading: IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back_ios),
-              ),
               title: const Text('Meal Planner'),
               centerTitle: true,
             ),
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: SizeConfig.safeBlockHorizontal * 3,
-                        vertical: SizeConfig.safeBlockHorizontal * 3),
-                    itemCount: mealPlans.length,
-                    itemBuilder: (context, index) {
-                      return RoundButton(
-                          onPressed: () {}, title: "Meal Plan $index");
-                    },
+            body: Container(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: SizeConfig.safeBlockHorizontal * 3,
+                          vertical: SizeConfig.safeBlockHorizontal * 3),
+                      itemCount: mealPlans.length,
+                      itemBuilder: (context, index) {
+                        var mObj = mealPlans[index];
+                        mObj['name'] = "Meal Plan $index";
+                        return MealPlanCard(mObj: mObj);
+                      },
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: media.height * 0.1,
+                  ),
+                  RoundButton(
+                      title: 'More',
+                      onPressed: () {
+                        _loadMore();
+                      })
+                ],
+              ),
             ),
           );
   }

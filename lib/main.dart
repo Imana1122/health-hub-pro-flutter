@@ -19,7 +19,7 @@ import 'package:fyp_flutter/views/account/login/signup_view.dart';
 import 'package:fyp_flutter/views/account/login/update_personal_info.dart';
 import 'package:fyp_flutter/views/account/login/what_your_goal_view.dart';
 import 'package:fyp_flutter/views/account/main_tab/main_tab_view.dart';
-import 'package:fyp_flutter/views/account/cheat_meal/meal_planner_view.dart';
+import 'package:fyp_flutter/views/account/meal_recipes/meal_planner_view.dart';
 import 'package:fyp_flutter/views/account/profile/profile_view.dart';
 import 'package:fyp_flutter/views/user_selection/user_type_selection_page.dart';
 import 'package:provider/provider.dart';

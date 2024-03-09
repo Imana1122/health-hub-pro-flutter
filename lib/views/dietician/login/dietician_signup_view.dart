@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:fyp_flutter/common/color_extension.dart';
-import 'package:fyp_flutter/common_widget/outlined_textfield.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
+import 'package:fyp_flutter/common_widget/round_textfield.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/dietician/login/dietician_login_view.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +24,9 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
   TextEditingController lastNameController = TextEditingController(text: '');
   TextEditingController emailController = TextEditingController(text: '');
   TextEditingController phoneNumberController = TextEditingController(text: '');
-  TextEditingController specialityController = TextEditingController(text: '');
   TextEditingController descriptionController = TextEditingController(text: '');
+  TextEditingController passwordController = TextEditingController(text: '');
+
   TextEditingController esewaClientIdController =
       TextEditingController(text: '');
   TextEditingController esewaSecretKeyController =
@@ -35,6 +36,7 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
       TextEditingController(text: '');
   TextEditingController bioController = TextEditingController(text: '');
   final GlobalKey<FlutterSummernoteState> _descriptionEditor = GlobalKey();
+  final GlobalKey<FlutterSummernoteState> _specialityEditor = GlobalKey();
 
   bool isLoading = false;
   bool isCheck = false;
@@ -56,12 +58,6 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
         cvFile = file;
         isLoading = false;
       });
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PDFViewerScreen(filePath: file.path),
-        ),
-      );
     }
     setState(() {
       isLoading = false;
@@ -115,8 +111,12 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
 
       if (isCheck) {
         String description = '';
+        String speciality = '';
+
         description = await _descriptionEditor.currentState!.getText();
-        print(description);
+        speciality = await _specialityEditor.currentState!.getText();
+
+        print("Description :: $description");
 
         if (await authProvider.register(
           firstName: firstNameController.text.trim(),
@@ -130,7 +130,7 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
           bio: bioController.text.trim(),
           cv: cvFile,
           image: imageFile,
-          speciality: specialityController.text.trim(),
+          speciality: speciality,
         )) {
           Navigator.pushNamed(context, '/login-dietician');
         } else {
@@ -155,6 +155,7 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
           ),
         );
       }
+
       setState(() {
         isLoading = false;
       });
@@ -221,102 +222,67 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                       SizedBox(
                         height: media.width * 0.05,
                       ),
-                      TextFormField(
-                        controller: firstNameController,
-                        decoration:
-                            _getInputDecoration('First Name', Icons.person),
-                      ),
+                      RoundTextField(
+                          hitText: 'First Name',
+                          controller: firstNameController,
+                          icon: const Icon(Icons.person)),
                       SizedBox(
                         height: media.width * 0.05,
                       ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Last Name',
                         controller: lastNameController,
-                        decoration:
-                            _getInputDecoration('Last Name', Icons.person),
+                        icon: const Icon(Icons.person),
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Email',
                         controller: emailController,
-                        decoration: _getInputDecoration('Email', Icons.email),
+                        icon: const Icon(Icons.email),
                         keyboardType: TextInputType.emailAddress,
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Phone Number',
                         controller: phoneNumberController,
-                        decoration:
-                            _getInputDecoration('Phone Number', Icons.phone),
+                        icon: const Icon(Icons.phone),
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      TextFormField(
-                        controller: specialityController,
-                        decoration:
-                            _getInputDecoration('Speciality', Icons.category),
-                      ),
-                      SizedBox(
-                        height: media.width * 0.04,
-                      ),
-                      TextFormField(
-                        readOnly: true,
-                        decoration: _getInputDecoration(
-                            'Description', Icons.description),
-                      ),
-                      FlutterSummernote(
-                        key: _descriptionEditor,
-                        height: media.height * 0.5,
-                        hasAttachment: true,
-                        showBottomToolbar: true,
-                        customToolbar: """""
-             [
-                          ['style', ['bold', 'italic', 'underline', 'clear']],
-                          ['font', ['strikethrough', 'superscript', 'subscript']],
-                          ['fontsize', ['fontsize']],
-                          ['color', ['color']],
-                          ['para', ['ul', 'ol', 'paragraph']],
-                          ['height', ['height']],
-                          ['insert', ['link', 'picture', 'video']],
-                          ['view', ['fullscreen', 'codeview', 'help']]
-                        ]
-            """
-                            "",
-                      ),
-                      SizedBox(
-                        height: media.width * 0.04,
-                      ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Esewa Client ID',
                         controller: esewaClientIdController,
-                        decoration: _getInputDecoration(
-                            'Esewa Client ID', Icons.credit_card),
+                        icon: const Icon(Icons.credit_card),
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Esewa Secret Key',
                         controller: esewaSecretKeyController,
-                        decoration: _getInputDecoration(
-                            'Esewa Secret Key', Icons.credit_card),
+                        icon: const Icon(Icons.credit_card),
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Booking Amount',
                         controller: bookingAmountController,
-                        decoration: _getInputDecoration(
-                            'Booking Amount', Icons.attach_money),
+                        icon: const Icon(Icons.attach_money),
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      TextFormField(
+                      RoundTextField(
+                        hitText: 'Bio',
                         controller: bioController,
-                        decoration:
-                            _getInputDecoration('Bio', Icons.info_outline),
+                        icon: const Icon(Icons.info_outline),
                         keyboardType: TextInputType.multiline,
                         maxLines: 3,
                       ),
@@ -348,6 +314,7 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              const Spacer(),
                               if (cvFile != null)
                                 Flexible(
                                   child: InkWell(
@@ -364,7 +331,7 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                                       );
                                     },
                                     child: Icon(
-                                      Icons.visibility,
+                                      Icons.picture_as_pdf_rounded,
                                       color: TColor.gray,
                                     ),
                                   ),
@@ -414,6 +381,90 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                       ),
                       SizedBox(
                         height: media.width * 0.05,
+                      ),
+                      Container(
+                        width: media.width,
+                        height: 50,
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Color.fromARGB(255, 182, 208, 229),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                          ),
+                        ),
+                        child: const Row(
+                          children: [
+                            Text('Speciality'),
+                            Spacer(),
+                            Icon(Icons.description),
+                          ],
+                        ),
+                      ),
+                      FlutterSummernote(
+                        key: _specialityEditor,
+                        height: media.height * 0.5,
+                        hasAttachment: true,
+                        showBottomToolbar: true,
+                        customToolbar: """""
+             [
+                          ['style', ['bold', 'italic', 'underline', 'clear']],
+                          ['font', ['strikethrough', 'superscript', 'subscript']],
+                          ['fontsize', ['fontsize']],
+                          ['color', ['color']],
+                          ['para', ['ul', 'ol', 'paragraph']],
+                          ['height', ['height']],
+                          ['insert', ['link', 'picture', 'video']],
+                          ['view', ['fullscreen', 'codeview', 'help']]
+                        ]
+            """
+                            "",
+                      ),
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
+                      Container(
+                        width: media.width,
+                        height: 50,
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Color.fromARGB(255, 182, 208, 229),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                          ),
+                        ),
+                        child: const Row(
+                          children: [
+                            Text("Description"),
+                            Spacer(),
+                            Icon(Icons.description),
+                          ],
+                        ),
+                      ),
+                      FlutterSummernote(
+                        key: _descriptionEditor,
+                        height: media.height * 0.5,
+                        hasAttachment: true,
+                        showBottomToolbar: true,
+                        customToolbar: """""
+             [
+                          ['style', ['bold', 'italic', 'underline', 'clear']],
+                          ['font', ['strikethrough', 'superscript', 'subscript']],
+                          ['fontsize', ['fontsize']],
+                          ['color', ['color']],
+                          ['para', ['ul', 'ol', 'paragraph']],
+                          ['height', ['height']],
+                          ['insert', ['link', 'picture', 'video']],
+                          ['view', ['fullscreen', 'codeview', 'help']]
+                        ]
+            """
+                            "",
+                      ),
+                      SizedBox(
+                        height: media.width * 0.04,
                       ),
                       Row(
                         children: [
@@ -492,14 +543,26 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
 
   InputDecoration _getInputDecoration(String label, IconData icon) {
     return InputDecoration(
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        hintText: label,
+        border: const OutlineInputBorder(),
         labelText: label,
-        hintText: 'Enter $label',
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: TColor.gray.withOpacity(0.1),
-        border: InputBorder.none,
-        labelStyle: TextStyle(color: TColor.gray), // Color of the label text
-        hintStyle: TextStyle(color: TColor.gray), // Color of the hint text
-        prefixIconColor: TColor.gray);
+        prefixIcon: Container(
+          width: 50, // Adjust width as needed
+          height: 52,
+          margin: const EdgeInsets.only(right: 3),
+          decoration: const BoxDecoration(
+            shape: BoxShape.rectangle, // Makes the container circular
+            color: Color.fromARGB(
+                255, 182, 208, 229), // Change the background color as desired
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(5),
+              bottomLeft: Radius.circular(5),
+            ),
+          ),
+          child: Icon(icon),
+        ),
+        hintStyle: TextStyle(color: TColor.gray, fontSize: 12));
   }
 }

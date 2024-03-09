@@ -15,4 +15,17 @@ class DieticianConversationService extends BaseApi {
     return await api.httpPost('dietician/chats/store',
         body: {'message': message, 'user_id': userId}, token: token);
   }
+
+  Future<dynamic> loadMoreMessages(
+      {required int page,
+      required String token,
+      required String userId}) async {
+    return await api.httpGet('account/chats/$userId?page=$page', token: token);
+  }
+
+  Future<dynamic> readMessage(
+      {required String senderId, required String token}) async {
+    return await api.httpPost('account/chats/read',
+        body: {'sender_id': senderId}, token: token);
+  }
 }

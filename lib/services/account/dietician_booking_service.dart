@@ -10,7 +10,7 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import './base_api.dart';
+import '../base_api.dart';
 
 class DieticianBookingService extends BaseApi {
   var authProvider = AuthProvider();

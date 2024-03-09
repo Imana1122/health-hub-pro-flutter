@@ -1,3 +1,5 @@
+import 'package:fyp_flutter/views/account/workout_tracker/workout_detail_view.dart';
+
 import '../common/color_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart';
@@ -5,6 +7,7 @@ import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart
 class WorkoutRow extends StatelessWidget {
   final Map wObj;
   const WorkoutRow({super.key, required this.wObj});
+  // Iterate over each exercise and accumulate total calories burned
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +23,8 @@ class WorkoutRow extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(30),
-              child: Image.asset(
-                wObj["image"].toString(),
+              child: Image.network(
+                'http://10.0.2.2:8000/uploads/workout/${wObj['workout']['image']}',
                 width: 60,
                 height: 60,
                 fit: BoxFit.cover,
@@ -35,11 +38,11 @@ class WorkoutRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  wObj["name"].toString(),
+                  wObj['workout']["name"].toString(),
                   style: TextStyle(color: TColor.black, fontSize: 12),
                 ),
                 Text(
-                  "${wObj["kcal"].toString()} Calories Burn | ${wObj["time"].toString()}minutes",
+                  "${wObj['workout']["total_calories_burned"].toStringAsFixed(2)} Calories Burn | ${wObj['workout']["exercises"].length.toString()}minutes",
                   style: TextStyle(
                     color: TColor.gray,
                     fontSize: 10,
@@ -53,7 +56,9 @@ class WorkoutRow extends StatelessWidget {
                   width: media.width * 0.5,
                   backgroundColor: Colors.grey.shade100,
                   foregrondColor: Colors.purple,
-                  ratio: wObj["progress"] as double? ?? 0.0,
+                  ratio: wObj["calories_burned"] /
+                          wObj['workout']['total_calories_burned'] as double? ??
+                      0.0,
                   direction: Axis.horizontal,
                   curve: Curves.fastLinearToSlowEaseIn,
                   duration: const Duration(seconds: 3),
@@ -66,7 +71,14 @@ class WorkoutRow extends StatelessWidget {
               ],
             )),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => WorkoutDetailView(
+                                dObj: wObj['workout'],
+                              )));
+                },
                 icon: Image.asset(
                   "assets/img/next_icon.png",
                   width: 30,

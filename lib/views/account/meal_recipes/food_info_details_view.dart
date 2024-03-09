@@ -40,24 +40,26 @@ class _FoodInfoDetailsViewState extends State<FoodInfoDetailsView> {
   }
 
   void initializeNutritionArr() {
-    nutritionArr = [
-      {
-        "image": "assets/img/burn.png",
-        "title": "${widget.dObj["calories"]} calories"
-      },
-      {
-        "image": "assets/img/egg.png",
-        "title": "${widget.dObj["total_fat"]} fat"
-      },
-      {
-        "image": "assets/img/proteins.png",
-        "title": "${widget.dObj["protein"]} proteins"
-      },
-      {
-        "image": "assets/img/carbo.png",
-        "title": "${widget.dObj["carbohydrates"]} carbs"
-      },
-    ];
+    setState(() {
+      nutritionArr = [
+        {
+          "image": "assets/img/burn.png",
+          "title": "${widget.dObj["calories"]} calories"
+        },
+        {
+          "image": "assets/img/egg.png",
+          "title": "${widget.dObj["total_fat"]} fat"
+        },
+        {
+          "image": "assets/img/proteins.png",
+          "title": "${widget.dObj["protein"]} proteins"
+        },
+        {
+          "image": "assets/img/carbo.png",
+          "title": "${widget.dObj["carbohydrates"]} carbs"
+        },
+      ];
+    });
   }
 
   handleMealLog() async {

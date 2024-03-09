@@ -4,7 +4,6 @@ import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/models/recipe_category.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/base_api.dart';
-import 'package:http/http.dart' as http;
 
 class RecipeRecommendationService extends BaseApi {
   var authProvider = AuthProvider();

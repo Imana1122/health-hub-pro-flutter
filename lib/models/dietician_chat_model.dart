@@ -23,6 +23,7 @@ class DieticianChatModel {
   final String otherUserId;
 
   final List<ChatMessage> messages;
+  int currentMessagePage;
 
   DieticianChatModel({
     required this.id,
@@ -45,9 +46,10 @@ class DieticianChatModel {
     required this.updatedAt,
     required this.otherUserId,
     required this.messages,
+    required this.currentMessagePage,
   });
   // Named constructor with default values
-  const DieticianChatModel.empty()
+  DieticianChatModel.empty()
       : id = '',
         firstName = '',
         lastName = '',
@@ -67,13 +69,14 @@ class DieticianChatModel {
         createdAt = '',
         updatedAt = '',
         otherUserId = '',
+        currentMessagePage = 0,
         messages = const [];
 
   factory DieticianChatModel.fromJson(Map<String, dynamic> json) {
     List<ChatMessage> messageList = [];
-    if (json['messages'] != null) {
-      messageList = List<ChatMessage>.from(
-          json['messages'].map((message) => ChatMessage.fromJson(message)));
+    if (json['messages'] != null && json['messages']['data'] != null) {
+      messageList = List<ChatMessage>.from(json['messages']['data']
+          .map((message) => ChatMessage.fromJson(message)));
     }
     return DieticianChatModel(
       id: json['id'],
@@ -95,6 +98,7 @@ class DieticianChatModel {
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       otherUserId: json['otherUserId'],
+      currentMessagePage: json['messages']['current_page'],
       messages: messageList,
     );
   }

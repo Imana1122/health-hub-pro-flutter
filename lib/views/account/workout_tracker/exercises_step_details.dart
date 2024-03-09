@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
 
 import '../../../common/color_extension.dart';
-import '../../../common_widget/round_button.dart';
 
 class ExercisesStepDetails extends StatefulWidget {
   final Map eObj;
@@ -213,10 +212,6 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                     );
                   },
                 ),
-              ),
-              RoundButton(title: "Save", elevation: 0, onPressed: () {}),
-              const SizedBox(
-                height: 15,
               ),
             ],
           ),

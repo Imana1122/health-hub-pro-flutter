@@ -1,4 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common/size_config.dart';
 import 'package:fyp_flutter/common_widget/chat_cards/friend_message_card.dart';
@@ -10,9 +9,6 @@ import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/services/pusher_service.dart';
 import 'package:provider/provider.dart';
-import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
 
 class ChatScreen extends StatefulWidget {
   final DieticianChatModel conversation;
@@ -37,23 +33,55 @@ class _ChatScreenState extends State<ChatScreen> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     convProvider = Provider.of<ConversationProvider>(context, listen: false);
     chatParticipants = convProvider.conversations;
+    readMessages();
+
     connectPusher();
-    _scrollController = ScrollController();
+    _scrollController = ScrollController()..addListener(_scrollListener);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
-    readMessages();
+    loadMore();
+  }
+
+  void _scrollListener() {
+    print('Scroll offset: ${_scrollController.offset}');
+    print('Min scroll extent: ${_scrollController.position.minScrollExtent}');
+    print('Max scroll extent: ${_scrollController.position.maxScrollExtent}');
+
+    if (_scrollController.offset <= 0.0) {
+      print('Triggering loadMore');
+      loadMore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   // Inside the connectPusher method
   void connectPusher() async {
     PusherService pusherService =
         PusherService(); // Create an instance of PusherService
-    await pusherService.getMessagesForUser(
-        channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
-        convProvider: convProvider,
-        model: widget.conversation,
-        token: authProvider.getAuthenticatedToken());
+    var result = await pusherService.getMessages(
+      channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
+      convProvider: convProvider,
+    );
+    if (result == true) {
+      convProvider.readMessages(
+          senderId: widget.conversation.id,
+          token: authProvider.getAuthenticatedToken());
+    }
+  }
+
+  void loadMore() {
+    if (widget.conversation.currentMessagePage > 1) {
+      convProvider.loadMore(
+          page: widget.conversation.currentMessagePage - 1,
+          token: authProvider.getAuthenticatedToken(),
+          dieticianId: widget.conversation.id);
+    }
   }
 
   void readMessages() {
@@ -66,15 +94,37 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: TColor.gray,
       appBar: AppBar(
-        backgroundColor: TColor.gray,
+        backgroundColor: TColor.primaryColor1,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(Icons.arrow_back_ios),
+          color: TColor.white,
         ),
-        title: Text(
-            '${widget.conversation.firstName} ${widget.conversation.lastName}'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: NetworkImage(
+                widget.conversation.image.isNotEmpty
+                    ? 'http://10.0.2.2:8000/uploads/dietician/profile/${widget.conversation.image}'
+                    : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+              ),
+            ),
+            const SizedBox(
+                width: 10), // Add spacing between the avatar and title
+            Text(
+              '${widget.conversation.firstName} ${widget.conversation.lastName}',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: TColor.white,
+              ),
+            ),
+          ],
+        ),
         centerTitle: true,
       ),
       body: Consumer<ConversationProvider>(
@@ -83,23 +133,34 @@ class _ChatScreenState extends State<ChatScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: SizeConfig.safeBlockHorizontal * 3,
-                      vertical: SizeConfig.safeBlockHorizontal * 3),
-                  itemCount: widget.conversation.messages.length,
-                  itemBuilder: (context, index) {
-                    final reversedIndex =
-                        widget.conversation.messages.length - 1 - index;
-                    final message = widget.conversation.messages[reversedIndex];
-                    return message.senderId == widget.conversation.id
-                        ? FriendMessageCard(
-                            message: message,
-                            image: widget.conversation.image,
-                          )
-                        : MyMessageCard(message: message);
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (scrollNotification) {
+                    if (scrollNotification is ScrollUpdateNotification) {
+                      if (_scrollController.hasClients &&
+                          _scrollController.offset <=
+                              _scrollController.position.minScrollExtent) {
+                        loadMore();
+                      }
+                    }
+                    return false;
                   },
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.vertical,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig.safeBlockHorizontal * 3,
+                        vertical: SizeConfig.safeBlockHorizontal * 3),
+                    itemCount: widget.conversation.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = widget.conversation.messages[index];
+                      return message.senderId == widget.conversation.id
+                          ? FriendMessageCard(
+                              message: message,
+                              image: widget.conversation.image,
+                            )
+                          : MyMessageCard(message: message);
+                    },
+                  ),
                 ),
               ),
               Container(
@@ -128,8 +189,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         : InkWell(
                             onTap: () async {
                               FocusScope.of(context).requestFocus(FocusNode());
-                              if (messageTextController.text.trim().isEmpty)
+                              if (messageTextController.text.trim().isEmpty) {
                                 return;
+                              }
                               String message =
                                   messageTextController.text.trim();
                               var messageStored =
@@ -141,8 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                           token: authProvider
                                               .getAuthenticatedToken());
                               messageTextController.clear();
-                              widget.conversation.messages
-                                  .insert(0, messageStored);
+                              widget.conversation.messages.add(messageStored);
                               _scrollController.jumpTo(
                                   _scrollController.position.maxScrollExtent +
                                       30);

@@ -3,7 +3,7 @@ import 'package:fyp_flutter/common_widget/popular_meal_row.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/models/recipe_category.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/recipe_recommendation_service.dart';
+import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -73,25 +73,6 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
       isLoading = false;
     });
   }
-
-  List popularArr = [
-    {
-      "name": "Blueberry Pancake",
-      "image": "assets/img/f_1.png",
-      "b_image": "assets/img/pancake_1.png",
-      "size": "Medium",
-      "time": "30mins",
-      "kcal": "230kCal"
-    },
-    {
-      "name": "Salmon Nigiri",
-      "image": "assets/img/f_2.png",
-      "b_image": "assets/img/nigiri.png",
-      "size": "Medium",
-      "time": "20mins",
-      "kcal": "120kCal"
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -307,6 +288,7 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                   ),
                   Container(
                     alignment: Alignment.bottomCenter,
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     height: 40,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -367,43 +349,6 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: media.width * 0.05,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Text(
-                      "Popular",
-                      style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: popularArr.length,
-                      itemBuilder: (context, index) {
-                        var fObj = popularArr[index] as Map? ?? {};
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => FoodInfoDetailsView(
-                                  dObj: fObj,
-                                  mObj: widget.eObj,
-                                ),
-                              ),
-                            );
-                          },
-                          child: PopularMealRow(
-                            mObj: fObj,
-                          ),
-                        );
-                      }),
                   SizedBox(
                     height: media.width * 0.05,
                   ),
