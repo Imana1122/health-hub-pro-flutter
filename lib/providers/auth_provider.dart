@@ -118,7 +118,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> setCuisinePreferences({required List cuisines}) async {
     try {
-      List<dynamic> userCuisines = await ProfileService()
+      var userCuisines = await ProfileService()
           .setCuisines(cuisines: cuisines, token: _user.token);
       _user.cuisines = userCuisines;
 
@@ -131,7 +131,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> setAllergens({required List allergens}) async {
     try {
-      List<dynamic> userAllergens = await ProfileService()
+      var userAllergens = await ProfileService()
           .setAllergens(allergens: allergens, token: _user.token);
       _user.allergens = userAllergens;
 
@@ -144,9 +144,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> setHealthConditions({required List healthConditions}) async {
     try {
-      List<dynamic> userHealthConditions = await ProfileService()
-          .setHealthConditions(
-              healthConditions: healthConditions, token: _user.token);
+      var userHealthConditions = await ProfileService().setHealthConditions(
+          healthConditions: healthConditions, token: _user.token);
 
       _user.healthConditions = userHealthConditions;
 
@@ -255,8 +254,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<dynamic> getMealLogs() async {
     try {
-      List<dynamic> mealLogs =
-          await ProfileService().getMealLogs(token: _user.token);
+      var mealLogs = await ProfileService().getMealLogs(token: _user.token);
       return mealLogs;
     } catch (e) {
       print(e);
@@ -264,9 +262,9 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<List<dynamic>> getSpecificMealLogs({required String datetime}) async {
+  Future<dynamic> getSpecificMealLogs({required String datetime}) async {
     try {
-      List<dynamic> mealLogs = await ProfileService()
+      var mealLogs = await ProfileService()
           .getSpecificMealLogs(datetime: datetime, token: _user.token);
       return mealLogs;
     } catch (e) {

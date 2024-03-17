@@ -5,6 +5,7 @@ import 'package:fyp_flutter/common_widget/meal_plans_cards/meal_plan_card.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/meal_plan_service.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 class MealPlans extends StatefulWidget {
@@ -94,40 +95,69 @@ class _MealPlansState extends State<MealPlans> {
               ),
             ),
           )
-        : Scaffold(
-            backgroundColor: TColor.lightGray,
-            appBar: AppBar(
-              backgroundColor: TColor.primaryColor1,
-              title: const Text('Meal Planner'),
-              centerTitle: true,
-            ),
-            body: Container(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: SizeConfig.safeBlockHorizontal * 3,
-                          vertical: SizeConfig.safeBlockHorizontal * 3),
-                      itemCount: mealPlans.length,
-                      itemBuilder: (context, index) {
-                        var mObj = mealPlans[index];
-                        mObj['name'] = "Meal Plan $index";
-                        return MealPlanCard(mObj: mObj);
-                      },
+        : AuthenticatedLayout(
+            child: Scaffold(
+              backgroundColor: TColor.lightGray,
+              appBar: AppBar(
+                backgroundColor: TColor.white,
+                centerTitle: true,
+                elevation: 0,
+                leading: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    height: 40,
+                    width: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: TColor.lightGray,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Image.asset(
+                      "assets/img/black_btn.png",
+                      width: 15,
+                      height: 15,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(
-                    height: media.height * 0.1,
-                  ),
-                  RoundButton(
-                      title: 'More',
-                      onPressed: () {
-                        _loadMore();
-                      })
-                ],
+                ),
+                title: Text(
+                  'Meal Planner',
+                  style: TextStyle(
+                      color: TColor.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700),
+                ),
+              ),
+              body: Container(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: SizeConfig.safeBlockHorizontal * 3,
+                            vertical: SizeConfig.safeBlockHorizontal * 3),
+                        itemCount: mealPlans.length,
+                        itemBuilder: (context, index) {
+                          var mObj = mealPlans[index];
+                          mObj['name'] = "Meal Plan $index";
+                          return MealPlanCard(mObj: mObj);
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: media.height * 0.1,
+                    ),
+                    RoundButton(
+                        title: 'More',
+                        onPressed: () {
+                          _loadMore();
+                        })
+                  ],
+                ),
               ),
             ),
           );

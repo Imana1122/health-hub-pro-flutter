@@ -5,7 +5,7 @@ import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/weight_plan_service.dart';
 import 'package:fyp_flutter/views/account/login/cuisine_preference.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
-import 'package:fyp_flutter/views/account/profile/profile_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
@@ -151,119 +151,122 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
               ),
             ),
           )
-        : Scaffold(
-            backgroundColor: TColor.white,
-            body: SafeArea(
-              child: Stack(
-                children: [
-                  Visibility(
-                    visible:
-                        !isLoading, // Show the carousel only when data is loaded
-                    child: Center(
-                      child: CarouselSlider(
-                        items: goalArr
-                            .map(
-                              (gObj) => Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                      colors: TColor.primaryG,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: media.width * 0.1,
-                                    horizontal: 25),
-                                alignment: Alignment.center,
-                                child: FittedBox(
-                                  child: Column(
-                                    children: [
-                                      Image.network(
-                                        'http://10.0.2.2:8000/uploads/weightPlan/thumb/${gObj["image"]}',
-                                        width: media.width * 0.5,
-                                        fit: BoxFit.fitWidth,
-                                      ),
-                                      SizedBox(
-                                        height: media.width * 0.1,
-                                      ),
-                                      Text(
-                                        gObj["title"].toString(),
-                                        style: TextStyle(
-                                            color: TColor.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      Container(
-                                        width: media.width * 0.1,
-                                        height: 1,
-                                        color: TColor.white,
-                                      ),
-                                      SizedBox(
-                                        height: media.width * 0.02,
-                                      ),
-                                      Text(
-                                        breakTextIntoLines(
-                                          gObj["subtitle"].toString(),
-                                          6, // Set the number of words per line
+        : AuthenticatedLayout(
+            child: Scaffold(
+              backgroundColor: TColor.white,
+              body: SafeArea(
+                child: Stack(
+                  children: [
+                    Visibility(
+                      visible:
+                          !isLoading, // Show the carousel only when data is loaded
+                      child: Center(
+                        child: CarouselSlider(
+                          items: goalArr
+                              .map(
+                                (gObj) => Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                        colors: TColor.primaryG,
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight),
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: media.width * 0.1,
+                                      horizontal: 25),
+                                  alignment: Alignment.center,
+                                  child: FittedBox(
+                                    child: Column(
+                                      children: [
+                                        Image.network(
+                                          'http://10.0.2.2:8000/uploads/weightPlan/thumb/${gObj["image"]}',
+                                          width: media.width * 0.5,
+                                          fit: BoxFit.fitWidth,
                                         ),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
+                                        SizedBox(
+                                          height: media.width * 0.1,
+                                        ),
+                                        Text(
+                                          gObj["title"].toString(),
+                                          style: TextStyle(
+                                              color: TColor.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                        Container(
+                                          width: media.width * 0.1,
+                                          height: 1,
                                           color: TColor.white,
-                                          fontSize: 12,
                                         ),
-                                      )
-                                    ],
+                                        SizedBox(
+                                          height: media.width * 0.02,
+                                        ),
+                                        Text(
+                                          breakTextIntoLines(
+                                            gObj["subtitle"].toString(),
+                                            6, // Set the number of words per line
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: TColor.white,
+                                            fontSize: 12,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                        carouselController: buttonCarouselController,
-                        options: CarouselOptions(
-                          autoPlay: false,
-                          enlargeCenterPage: true,
-                          viewportFraction: 0.7,
-                          aspectRatio: 0.74,
-                          initialPage: currentPage,
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              currentPage = index;
-                            });
-                          },
+                              )
+                              .toList(),
+                          carouselController: buttonCarouselController,
+                          options: CarouselOptions(
+                            autoPlay: false,
+                            enlargeCenterPage: true,
+                            viewportFraction: 0.7,
+                            aspectRatio: 0.74,
+                            initialPage: currentPage,
+                            onPageChanged: (index, reason) {
+                              setState(() {
+                                currentPage = index;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    width: media.width,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: media.width * 0.05,
-                        ),
-                        Text(
-                          "What is your goal ?",
-                          style: TextStyle(
-                              color: TColor.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          "It will help us to choose a best\nprogram for you",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: TColor.gray, fontSize: 12),
-                        ),
-                        const Spacer(),
-                        SizedBox(
-                          height: media.width * 0.05,
-                        ),
-                        RoundButton(
-                            title: "Confirm", onPressed: _confirmButtonPressed),
-                      ],
-                    ),
-                  )
-                ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      width: media.width,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          Text(
+                            "What is your goal ?",
+                            style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            "It will help us to choose a best\nprogram for you",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: TColor.gray, fontSize: 12),
+                          ),
+                          const Spacer(),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          RoundButton(
+                              title: "Confirm",
+                              onPressed: _confirmButtonPressed),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           );

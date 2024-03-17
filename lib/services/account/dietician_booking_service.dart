@@ -28,6 +28,24 @@ class DieticianBookingService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
+  Future<dynamic> saveRating(
+      {required String id, required Object body, required String token}) async {
+    return await api.httpPost('account/save-rating/$id',
+        body: body, token: token);
+  }
+
+  Future<dynamic> getBookedDieticians(
+      {int currentPage = 1, String keyword = ''}) async {
+    var url = 'account/get-booked-dieticians?page=$currentPage';
+
+    // Append keyword and category parameters if they are not empty
+    if (keyword != '') {
+      url += '&keyword=$keyword';
+    }
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
   Future<dynamic> bookDietician({
     required String dieticianId,
   }) async {

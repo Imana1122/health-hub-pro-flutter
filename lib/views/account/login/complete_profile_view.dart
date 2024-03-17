@@ -3,6 +3,7 @@ import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_widget/round_button.dart';
@@ -133,311 +134,315 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
               ),
             ),
           )
-        : Scaffold(
-            backgroundColor: TColor.white,
-            body: SingleChildScrollView(
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        "assets/img/complete_profile.png",
-                        width: media.width,
-                        fit: BoxFit.fitWidth,
-                      ),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Text(
-                        "Let’s complete your profile",
-                        style: TextStyle(
-                            color: TColor.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      Text(
-                        "It will help us to know more about you!",
-                        style: TextStyle(color: TColor.gray, fontSize: 12),
-                      ),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: TColor.white,
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Row(
-                                children: [
-                                  Container(
-                                      alignment: Alignment.center,
-                                      width: 50,
-                                      height: 50,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Image.asset(
-                                        "assets/img/gender.png",
-                                        width: 20,
-                                        height: 20,
-                                        fit: BoxFit.contain,
-                                      )),
-                                  Expanded(
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton(
-                                        items: ["Male", "Female"]
-                                            .map((name) => DropdownMenuItem(
-                                                  value: name,
-                                                  child: Text(
-                                                    name,
-                                                    style: TextStyle(
-                                                        color: TColor.gray,
-                                                        fontSize: 14),
-                                                  ),
-                                                ))
-                                            .toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedGender =
-                                                value.toString().toLowerCase();
-                                          });
-                                        },
-                                        isExpanded: true,
-                                        hint: Text(
-                                          selectedGender,
-                                          style: TextStyle(
-                                              color: TColor.gray, fontSize: 12),
+        : AuthenticatedLayout(
+            child: Scaffold(
+              backgroundColor: TColor.white,
+              body: SingleChildScrollView(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          "assets/img/complete_profile.png",
+                          width: media.width,
+                          fit: BoxFit.fitWidth,
+                        ),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Text(
+                          "Let’s complete your profile",
+                          style: TextStyle(
+                              color: TColor.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        Text(
+                          "It will help us to know more about you!",
+                          style: TextStyle(color: TColor.gray, fontSize: 12),
+                        ),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: TColor.white,
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        alignment: Alignment.center,
+                                        width: 50,
+                                        height: 50,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                        child: Image.asset(
+                                          "assets/img/gender.png",
+                                          width: 20,
+                                          height: 20,
+                                          fit: BoxFit.contain,
+                                        )),
+                                    Expanded(
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton(
+                                          items: ["Male", "Female"]
+                                              .map((name) => DropdownMenuItem(
+                                                    value: name,
+                                                    child: Text(
+                                                      name,
+                                                      style: TextStyle(
+                                                          color: TColor.gray,
+                                                          fontSize: 14),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedGender = value
+                                                  .toString()
+                                                  .toLowerCase();
+                                            });
+                                          },
+                                          isExpanded: true,
+                                          hint: Text(
+                                            selectedGender,
+                                            style: TextStyle(
+                                                color: TColor.gray,
+                                                fontSize: 12),
+                                          ),
                                         ),
                                       ),
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              RoundTextField(
+                                controller: ageController,
+                                hitText: "Age",
+                                icon: const Icon(Icons.calendar_today_rounded),
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: weightController,
+                                      hitText: "Your Weight",
+                                      icon: const Icon(Icons.monitor_weight),
                                     ),
                                   ),
                                   const SizedBox(
                                     width: 8,
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      "KG",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
+                                    ),
                                   )
                                 ],
                               ),
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            RoundTextField(
-                              controller: ageController,
-                              hitText: "Age",
-                              icon: Icon(Icons.calendar_today_rounded),
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RoundTextField(
-                                    controller: weightController,
-                                    hitText: "Your Weight",
-                                    icon: Icon(Icons.monitor_weight),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: TColor.secondaryG,
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: heightController,
+                                      hitText: "Your Height",
+                                      icon: const Icon(Icons.double_arrow_outlined),
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                  child: Text(
-                                    "KG",
-                                    style: TextStyle(
-                                        color: TColor.white, fontSize: 12),
+                                  const SizedBox(
+                                    width: 8,
                                   ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RoundTextField(
-                                    controller: heightController,
-                                    hitText: "Your Height",
-                                    icon: Icon(Icons.double_arrow_outlined),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: TColor.secondaryG,
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Text(
-                                    "CM",
-                                    style: TextStyle(
-                                        color: TColor.white, fontSize: 12),
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RoundTextField(
-                                    controller: bustController,
-                                    hitText: "Your Bust",
-                                    icon: Icon(Icons.double_arrow),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: TColor.secondaryG,
+                                    child: Text(
+                                      "CM",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Text(
-                                    "CM",
-                                    style: TextStyle(
-                                        color: TColor.white, fontSize: 12),
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RoundTextField(
-                                    controller: waistController,
-                                    hitText: "Your Waist",
-                                    icon: Icon(Icons.double_arrow),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: TColor.secondaryG,
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: bustController,
+                                      hitText: "Your Bust",
+                                      icon: const Icon(Icons.double_arrow),
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                  child: Text(
-                                    "CM",
-                                    style: TextStyle(
-                                        color: TColor.white, fontSize: 12),
+                                  const SizedBox(
+                                    width: 8,
                                   ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RoundTextField(
-                                    controller: hipsController,
-                                    hitText: "Your Hips",
-                                    icon: Icon(Icons.double_arrow),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: TColor.secondaryG,
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Text(
-                                    "CM",
-                                    style: TextStyle(
-                                        color: TColor.white, fontSize: 12),
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: media.width * 0.04,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RoundTextField(
-                                    controller: targetedWeightController,
-                                    hitText: "Your Targeted Weight",
-                                    icon: Icon(Icons.double_arrow),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: TColor.secondaryG,
+                                    child: Text(
+                                      "CM",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: waistController,
+                                      hitText: "Your Waist",
+                                      icon: const Icon(Icons.double_arrow),
+                                    ),
                                   ),
-                                  child: Text(
-                                    "KG",
-                                    style: TextStyle(
-                                        color: TColor.white, fontSize: 12),
+                                  const SizedBox(
+                                    width: 8,
                                   ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: media.width * 0.07,
-                            ),
-                            RoundButton(
-                                title: "Next >",
-                                onPressed: () {
-                                  handleSubmit();
-                                }),
-                          ],
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      "CM",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: hipsController,
+                                      hitText: "Your Hips",
+                                      icon: const Icon(Icons.double_arrow),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      "CM",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: targetedWeightController,
+                                      hitText: "Your Targeted Weight",
+                                      icon: const Icon(Icons.double_arrow),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      "KG",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: media.width * 0.07,
+                              ),
+                              RoundButton(
+                                  title: "Next >",
+                                  onPressed: () {
+                                    handleSubmit();
+                                  }),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -34,15 +34,18 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
-  Future<List<dynamic>> logWorkout({
-    required String workoutId,
-    required double caloriesBurned,
-    required String workoutName,
-    required String startAt,
-    required String endAt,
-    required int completionStatus,
-  }) async {
+  Future<dynamic> logWorkout(
+      {required String workoutId,
+      required double caloriesBurned,
+      required String workoutName,
+      required String startAt,
+      required String endAt,
+      required int completionStatus,
+      String? type}) async {
     var url = 'account/log-workout';
+    if (type != null) {
+      url += "?type=$type";
+    }
     String token = authProvider.user.token;
 
     var body = {
@@ -56,7 +59,7 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpPost(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> deleteWorkoutLog({required String id}) async {
+  Future<dynamic> deleteWorkoutLog({required String id}) async {
     var url = 'account/deleteWorkoutLog/$id';
     String now = DateTime.now().toIso8601String();
     String token = authProvider.user.token;
@@ -66,7 +69,7 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpDelete(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> getWorkoutLogs() async {
+  Future<dynamic> getWorkoutLogs() async {
     String now = DateTime.now().toIso8601String();
     var url = 'account/get-workout-logs/$now';
     String token = authProvider.user.token;

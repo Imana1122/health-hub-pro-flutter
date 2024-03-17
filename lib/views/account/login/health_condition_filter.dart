@@ -3,6 +3,7 @@ import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:fyp_flutter/views/account/login/welcome_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
@@ -128,87 +129,91 @@ class _HealthConditionPreferenceState extends State<HealthConditionPreference> {
               ),
             ),
           )
-        : Scaffold(
-            backgroundColor: TColor.white,
-            body: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "What is your healthCondition preference?",
-                          style: TextStyle(
-                            color: TColor.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
+        : AuthenticatedLayout(
+            child: Scaffold(
+              backgroundColor: TColor.white,
+              body: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "What is your healthCondition preference?",
+                            style: TextStyle(
+                              color: TColor.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Only choose if you want to filter based on healthConditions.",
-                          style: TextStyle(
-                            color: TColor
-                                .gray, // You can adjust the color as needed
-                            fontSize: 14,
+                          const SizedBox(height: 8),
+                          Text(
+                            "Only choose if you want to filter based on healthConditions.",
+                            style: TextStyle(
+                              color: TColor
+                                  .gray, // You can adjust the color as needed
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: healthConditionArr.length,
-                      itemBuilder: (context, index) {
-                        var gObj = healthConditionArr[index];
-                        bool isSelected =
-                            selectedHealthConditions.contains(gObj["id"]);
-                        return GestureDetector(
-                          onTap: () {
-                            _toggleHealthConditionSelection(gObj["id"]);
-                          },
-                          child: Card(
-                            color: isSelected ? TColor.primaryColor1 : null,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: ListTile(
-                              title: Text(
-                                gObj["name"].toString(),
-                                style: TextStyle(
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: healthConditionArr.length,
+                        itemBuilder: (context, index) {
+                          var gObj = healthConditionArr[index];
+                          bool isSelected =
+                              selectedHealthConditions.contains(gObj["id"]);
+                          return GestureDetector(
+                            onTap: () {
+                              _toggleHealthConditionSelection(gObj["id"]);
+                            },
+                            child: Card(
+                              color: isSelected ? TColor.primaryColor1 : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  gObj["name"].toString(),
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? TColor.white
+                                        : TColor.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  isSelected
+                                      ? Icons.check_circle
+                                      : Icons.radio_button_unchecked,
                                   color:
                                       isSelected ? TColor.white : TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              trailing: Icon(
-                                isSelected
-                                    ? Icons.check_circle
-                                    : Icons.radio_button_unchecked,
-                                color: isSelected ? TColor.white : TColor.black,
-                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RoundButton(
-                      title: "Next",
-                      onPressed: _confirmButtonPressed,
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: RoundButton(
+                        title: "Next",
+                        onPressed: _confirmButtonPressed,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

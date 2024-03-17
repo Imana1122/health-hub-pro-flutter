@@ -19,14 +19,14 @@ class ProfileService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
-  Future<List<dynamic>> setCuisines(
+  Future<dynamic> setCuisines(
       {required List cuisines, required String token}) async {
     var url = 'account/set-cuisine-preferences';
     var body = {'cuisines': cuisines};
     return await api.httpPost(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> setAllergens({
+  Future<dynamic> setAllergens({
     required List allergens,
     required String token,
   }) async {
@@ -39,7 +39,7 @@ class ProfileService extends BaseApi {
     return await api.httpPost(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> setHealthConditions(
+  Future<dynamic> setHealthConditions(
       {required List healthConditions, required String token}) async {
     var url = 'account/set-health-conditions';
 
@@ -49,7 +49,7 @@ class ProfileService extends BaseApi {
     return await api.httpPost(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> logMeal(
+  Future<dynamic> logMeal(
       {required String recipeId, required String token}) async {
     var url = 'account/log-meal';
     String now = DateTime.now().toIso8601String();
@@ -58,7 +58,7 @@ class ProfileService extends BaseApi {
     return await api.httpPost(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> deleteLogMeal(
+  Future<dynamic> deleteLogMeal(
       {required String id, required String token}) async {
     var url = 'account/deleteMealLog/$id';
     String now = DateTime.now().toIso8601String();
@@ -68,14 +68,14 @@ class ProfileService extends BaseApi {
     return await api.httpDelete(url, body: body, token: token);
   }
 
-  Future<List<dynamic>> getMealLogs({required String token}) async {
+  Future<dynamic> getMealLogs({required String token}) async {
     String now = DateTime.now().toIso8601String();
     var url = 'account/get-meal-logs/$now';
 
     return await api.httpGet(url, token: token);
   }
 
-  Future<List<dynamic>> getSpecificMealLogs(
+  Future<dynamic> getSpecificMealLogs(
       {required String datetime, required String token}) async {
     var url = 'account/get-meal-logs/$datetime';
 

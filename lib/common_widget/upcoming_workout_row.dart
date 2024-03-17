@@ -1,4 +1,8 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/schedule_workout_service.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../common/color_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -26,8 +30,8 @@ class _UpcomingWorkoutRowState extends State<UpcomingWorkoutRow> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(30),
-              child: Image.asset(
-                widget.wObj["image"].toString(),
+              child: Image.network(
+                'http://10.0.2.2:8000/uploads/workout/${widget.wObj['workout']['image']}',
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,
@@ -41,14 +45,16 @@ class _UpcomingWorkoutRowState extends State<UpcomingWorkoutRow> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.wObj["title"].toString(),
+                  widget.wObj['workout']["name"].toString(),
                   style: TextStyle(
                       color: TColor.black,
                       fontSize: 12,
                       fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  widget.wObj["time"].toString(),
+                  DateFormat.yMMMd()
+                      .add_Hm()
+                      .format(DateTime.parse(widget.wObj["scheduled_time"])),
                   style: TextStyle(
                     color: TColor.gray,
                     fontSize: 10,
@@ -59,7 +65,6 @@ class _UpcomingWorkoutRowState extends State<UpcomingWorkoutRow> {
             CustomAnimatedToggleSwitch<bool>(
               current: positive,
               values: const [false, true],
-              // dif: 0.0,
               indicatorSize: const Size.square(30.0),
               animationDuration: const Duration(milliseconds: 200),
               animationCurve: Curves.linear,
@@ -67,8 +72,20 @@ class _UpcomingWorkoutRowState extends State<UpcomingWorkoutRow> {
               iconBuilder: (context, local, global) {
                 return const SizedBox();
               },
-              // defaultCursor: SystemMouseCursors.click,
-              // onTap: () => setState(() => positive = !positive),
+              onTap: (value) {
+                setState(() {
+                  positive = !positive;
+                });
+                AuthProvider authProvider =
+                    Provider.of<AuthProvider>(context, listen: false);
+
+                var body = {
+                  'id': widget.wObj['id'],
+                  'notifiable': positive == true ? 1 : 0
+                };
+                ScheduleWorkoutService(authProvider)
+                    .updateNotifiable(body: body);
+              },
               iconsTappable: false,
               wrapperBuilder: (context, global, child) {
                 return Stack(

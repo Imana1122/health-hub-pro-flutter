@@ -91,14 +91,39 @@ class _DieticianConversationScreenState
       backgroundColor: TColor.white,
       appBar: AppBar(
         backgroundColor: TColor.primaryColor1,
-        title: const Text('Conversations'),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: () async {
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil("/", (route) => false);
+        elevation: 0,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back),
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            height: 40,
+            width: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                color: TColor.lightGray,
+                borderRadius: BorderRadius.circular(10)),
+            child: Image.asset(
+              "assets/img/black_btn.png",
+              width: 15,
+              height: 15,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "Conversations",
+              style: TextStyle(
+                  color: TColor.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700),
+            ),
+          ],
         ),
       ),
       body: Center(

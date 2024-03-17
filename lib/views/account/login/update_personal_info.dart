@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:fyp_flutter/views/account/profile/profile_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 class ProfileEditView extends StatefulWidget {
@@ -96,36 +97,38 @@ class _ProfileEditViewState extends State<ProfileEditView> {
               ),
             ),
           )
-        : Scaffold(
-            appBar: AppBar(
-              title: const Text('Edit Profile'),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: phoneNumberController,
-                    decoration:
-                        const InputDecoration(labelText: 'Phone Number'),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _saveProfile,
-                    child: const Text('Save'),
-                  ),
-                ],
+        : AuthenticatedLayout(
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Edit Profile'),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Name'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: phoneNumberController,
+                      decoration:
+                          const InputDecoration(labelText: 'Phone Number'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _saveProfile,
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

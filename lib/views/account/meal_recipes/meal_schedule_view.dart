@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
@@ -68,6 +69,7 @@ class _MealScheduleViewState extends State<MealScheduleView> {
     });
 
     var result = await authProvider.getMealLogs();
+    print(result['recipeLogs']);
     List<dynamic> mealLogs = result['recipeLogs'];
     var userNutrients = result['userNutrients'];
     setState(() {
@@ -153,9 +155,12 @@ class _MealScheduleViewState extends State<MealScheduleView> {
     });
 
     // Handle the retrieved meal logs as needed
-    List<dynamic> mealLogs = await authProvider.getSpecificMealLogs(
+    var result = await authProvider.getSpecificMealLogs(
         datetime: selectedDate.toIso8601String());
 
+    print(result['recipeLogs']);
+    List<dynamic> mealLogs = result['recipeLogs'];
+    var userNutrients = result['userNutrients'];
     setState(() {
       lunchArr = mealLogs.where((meal) {
         // Check if meal['recipe']['meal_type_id'] matches the selected meal type's ID
@@ -177,7 +182,6 @@ class _MealScheduleViewState extends State<MealScheduleView> {
         return meal['recipe']['meal_type_id'] ==
             'd37900ed-e44c-468a-bfaf-533734b39155';
       }).toList();
-
       // Initialize variables to store the sum of each nutrition type
       double totalCalories = 0;
       double totalProteins = 0;
@@ -198,28 +202,36 @@ class _MealScheduleViewState extends State<MealScheduleView> {
           "image": "assets/img/burn.png",
           "unit_name": "kCal",
           "value": totalCalories.toString(),
-          "max_value": user.profile.calories,
+          "max_value": userNutrients != null
+              ? userNutrients['calories']
+              : user.profile.calories,
         },
         {
           "title": "Proteins",
           "image": "assets/img/proteins.png",
           "unit_name": "g",
           "value": totalProteins.toString(),
-          "max_value": user.profile.protein,
+          "max_value": userNutrients != null
+              ? userNutrients['protein']
+              : user.profile.protein,
         },
         {
           "title": "Fats",
           "image": "assets/img/egg.png",
           "unit_name": "g",
           "value": totalFats.toString(),
-          "max_value": user.profile.totalFat,
+          "max_value": userNutrients != null
+              ? userNutrients['total_fat']
+              : user.profile.totalFat,
         },
         {
           "title": "Carbo",
           "image": "assets/img/carbo.png",
           "unit_name": "g",
           "value": totalCarbo.toString(),
-          "max_value": user.profile.carbohydrates,
+          "max_value": userNutrients != null
+              ? userNutrients['carbohydrates']
+              : user.profile.carbohydrates,
         },
       ];
       isLoading = false;
@@ -246,41 +258,16 @@ class _MealScheduleViewState extends State<MealScheduleView> {
               ),
             ),
           )
-        : Scaffold(
-            appBar: AppBar(
-              backgroundColor: TColor.white,
-              centerTitle: true,
-              elevation: 0,
-              leading: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  margin: const EdgeInsets.all(8),
-                  height: 40,
-                  width: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      color: TColor.lightGray,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Image.asset(
-                    "assets/img/black_btn.png",
-                    width: 15,
-                    height: 15,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              title: Text(
-                "Meal  Schedule",
-                style: TextStyle(
-                    color: TColor.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700),
-              ),
-              actions: [
-                InkWell(
-                  onTap: () {},
+        : AuthenticatedLayout(
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: TColor.white,
+                centerTitle: true,
+                elevation: 0,
+                leading: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
                   child: Container(
                     margin: const EdgeInsets.all(8),
                     height: 40,
@@ -290,167 +277,143 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                         color: TColor.lightGray,
                         borderRadius: BorderRadius.circular(10)),
                     child: Image.asset(
-                      "assets/img/more_btn.png",
+                      "assets/img/black_btn.png",
                       width: 15,
                       height: 15,
                       fit: BoxFit.contain,
                     ),
                   ),
-                )
-              ],
-            ),
-            backgroundColor: TColor.white,
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CalendarAgenda(
-                  controller: _calendarAgendaControllerAppBar,
-                  appbar: false,
-                  selectedDayPosition: SelectedDayPosition.center,
-                  leading: IconButton(
-                      onPressed: () {},
-                      icon: Image.asset(
-                        "assets/img/ArrowLeft.png",
+                ),
+                title: Text(
+                  "Meal  Schedule",
+                  style: TextStyle(
+                      color: TColor.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700),
+                ),
+                actions: [
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      height: 40,
+                      width: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: TColor.lightGray,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Image.asset(
+                        "assets/img/more_btn.png",
                         width: 15,
                         height: 15,
-                      )),
-                  training: IconButton(
-                      onPressed: () {},
-                      icon: Image.asset(
-                        "assets/img/ArrowRight.png",
-                        width: 15,
-                        height: 15,
-                      )),
-                  weekDay: WeekDay.short,
-                  dayNameFontSize: 12,
-                  dayNumberFontSize: 16,
-                  dayBGColor: Colors.grey.withOpacity(0.15),
-                  titleSpaceBetween: 15,
-                  backgroundColor: Colors.transparent,
-                  // fullCalendar: false,
-                  fullCalendarScroll: FullCalendarScroll.horizontal,
-                  fullCalendarDay: WeekDay.short,
-                  selectedDateColor: Colors.white,
-                  dateColor: Colors.black,
-                  locale: 'en',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              backgroundColor: TColor.white,
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CalendarAgenda(
+                    controller: _calendarAgendaControllerAppBar,
+                    appbar: false,
+                    selectedDayPosition: SelectedDayPosition.center,
+                    leading: IconButton(
+                        onPressed: () {},
+                        icon: Image.asset(
+                          "assets/img/ArrowLeft.png",
+                          width: 15,
+                          height: 15,
+                        )),
+                    training: IconButton(
+                        onPressed: () {},
+                        icon: Image.asset(
+                          "assets/img/ArrowRight.png",
+                          width: 15,
+                          height: 15,
+                        )),
+                    weekDay: WeekDay.short,
+                    dayNameFontSize: 12,
+                    dayNumberFontSize: 16,
+                    dayBGColor: Colors.grey.withOpacity(0.15),
+                    titleSpaceBetween: 15,
+                    backgroundColor: Colors.transparent,
+                    // fullCalendar: false,
+                    fullCalendarScroll: FullCalendarScroll.horizontal,
+                    fullCalendarDay: WeekDay.short,
+                    selectedDateColor: Colors.white,
+                    dateColor: Colors.black,
+                    locale: 'en',
 
-                  initialDate: selectedDate,
-                  calendarEventColor: TColor.primaryColor2,
-                  firstDate: DateTime.now().subtract(const Duration(days: 140)),
-                  lastDate: DateTime.now().add(const Duration(days: 60)),
+                    initialDate: selectedDate,
+                    calendarEventColor: TColor.primaryColor2,
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 140)),
+                    lastDate: DateTime.now().add(const Duration(days: 60)),
 
-                  onDateSelected: (date) {
-                    setState(() {
-                      selectedDate = date;
-                    });
-                    _loadSpecificMealLogs(date);
-                  },
-                  selectedDayLogo: Container(
-                    width: double.maxFinite,
-                    height: double.maxFinite,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: TColor.primaryG,
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter),
-                      borderRadius: BorderRadius.circular(10.0),
+                    onDateSelected: (date) {
+                      setState(() {
+                        selectedDate = date;
+                      });
+                      _loadSpecificMealLogs(date);
+                    },
+                    selectedDayLogo: Container(
+                      width: double.maxFinite,
+                      height: double.maxFinite,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: TColor.primaryG,
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                    child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "BreakFast",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "${breakfastArr.isEmpty ? "0 items | 0 calories" : breakfastArr.length} Items | ${breakfastArr.isEmpty ? 0 : breakfastArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
-                                style:
-                                    TextStyle(color: TColor.gray, fontSize: 12),
+                  Expanded(
+                      child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "BreakFast",
+                                style: TextStyle(
+                                    color: TColor.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700),
                               ),
-                            )
-                          ],
+                              TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "${breakfastArr.isEmpty ? "0 items | 0 calories" : breakfastArr.length} Items | ${breakfastArr.isEmpty ? 0 : breakfastArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
+                                  style: TextStyle(
+                                      color: TColor.gray, fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount:
-                            breakfastArr.isEmpty ? 1 : breakfastArr.length,
-                        itemBuilder: (context, index) {
-                          if (breakfastArr.isEmpty) {
-                            // If breakfastArr is empty, display a message
-                            return const Center(
-                              child: Text("Breakfast not logged"),
-                            );
-                          } else {
-                            // If breakfastArr is not empty, display the list items
-                            var mObj = breakfastArr[index] as Map? ?? {};
-                            if (mealTypes.isNotEmpty) {
-                              MealType dObj = mealTypes.firstWhere((mealType) =>
-                                  mObj['recipe']['meal_type_id'] ==
-                                  mealType.id);
-                              return MealFoodScheduleRow(
-                                mObj: mObj,
-                                dObj: dObj,
-                                index: index,
-                              );
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Lunch",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "${lunchArr.isEmpty ? "0 items | 0 calories" : lunchArr.length} Items | ${lunchArr.isEmpty ? 0 : lunchArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
-                                style:
-                                    TextStyle(color: TColor.gray, fontSize: 12),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      ListView.builder(
+                        ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: lunchArr.length,
+                          itemCount:
+                              breakfastArr.isEmpty ? 1 : breakfastArr.length,
                           itemBuilder: (context, index) {
-                            if (lunchArr.isEmpty) {
+                            if (breakfastArr.isEmpty) {
                               // If breakfastArr is empty, display a message
                               return const Center(
-                                child: Text("Lunch not logged"),
+                                child: Text("Breakfast not logged"),
                               );
                             } else {
-                              // If lunchArr is not empty, display the list items
-                              var mObj = lunchArr[index] as Map? ?? {};
+                              // If breakfastArr is not empty, display the list items
+                              var mObj = breakfastArr[index] as Map? ?? {};
                               if (mealTypes.isNotEmpty) {
                                 MealType dObj = mealTypes.firstWhere(
                                     (mealType) =>
@@ -464,152 +427,205 @@ class _MealScheduleViewState extends State<MealScheduleView> {
                               }
                             }
                             return null;
-                          }),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Snacks",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "${snacksArr.isEmpty ? "0 items | 0 calories" : snacksArr.length} Items | ${snacksArr.isEmpty ? 0 : snacksArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
-                                style:
-                                    TextStyle(color: TColor.gray, fontSize: 12),
-                              ),
-                            )
-                          ],
+                          },
                         ),
-                      ),
-                      ListView.builder(
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: snacksArr.length,
-                          itemBuilder: (context, index) {
-                            if (snacksArr.isEmpty) {
-                              // If snacksArr is empty, display a message
-                              return const Center(
-                                child: Text("Snacks not logged"),
-                              );
-                            } else {
-                              // If snacksArr is not empty, display the list items
-                              var mObj = snacksArr[index] as Map? ?? {};
-                              if (mealTypes.isNotEmpty) {
-                                MealType dObj = mealTypes.firstWhere(
-                                    (mealType) =>
-                                        mObj['recipe']['meal_type_id'] ==
-                                        mealType.id);
-                                return MealFoodScheduleRow(
-                                  mObj: mObj,
-                                  dObj: dObj,
-                                  index: index,
-                                );
-                              }
-                            }
-                            return null;
-                          }),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Dinner",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "${dinnerArr.isEmpty ? "0 items | 0 calories" : dinnerArr.length} Items | ${dinnerArr.isEmpty ? 0 : dinnerArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
-                                style:
-                                    TextStyle(color: TColor.gray, fontSize: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Lunch",
+                                style: TextStyle(
+                                    color: TColor.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700),
                               ),
-                            )
-                          ],
+                              TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "${lunchArr.isEmpty ? "0 items | 0 calories" : lunchArr.length} Items | ${lunchArr.isEmpty ? 0 : lunchArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
+                                  style: TextStyle(
+                                      color: TColor.gray, fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: dinnerArr.length,
-                          itemBuilder: (context, index) {
-                            if (dinnerArr.isEmpty) {
-                              // If dinnerArr is empty, display a message
-                              return const Center(
-                                child: Text("Dinners not logged"),
-                              );
-                            } else {
-                              // If dinnerArr is not empty, display the list items
-                              var mObj = dinnerArr[index] as Map? ?? {};
-                              if (mealTypes.isNotEmpty) {
-                                MealType dObj = mealTypes.firstWhere(
-                                    (mealType) =>
-                                        mObj['recipe']['meal_type_id'] ==
-                                        mealType.id);
-                                return MealFoodScheduleRow(
-                                  mObj: mObj,
-                                  dObj: dObj,
-                                  index: index,
+                        ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: lunchArr.length,
+                            itemBuilder: (context, index) {
+                              if (lunchArr.isEmpty) {
+                                // If breakfastArr is empty, display a message
+                                return const Center(
+                                  child: Text("Lunch not logged"),
                                 );
+                              } else {
+                                // If lunchArr is not empty, display the list items
+                                var mObj = lunchArr[index] as Map? ?? {};
+                                if (mealTypes.isNotEmpty) {
+                                  MealType dObj = mealTypes.firstWhere(
+                                      (mealType) =>
+                                          mObj['recipe']['meal_type_id'] ==
+                                          mealType.id);
+                                  return MealFoodScheduleRow(
+                                    mObj: mObj,
+                                    dObj: dObj,
+                                    index: index,
+                                  );
+                                }
                               }
-                            }
-                            return null;
-                          }),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Today Meal Nutritions",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
+                              return null;
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Snacks",
+                                style: TextStyle(
+                                    color: TColor.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "${snacksArr.isEmpty ? "0 items | 0 calories" : snacksArr.length} Items | ${snacksArr.isEmpty ? 0 : snacksArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
+                                  style: TextStyle(
+                                      color: TColor.gray, fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      breakfastArr.isEmpty &&
-                              lunchArr.isEmpty &&
-                              snacksArr.isEmpty &&
-                              dinnerArr.isEmpty
-                          ? const SizedBox()
-                          : ListView.builder(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: nutritionArr.length,
-                              itemBuilder: (context, index) {
-                                var nObj = nutritionArr[index] as Map? ?? {};
+                        ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: snacksArr.length,
+                            itemBuilder: (context, index) {
+                              if (snacksArr.isEmpty) {
+                                // If snacksArr is empty, display a message
+                                return const Center(
+                                  child: Text("Snacks not logged"),
+                                );
+                              } else {
+                                // If snacksArr is not empty, display the list items
+                                var mObj = snacksArr[index] as Map? ?? {};
+                                if (mealTypes.isNotEmpty) {
+                                  MealType dObj = mealTypes.firstWhere(
+                                      (mealType) =>
+                                          mObj['recipe']['meal_type_id'] ==
+                                          mealType.id);
+                                  return MealFoodScheduleRow(
+                                    mObj: mObj,
+                                    dObj: dObj,
+                                    index: index,
+                                  );
+                                }
+                              }
+                              return null;
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Dinner",
+                                style: TextStyle(
+                                    color: TColor.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "${dinnerArr.isEmpty ? "0 items | 0 calories" : dinnerArr.length} Items | ${dinnerArr.isEmpty ? 0 : dinnerArr.fold<double>(0, (sum, item) => sum + item['recipe']['calories'])} calories",
+                                  style: TextStyle(
+                                      color: TColor.gray, fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: dinnerArr.length,
+                            itemBuilder: (context, index) {
+                              if (dinnerArr.isEmpty) {
+                                // If dinnerArr is empty, display a message
+                                return const Center(
+                                  child: Text("Dinners not logged"),
+                                );
+                              } else {
+                                // If dinnerArr is not empty, display the list items
+                                var mObj = dinnerArr[index] as Map? ?? {};
+                                if (mealTypes.isNotEmpty) {
+                                  MealType dObj = mealTypes.firstWhere(
+                                      (mealType) =>
+                                          mObj['recipe']['meal_type_id'] ==
+                                          mealType.id);
+                                  return MealFoodScheduleRow(
+                                    mObj: mObj,
+                                    dObj: dObj,
+                                    index: index,
+                                  );
+                                }
+                              }
+                              return null;
+                            }),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Today Meal Nutritions",
+                                style: TextStyle(
+                                    color: TColor.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                        ),
+                        breakfastArr.isEmpty &&
+                                lunchArr.isEmpty &&
+                                snacksArr.isEmpty &&
+                                dinnerArr.isEmpty
+                            ? const SizedBox()
+                            : ListView.builder(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 15),
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: nutritionArr.length,
+                                itemBuilder: (context, index) {
+                                  var nObj = nutritionArr[index] as Map? ?? {};
 
-                                return NutritionRow(
-                                  nObj: nObj,
-                                );
-                              }),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      )
-                    ],
-                  ),
-                ))
-              ],
+                                  return NutritionRow(
+                                    nObj: nObj,
+                                  );
+                                }),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        )
+                      ],
+                    ),
+                  ))
+                ],
+              ),
             ),
           );
   }

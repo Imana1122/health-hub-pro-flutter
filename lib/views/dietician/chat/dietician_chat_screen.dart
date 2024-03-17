@@ -3,9 +3,7 @@ import 'package:fyp_flutter/common/size_config.dart';
 import 'package:fyp_flutter/common_widget/chat_cards/friend_message_card.dart';
 import 'package:fyp_flutter/common_widget/chat_cards/my_message_card.dart';
 import 'package:fyp_flutter/models/chat_message.dart';
-import 'package:fyp_flutter/models/dietician_chat_model.dart';
 import 'package:fyp_flutter/models/user_chat_model.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
@@ -98,13 +96,30 @@ class _ChatScreenState extends State<DieticianChatScreen> {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
-      backgroundColor: TColor.gray,
+      backgroundColor: TColor.mediumGray,
       appBar: AppBar(
-        backgroundColor: TColor.primaryColor1,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios),
-          color: TColor.white,
+        backgroundColor: TColor.white,
+        centerTitle: true,
+        elevation: 0,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            height: 40,
+            width: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                color: TColor.lightGray,
+                borderRadius: BorderRadius.circular(10)),
+            child: Image.asset(
+              "assets/img/black_btn.png",
+              width: 15,
+              height: 15,
+              fit: BoxFit.contain,
+            ),
+          ),
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -129,7 +144,6 @@ class _ChatScreenState extends State<DieticianChatScreen> {
             ),
           ],
         ),
-        centerTitle: true,
       ),
       body: Consumer<ConversationProvider>(
         builder: (context, cartProvider, _) {

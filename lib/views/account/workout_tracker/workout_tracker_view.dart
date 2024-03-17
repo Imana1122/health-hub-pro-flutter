@@ -1,7 +1,9 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/schedule_workout_service.dart';
 import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
-import 'package:fyp_flutter/views/account/home/activity_tracker_view.dart';
+import 'package:fyp_flutter/views/account/workout_tracker/workout_schedule_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 import 'workout_detail_view.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -19,18 +21,7 @@ class WorkoutTrackerView extends StatefulWidget {
 }
 
 class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
-  List latestArr = [
-    {
-      "image": "assets/img/Workout1.png",
-      "title": "Fullbody Workout",
-      "time": "Today, 03:00pm"
-    },
-    {
-      "image": "assets/img/Workout2.png",
-      "title": "Upperbody Workout",
-      "time": "June 05, 02:00pm"
-    },
-  ];
+  List latestArr = [];
   late AuthProvider authProvider;
   List whatArr = [];
   List<dynamic> lineChartData = []; // Updated lineChartData
@@ -68,12 +59,25 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _loadUpcomingWorkouts();
 
-    _loadLineChartDetails(type: selectedType);
     _loadWorkouts();
+    _loadLineChartDetails(type: selectedType);
+
     _scrollController = ScrollController()..addListener(_scrollListener);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
+
+  Future<void> _loadUpcomingWorkouts() async {
+    setState(() {
+      isLoading = true;
+    });
+    var result =
+        await ScheduleWorkoutService(authProvider).getUpcomingWorkouts();
+    setState(() {
+      latestArr = result;
     });
   }
 
@@ -220,47 +224,22 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
               ),
             ),
           )
-        : Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: TColor.primaryG)),
-            child: NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return [
-                  SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    centerTitle: true,
-                    elevation: 0,
-                    pinned: false,
-                    leading: InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.all(8),
-                        height: 40,
-                        width: 40,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: TColor.lightGray,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Image.asset(
-                          "assets/img/black_btn.png",
-                          width: 15,
-                          height: 15,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                    title: Text(
-                      "Workout Tracker",
-                      style: TextStyle(
-                          color: TColor.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
-                    ),
-                    actions: [
-                      InkWell(
-                        onTap: () {},
+        : AuthenticatedLayout(
+            child: Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: TColor.primaryG)),
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      centerTitle: true,
+                      elevation: 0,
+                      pinned: false,
+                      leading: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                         child: Container(
                           margin: const EdgeInsets.all(8),
                           height: 40,
@@ -270,382 +249,427 @@ class _WorkoutTrackerViewState extends State<WorkoutTrackerView> {
                               color: TColor.lightGray,
                               borderRadius: BorderRadius.circular(10)),
                           child: Image.asset(
-                            "assets/img/more_btn.png",
+                            "assets/img/black_btn.png",
                             width: 15,
                             height: 15,
                             fit: BoxFit.contain,
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                  SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    centerTitle: true,
-                    elevation: 0,
-                    pinned: false,
-                    leadingWidth: 0,
-                    leading: const SizedBox(),
-                    expandedHeight: media.height * 0.7,
-                    flexibleSpace: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.only(left: 15),
-                      child: Expanded(
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 30,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              decoration: BoxDecoration(
-                                gradient:
-                                    LinearGradient(colors: TColor.primaryG),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton(
-                                  value: selectedType,
-                                  items: ["Monthly", "Daily"].map((name) {
-                                    return DropdownMenuItem(
-                                      value: name,
-                                      child: Text(
-                                        name,
-                                        style: TextStyle(
-                                          color: TColor.gray,
-                                          fontSize: 14,
+                      ),
+                      title: Text(
+                        "Workout Tracker",
+                        style: TextStyle(
+                            color: TColor.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      actions: [
+                        InkWell(
+                          onTap: () {},
+                          child: Container(
+                            margin: const EdgeInsets.all(8),
+                            height: 40,
+                            width: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: TColor.lightGray,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Image.asset(
+                              "assets/img/more_btn.png",
+                              width: 15,
+                              height: 15,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      centerTitle: true,
+                      elevation: 0,
+                      pinned: false,
+                      leadingWidth: 0,
+                      leading: const SizedBox(),
+                      expandedHeight: media.height * 0.7,
+                      flexibleSpace: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Expanded(
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 30,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      LinearGradient(colors: TColor.primaryG),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton(
+                                    value: selectedType,
+                                    items: ["Monthly", "Daily"].map((name) {
+                                      return DropdownMenuItem(
+                                        value: name,
+                                        child: Text(
+                                          name,
+                                          style: TextStyle(
+                                            color: TColor.gray,
+                                            fontSize: 14,
+                                          ),
                                         ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        if (value != null) {
+                                          selectedType = value;
+                                          // Convert the value to lowercase before passing it to _loadLineChartDetails
+                                          _loadLineChartDetails(
+                                              type: value.toLowerCase());
+                                        }
+                                      });
+                                    },
+                                    icon: Icon(Icons.expand_more,
+                                        color: TColor.white),
+                                    hint: Text(
+                                      "Select a meal type",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: TColor.white,
+                                        fontSize: 12,
                                       ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        selectedType = value;
-                                        // Convert the value to lowercase before passing it to _loadLineChartDetails
-                                        _loadLineChartDetails(
-                                            type: value.toLowerCase());
-                                      }
-                                    });
-                                  },
-                                  icon: Icon(Icons.expand_more,
-                                      color: TColor.white),
-                                  hint: Text(
-                                    "Select a meal type",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: TColor.white,
-                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: media.width *
-                                  0.02, // Adjust the height as needed
-                            ),
-                            SizedBox(
-                              height: media.width *
-                                  0.02, // Adjust the height as needed
-                            ),
+                              SizedBox(
+                                height: media.width *
+                                    0.02, // Adjust the height as needed
+                              ),
+                              SizedBox(
+                                height: media.width *
+                                    0.02, // Adjust the height as needed
+                              ),
 
-                            lineChartData.isNotEmpty
-                                ? SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: SizedBox(
-                                        height: media.height *
-                                            0.5, // Set a fixed height for the chart container
-                                        width: media.width * 0.8,
-                                        child: LineChart(
-                                          LineChartData(
-                                            showingTooltipIndicators:
-                                                showingTooltipOnSpots
-                                                    .map((index) {
-                                              return ShowingTooltipIndicators([
-                                                LineBarSpot(
-                                                  tooltipsOnBar,
-                                                  lineBarsData
-                                                      .indexOf(tooltipsOnBar),
-                                                  tooltipsOnBar.spots[index],
-                                                ),
-                                              ]);
-                                            }).toList(),
-                                            lineTouchData: LineTouchData(
-                                              enabled: true,
-                                              handleBuiltInTouches: false,
-                                              touchCallback: (FlTouchEvent
-                                                      event,
-                                                  LineTouchResponse? response) {
-                                                if (response == null ||
-                                                    response.lineBarSpots ==
-                                                        null) {
-                                                  return;
-                                                }
-                                                if (event is FlTapUpEvent) {
-                                                  final spotIndex = response
-                                                      .lineBarSpots!
-                                                      .first
-                                                      .spotIndex;
-                                                  showingTooltipOnSpots.clear();
-                                                  setState(() {
+                              lineChartData.isNotEmpty
+                                  ? SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: SizedBox(
+                                          height: media.height *
+                                              0.5, // Set a fixed height for the chart container
+                                          width:
+                                              media.width * 0.5 * spots.length,
+                                          child: LineChart(
+                                            LineChartData(
+                                              showingTooltipIndicators:
+                                                  showingTooltipOnSpots
+                                                      .map((index) {
+                                                return ShowingTooltipIndicators([
+                                                  LineBarSpot(
+                                                    tooltipsOnBar,
+                                                    lineBarsData
+                                                        .indexOf(tooltipsOnBar),
+                                                    tooltipsOnBar.spots[index],
+                                                  ),
+                                                ]);
+                                              }).toList(),
+                                              lineTouchData: LineTouchData(
+                                                enabled: true,
+                                                handleBuiltInTouches: false,
+                                                touchCallback:
+                                                    (FlTouchEvent event,
+                                                        LineTouchResponse?
+                                                            response) {
+                                                  if (response == null ||
+                                                      response.lineBarSpots ==
+                                                          null) {
+                                                    return;
+                                                  }
+                                                  if (event is FlTapUpEvent) {
+                                                    final spotIndex = response
+                                                        .lineBarSpots!
+                                                        .first
+                                                        .spotIndex;
                                                     showingTooltipOnSpots
-                                                        .add(spotIndex);
-                                                  });
-                                                }
-                                              },
-                                              mouseCursorResolver: (FlTouchEvent
-                                                      event,
-                                                  LineTouchResponse? response) {
-                                                if (response == null ||
-                                                    response.lineBarSpots ==
-                                                        null) {
+                                                        .clear();
+                                                    setState(() {
+                                                      showingTooltipOnSpots
+                                                          .add(spotIndex);
+                                                    });
+                                                  }
+                                                },
+                                                mouseCursorResolver:
+                                                    (FlTouchEvent event,
+                                                        LineTouchResponse?
+                                                            response) {
+                                                  if (response == null ||
+                                                      response.lineBarSpots ==
+                                                          null) {
+                                                    return SystemMouseCursors
+                                                        .basic;
+                                                  }
                                                   return SystemMouseCursors
-                                                      .basic;
-                                                }
-                                                return SystemMouseCursors.click;
-                                              },
-                                              getTouchedSpotIndicator:
-                                                  (LineChartBarData barData,
-                                                      List<int> spotIndexes) {
-                                                return spotIndexes.map((index) {
-                                                  return TouchedSpotIndicatorData(
-                                                    const FlLine(
-                                                      color: Colors.transparent,
-                                                    ),
-                                                    FlDotData(
-                                                      show: true,
-                                                      getDotPainter: (spot,
-                                                              percent,
-                                                              barData,
-                                                              index) =>
-                                                          FlDotCirclePainter(
-                                                        radius: 3,
-                                                        color: Colors.white,
-                                                        strokeWidth: 3,
-                                                        strokeColor: TColor
-                                                            .secondaryColor1,
+                                                      .click;
+                                                },
+                                                getTouchedSpotIndicator:
+                                                    (LineChartBarData barData,
+                                                        List<int> spotIndexes) {
+                                                  return spotIndexes
+                                                      .map((index) {
+                                                    return TouchedSpotIndicatorData(
+                                                      const FlLine(
+                                                        color:
+                                                            Colors.transparent,
                                                       ),
-                                                    ),
-                                                  );
-                                                }).toList();
-                                              },
-                                              touchTooltipData:
-                                                  LineTouchTooltipData(
-                                                tooltipBgColor:
-                                                    TColor.secondaryColor1,
-                                                tooltipRoundedRadius: 20,
-                                                getTooltipItems:
-                                                    (List<LineBarSpot>
-                                                        lineBarsSpot) {
-                                                  return lineBarsSpot
-                                                      .map((lineBarSpot) {
-                                                    return LineTooltipItem(
-                                                      "${lineBarSpot.x.toInt()} mins ago",
-                                                      const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                      FlDotData(
+                                                        show: true,
+                                                        getDotPainter: (spot,
+                                                                percent,
+                                                                barData,
+                                                                index) =>
+                                                            FlDotCirclePainter(
+                                                          radius: 3,
+                                                          color: Colors.white,
+                                                          strokeWidth: 3,
+                                                          strokeColor: TColor
+                                                              .secondaryColor1,
+                                                        ),
                                                       ),
                                                     );
                                                   }).toList();
                                                 },
+                                                touchTooltipData:
+                                                    LineTouchTooltipData(
+                                                  tooltipBgColor:
+                                                      TColor.secondaryColor1,
+                                                  tooltipRoundedRadius: 20,
+                                                  getTooltipItems:
+                                                      (List<LineBarSpot>
+                                                          lineBarsSpot) {
+                                                    return lineBarsSpot
+                                                        .map((lineBarSpot) {
+                                                      return LineTooltipItem(
+                                                        "${lineBarSpot.x.toInt()} mins ago",
+                                                        const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      );
+                                                    }).toList();
+                                                  },
+                                                ),
+                                              ),
+                                              lineBarsData: lineBarsData1,
+                                              minY: 0,
+                                              maxY: 500,
+                                              titlesData: FlTitlesData(
+                                                show: true,
+                                                leftTitles: const AxisTitles(),
+                                                topTitles: const AxisTitles(),
+                                                bottomTitles: AxisTitles(
+                                                  sideTitles: bottomTitles,
+                                                ),
+                                                rightTitles: AxisTitles(
+                                                  sideTitles: rightTitles,
+                                                ),
+                                              ),
+                                              gridData: FlGridData(
+                                                show: true,
+                                                drawHorizontalLine: true,
+                                                horizontalInterval: 25,
+                                                drawVerticalLine: false,
+                                                getDrawingHorizontalLine:
+                                                    (value) {
+                                                  return FlLine(
+                                                    color: TColor.gray
+                                                        .withOpacity(0.15),
+                                                    strokeWidth: 2,
+                                                  );
+                                                },
+                                              ),
+                                              borderData: FlBorderData(
+                                                show: true,
+                                                border: Border.all(
+                                                  color: Colors.transparent,
+                                                ),
                                               ),
                                             ),
-                                            lineBarsData: lineBarsData1,
-                                            minY: 0,
-                                            maxY: 500,
-                                            titlesData: FlTitlesData(
-                                              show: true,
-                                              leftTitles: const AxisTitles(),
-                                              topTitles: const AxisTitles(),
-                                              bottomTitles: AxisTitles(
-                                                sideTitles: bottomTitles,
-                                              ),
-                                              rightTitles: AxisTitles(
-                                                sideTitles: rightTitles,
-                                              ),
-                                            ),
-                                            gridData: FlGridData(
-                                              show: true,
-                                              drawHorizontalLine: true,
-                                              horizontalInterval: 25,
-                                              drawVerticalLine: false,
-                                              getDrawingHorizontalLine:
-                                                  (value) {
-                                                return FlLine(
-                                                  color: TColor.gray
-                                                      .withOpacity(0.15),
-                                                  strokeWidth: 2,
-                                                );
-                                              },
-                                            ),
-                                            borderData: FlBorderData(
-                                              show: true,
-                                              border: Border.all(
-                                                color: Colors.transparent,
-                                              ),
-                                            ),
-                                          ),
-                                        )),
-                                  )
-                                : const SizedBox(), // If lineChartData is empty, show an empty SizedBox
-                          ],
+                                          )),
+                                    )
+                                  : const SizedBox(), // If lineChartData is empty, show an empty SizedBox
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ];
-              },
-              body: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                    color: TColor.white,
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        topRight: Radius.circular(25))),
-                child: Scaffold(
-                  backgroundColor: Colors.transparent,
-                  body: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 50,
-                          height: 4,
-                          decoration: BoxDecoration(
-                              color: TColor.gray.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(3)),
-                        ),
-                        SizedBox(
-                          height: media.width * 0.05,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 15),
-                          decoration: BoxDecoration(
-                            color: TColor.primaryColor2.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(15),
+                  ];
+                },
+                body: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                      color: TColor.white,
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(25),
+                          topRight: Radius.circular(25))),
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 10,
                           ),
-                          child: Row(
+                          Container(
+                            width: 50,
+                            height: 4,
+                            decoration: BoxDecoration(
+                                color: TColor.gray.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(3)),
+                          ),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            decoration: BoxDecoration(
+                              color: TColor.primaryColor2.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Daily Workout Schedule",
+                                  style: TextStyle(
+                                      color: TColor.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                                SizedBox(
+                                  width: 90,
+                                  height: 30,
+                                  child: RoundButton(
+                                    title: "Check",
+                                    type: RoundButtonType.bgGradient,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const WorkoutScheduleView(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Daily Workout Schedule",
+                                "Upcoming Workout",
                                 style: TextStyle(
                                     color: TColor.black,
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w700),
                               ),
-                              SizedBox(
-                                width: 90,
-                                height: 30,
-                                child: RoundButton(
-                                  title: "Check",
-                                  type: RoundButtonType.bgGradient,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ActivityTrackerView(),
-                                      ),
-                                    );
-                                  },
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const WorkoutScheduleView(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "See More",
+                                  style: TextStyle(
+                                      color: TColor.gray,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
                                 ),
                               )
                             ],
                           ),
-                        ),
-                        SizedBox(
-                          height: media.width * 0.05,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Upcoming Workout",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "See More",
+                          ListView.builder(
+                              padding: EdgeInsets.zero,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: latestArr.length,
+                              itemBuilder: (context, index) {
+                                var wObj = latestArr[index] as Map? ?? {};
+                                return UpcomingWorkoutRow(wObj: wObj);
+                              }),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "What Do You Want to Train",
                                 style: TextStyle(
-                                    color: TColor.gray,
-                                    fontSize: 14,
+                                    color: TColor.black,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w700),
                               ),
-                            )
-                          ],
-                        ),
-                        ListView.builder(
-                            padding: EdgeInsets.zero,
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: latestArr.length,
-                            itemBuilder: (context, index) {
-                              var wObj = latestArr[index] as Map? ?? {};
-                              return UpcomingWorkoutRow(wObj: wObj);
-                            }),
-                        SizedBox(
-                          height: media.width * 0.05,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "What Do You Want to Train",
-                              style: TextStyle(
-                                  color: TColor.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                        ListView.builder(
-                            controller: _scrollController,
-                            scrollDirection: Axis.vertical,
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: whatArr.length,
-                            itemBuilder: (context, index) {
-                              var wObj = whatArr[index] as Map? ?? {};
-                              return InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                WorkoutDetailView(
-                                                  dObj: wObj,
-                                                )));
-                                  },
-                                  child: WhatTrainRow(wObj: wObj));
-                            }),
-                        SizedBox(
-                          height: media.width * 0.1,
-                        ),
-                        pageNumber < totalPages
-                            ? RoundButton(
-                                title: 'More',
-                                onPressed: () {
-                                  if (pageNumber < totalPages) {
-                                    setState(() {
-                                      pageNumber += 1;
-                                    });
-                                    _loadWorkouts();
-                                  }
-                                })
-                            : const SizedBox()
-                      ],
+                            ],
+                          ),
+                          ListView.builder(
+                              controller: _scrollController,
+                              scrollDirection: Axis.vertical,
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              itemCount: whatArr.length,
+                              itemBuilder: (context, index) {
+                                var wObj = whatArr[index] as Map? ?? {};
+                                return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  WorkoutDetailView(
+                                                    dObj: wObj,
+                                                  )));
+                                    },
+                                    child: WhatTrainRow(wObj: wObj));
+                              }),
+                          SizedBox(
+                            height: media.width * 0.1,
+                          ),
+                          Container(
+                              alignment: Alignment.bottomRight,
+                              width: media.width,
+                              child: pageNumber < totalPages
+                                  ? IconButton(
+                                      icon: const Icon(Icons.skip_next),
+                                      onPressed: () {
+                                        if (pageNumber < totalPages) {
+                                          setState(() {
+                                            pageNumber += 1;
+                                          });
+                                          _loadWorkouts();
+                                        }
+                                      })
+                                  : const SizedBox())
+                        ],
+                      ),
                     ),
                   ),
                 ),

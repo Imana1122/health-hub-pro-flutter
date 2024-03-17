@@ -13,7 +13,7 @@ class RoundTextField extends StatefulWidget {
   final EdgeInsets? margin;
 
   const RoundTextField({
-    Key? key,
+    super.key,
     required this.hitText,
     required this.icon,
     this.controller,
@@ -23,7 +23,7 @@ class RoundTextField extends StatefulWidget {
     this.keyboardType,
     this.obscureText = false,
     this.rigtIcon,
-  }) : super(key: key);
+  });
 
   @override
   _RoundTextFieldState createState() => _RoundTextFieldState();
@@ -36,7 +36,7 @@ class _RoundTextFieldState extends State<RoundTextField> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _updatePrefixIconHeight();
     });
   }

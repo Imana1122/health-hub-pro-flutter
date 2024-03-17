@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fyp_flutter/models/chat_message.dart';
 import 'package:fyp_flutter/models/dietician_chat_model.dart';
 import 'package:fyp_flutter/providers/base_provider.dart';
@@ -40,9 +42,9 @@ class ConversationProvider extends BaseProvider {
   }
 
   Future<ChatMessage> storeMessage(String message,
-      {required String token, required String dieticianId}) async {
+      {required String token, required String dieticianId, File? file}) async {
     setBusy(true);
-    var data = await _conversationService.storeMessage(message,
+    var data = await _conversationService.storeMessage(message, file,
         dieticianId: dieticianId, token: token);
 
     notifyListeners();

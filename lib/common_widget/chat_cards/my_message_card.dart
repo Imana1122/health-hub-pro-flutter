@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
-import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/models/chat_message.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:dio/dio.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MyMessageCard extends StatelessWidget {
   final ChatMessage message;
@@ -36,18 +38,40 @@ class MyMessageCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Flexible(
-                      child: Text(
-                        message.message ?? '',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 10, // Adjust maxLines as needed
-                        style: TextStyle(
-                          fontSize: 11, // Adjust the font size as needed
-                          fontWeight: FontWeight
-                              .normal, // Adjust the font weight as needed
-                          color: TColor.gray, // Adjust the text color as needed
-                          // Add more style properties as needed
-                        ),
-                      ),
+                      child: message.message != null
+                          ? Text(
+                              message.message!,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 10,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.normal,
+                                color: TColor.gray,
+                              ),
+                            )
+                          : InkWell(
+                              onTap: () {
+                                // Check if the file is an image
+                                if (message.file != null &&
+                                        (message.file!.endsWith('.jpg') ||
+                                            message.file!.endsWith('.png')) ||
+                                    message.file!.endsWith('.jpeg') ||
+                                    message.file!.endsWith('.gif')) {
+                                  // Navigate to a new screen to display the image
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ImageScreen(
+                                        imageUrl: message.file!,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  // Handle file download
+                                }
+                              },
+                              child: Text(message.file!),
+                            ),
                     ),
                   ),
                   const Spacer(),
@@ -62,10 +86,11 @@ class MyMessageCard extends StatelessWidget {
                       Text(
                         Jiffy(message.createdAt).fromNow(),
                         style: TextStyle(
-                            color: message.read == 0
-                                ? TColor.secondaryColor1
-                                : TColor.gray,
-                            fontSize: 9),
+                          color: message.read == 0
+                              ? TColor.secondaryColor1
+                              : TColor.gray,
+                          fontSize: 9,
+                        ),
                       ),
                       Text(
                         DateFormat('h:mm a').format(
@@ -84,6 +109,23 @@ class MyMessageCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ImageScreen extends StatelessWidget {
+  final String imageUrl;
+
+  const ImageScreen({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child:
+            Image.network('http://10.0.2.2:8000/uploads/chats/files/$imageUrl'),
       ),
     );
   }

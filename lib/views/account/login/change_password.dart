@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
 class ChangePassword extends StatefulWidget {
@@ -110,40 +111,42 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
             ),
           )
-        : Scaffold(
-            appBar: AppBar(
-              title: const Text('Change Password'),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 16),
-                  buildPasswordTextField(
-                    oldPasswordController,
-                    'Old Password',
-                    obscureOldPassword,
-                    (value) => obscureOldPassword = value,
-                  ),
-                  const SizedBox(height: 16),
-                  buildPasswordTextField(
-                    newPasswordController,
-                    'New Password',
-                    obscureNewPassword,
-                    (value) => obscureNewPassword = value,
-                  ),
-                  const SizedBox(height: 16),
-                  buildPasswordTextField(
-                    confirmPasswordController,
-                    'Confirm Password',
-                    obscureConfirmPassword,
-                    (value) => obscureConfirmPassword = value,
-                  ),
-                  const SizedBox(height: 16),
-                  RoundButton(
-                      onPressed: _changePassword, title: "ChangePassword"),
-                ],
+        : AuthenticatedLayout(
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Change Password'),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 16),
+                    buildPasswordTextField(
+                      oldPasswordController,
+                      'Old Password',
+                      obscureOldPassword,
+                      (value) => obscureOldPassword = value,
+                    ),
+                    const SizedBox(height: 16),
+                    buildPasswordTextField(
+                      newPasswordController,
+                      'New Password',
+                      obscureNewPassword,
+                      (value) => obscureNewPassword = value,
+                    ),
+                    const SizedBox(height: 16),
+                    buildPasswordTextField(
+                      confirmPasswordController,
+                      'Confirm Password',
+                      obscureConfirmPassword,
+                      (value) => obscureConfirmPassword = value,
+                    ),
+                    const SizedBox(height: 16),
+                    RoundButton(
+                        onPressed: _changePassword, title: "ChangePassword"),
+                  ],
+                ),
               ),
             ),
           );

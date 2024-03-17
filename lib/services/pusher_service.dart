@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fyp_flutter/models/chat_message.dart';
-import 'package:fyp_flutter/models/dietician_chat_model.dart';
-import 'package:fyp_flutter/models/user_chat_model.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
@@ -39,9 +38,30 @@ class PusherService {
             if (jsonData.containsKey('chatMessage')) {
               // Access the chatMessage object
               Map<String, dynamic> chatMessage = jsonData['chatMessage'];
+              ChatMessage message = ChatMessage.fromJson(chatMessage);
+              final FlutterLocalNotificationsPlugin
+                  flutterLocalNotificationsPlugin =
+                  FlutterLocalNotificationsPlugin();
 
-              convProvider.saveMessage(
-                  chatMessage: ChatMessage.fromJson(chatMessage));
+              Future<void> showNotification() async {
+                const AndroidNotificationDetails
+                    androidPlatformChannelSpecifics =
+                    AndroidNotificationDetails('1', 'HealthHub Pro',
+                        importance: Importance.max, priority: Priority.high);
+                const NotificationDetails platformChannelSpecifics =
+                    NotificationDetails(
+                        android: androidPlatformChannelSpecifics);
+                await flutterLocalNotificationsPlugin.show(
+                    0,
+                    'New Notification',
+                    message.message,
+                    platformChannelSpecifics,
+                    payload: 'item x');
+              }
+
+              showNotification();
+
+              convProvider.saveMessage(chatMessage: message);
 
               return true;
             }

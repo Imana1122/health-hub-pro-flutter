@@ -9,6 +9,7 @@ import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/home_service.dart';
 import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 import '../../../common/color_extension.dart';
@@ -117,7 +118,6 @@ class _HomeViewState extends State<HomeView> {
           },
         ];
       }
-      isLoading = false;
     });
   }
 
@@ -134,9 +134,6 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _loadLineChartDetails({required String type}) async {
-    setState(() {
-      isLoading = true;
-    });
     var chartData = await WorkoutRecommendationService(authProvider)
         .getWorkoutLineChartDetails(
             type: type.toLowerCase()); // Convert type to lowercase
@@ -239,562 +236,579 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
           )
-        : Scaffold(
-            backgroundColor: TColor.white,
-            body: SingleChildScrollView(
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Welcome Back,",
-                                style:
-                                    TextStyle(color: TColor.gray, fontSize: 12),
-                              ),
-                              Text(
-                                user.name,
-                                style: TextStyle(
-                                    color: TColor.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const NotificationView(),
-                                  ),
-                                );
-                              },
-                              icon: Image.asset(
-                                "assets/img/notification_active.png",
-                                width: 25,
-                                height: 25,
-                                fit: BoxFit.fitHeight,
-                              ))
-                        ],
-                      ),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Container(
-                        height: media.width * 0.4,
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: TColor.primaryG),
-                            borderRadius:
-                                BorderRadius.circular(media.width * 0.075)),
-                        child: Stack(alignment: Alignment.center, children: [
-                          Image.asset(
-                            "assets/img/bg_dots.png",
-                            height: media.width * 0.4,
-                            width: double.maxFinite,
-                            fit: BoxFit.fitHeight,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 25, horizontal: 25),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        : AuthenticatedLayout(
+            child: Scaffold(
+              backgroundColor: TColor.white,
+              body: SingleChildScrollView(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "BMI (Body Mass Index)",
-                                      style: TextStyle(
-                                          color: TColor.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700),
-                                    ),
-                                    Text(
-                                      "You have a ${getBMIStatus(user.profile.bmi)}.",
-                                      style: TextStyle(
-                                          color: TColor.white.withOpacity(0.7),
-                                          fontSize: 12),
-                                    ),
-                                    SizedBox(
-                                      height: media.width * 0.05,
-                                    ),
-                                    SizedBox(
-                                        width: 120,
-                                        height: 35,
-                                        child: RoundButton(
-                                            title: "View More",
-                                            type: RoundButtonType.bgSGradient,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            onPressed: () {}))
-                                  ],
+                                Text(
+                                  "Welcome Back,",
+                                  style: TextStyle(
+                                      color: TColor.gray, fontSize: 12),
                                 ),
-                                AspectRatio(
-                                  aspectRatio: 1,
-                                  child: PieChart(
-                                    PieChartData(
-                                      pieTouchData: PieTouchData(
-                                        touchCallback: (FlTouchEvent event,
-                                            pieTouchResponse) {},
-                                      ),
-                                      startDegreeOffset: 250,
-                                      borderData: FlBorderData(
-                                        show: false,
-                                      ),
-                                      sectionsSpace: 1,
-                                      centerSpaceRadius: 0,
-                                      sections: showingSections(),
-                                    ),
-                                  ),
+                                Text(
+                                  user.name,
+                                  style: TextStyle(
+                                      color: TColor.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
-                          )
-                        ]),
-                      ),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: double.maxFinite,
-                            height: media.width * 0.45,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 25, horizontal: 20),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(25),
-                                boxShadow: const [
-                                  BoxShadow(
-                                      color: Colors.black12, blurRadius: 2)
-                                ]),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Calories",
-                                    style: TextStyle(
-                                        color: TColor.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                  ShaderMask(
-                                    blendMode: BlendMode.srcIn,
-                                    shaderCallback: (bounds) {
-                                      return LinearGradient(
-                                              colors: TColor.primaryG,
-                                              begin: Alignment.centerLeft,
-                                              end: Alignment.centerRight)
-                                          .createShader(Rect.fromLTRB(0, 0,
-                                              bounds.width, bounds.height));
-                                    },
-                                    child: Text(
-                                      '${user.profile.calories} calories',
-                                      style: TextStyle(
-                                          color: TColor.white.withOpacity(0.7),
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14),
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NotificationView(),
                                     ),
-                                  ),
-                                  const Spacer(),
-                                  Container(
-                                    alignment: Alignment.center,
-                                    child: SizedBox(
-                                      width: media.width * 0.2,
-                                      height: media.width * 0.2,
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            width: media.width * 0.15,
-                                            height: media.width * 0.15,
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                  colors: TColor.primaryG),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      media.width * 0.075),
-                                            ),
-                                            child: FittedBox(
-                                              child: Text(
-                                                (user.profile.calories -
-                                                        todayUserDetails[
-                                                            'calories'])
-                                                    .toStringAsFixed(2),
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: TColor.white,
-                                                    fontSize: 11),
-                                              ),
-                                            ),
-                                          ),
-                                          SimpleCircularProgressBar(
-                                            progressStrokeWidth: 10,
-                                            backStrokeWidth: 10,
-                                            progressColors: (user
-                                                            .profile.calories -
-                                                        todayUserDetails[
-                                                            'calories'] <
-                                                    0)
-                                                ? TColor
-                                                    .secondaryG // Use secondaryG if the difference is negative
-                                                : TColor
-                                                    .primaryG, // Use primaryG color otherwise
-
-                                            backColor: Colors.grey.shade100,
-                                            valueNotifier: ValueNotifier(
-                                                todayUserDetails['calories'] *
-                                                    100 /
-                                                    user.profile.calories),
-                                            startAngle: -180,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                ]),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: media.width * 0.1,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Workout Progress",
-                            style: TextStyle(
-                                color: TColor.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Container(
-                          padding: const EdgeInsets.only(left: 15),
-                          height: media.width * 0.5,
-                          width: double.maxFinite,
-                          child: LineChart(
-                            LineChartData(
-                              showingTooltipIndicators:
-                                  showingTooltipOnSpots.map((index) {
-                                return ShowingTooltipIndicators([
-                                  LineBarSpot(
-                                    tooltipsOnBar,
-                                    lineBarsData.indexOf(tooltipsOnBar),
-                                    tooltipsOnBar.spots[index],
-                                  ),
-                                ]);
-                              }).toList(),
-                              lineTouchData: LineTouchData(
-                                enabled: true,
-                                handleBuiltInTouches: false,
-                                touchCallback: (FlTouchEvent event,
-                                    LineTouchResponse? response) {
-                                  if (response == null ||
-                                      response.lineBarSpots == null) {
-                                    return;
-                                  }
-                                  if (event is FlTapUpEvent) {
-                                    final spotIndex =
-                                        response.lineBarSpots!.first.spotIndex;
-                                    showingTooltipOnSpots.clear();
-                                    setState(() {
-                                      showingTooltipOnSpots.add(spotIndex);
-                                    });
-                                  }
-                                },
-                                mouseCursorResolver: (FlTouchEvent event,
-                                    LineTouchResponse? response) {
-                                  if (response == null ||
-                                      response.lineBarSpots == null) {
-                                    return SystemMouseCursors.basic;
-                                  }
-                                  return SystemMouseCursors.click;
-                                },
-                                getTouchedSpotIndicator:
-                                    (LineChartBarData barData,
-                                        List<int> spotIndexes) {
-                                  return spotIndexes.map((index) {
-                                    return TouchedSpotIndicatorData(
-                                      const FlLine(
-                                        color: Colors.transparent,
-                                      ),
-                                      FlDotData(
-                                        show: true,
-                                        getDotPainter:
-                                            (spot, percent, barData, index) =>
-                                                FlDotCirclePainter(
-                                          radius: 3,
-                                          color: Colors.white,
-                                          strokeWidth: 3,
-                                          strokeColor: TColor.secondaryColor1,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList();
-                                },
-                                touchTooltipData: LineTouchTooltipData(
-                                  tooltipBgColor: TColor.secondaryColor1,
-                                  tooltipRoundedRadius: 20,
-                                  getTooltipItems:
-                                      (List<LineBarSpot> lineBarsSpot) {
-                                    return lineBarsSpot.map((lineBarSpot) {
-                                      return LineTooltipItem(
-                                        "${lineBarSpot.x.toInt()} mins ago",
-                                        const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
-                              ),
-                              lineBarsData: lineBarsData1,
-                              minY: 0,
-                              maxY: 500,
-                              titlesData: FlTitlesData(
-                                  show: true,
-                                  leftTitles: const AxisTitles(),
-                                  topTitles: const AxisTitles(),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: bottomTitles,
-                                  ),
-                                  rightTitles: AxisTitles(
-                                    sideTitles: rightTitles,
-                                  )),
-                              gridData: FlGridData(
-                                show: true,
-                                drawHorizontalLine: true,
-                                horizontalInterval: 25,
-                                drawVerticalLine: false,
-                                getDrawingHorizontalLine: (value) {
-                                  return FlLine(
-                                    color: TColor.gray.withOpacity(0.15),
-                                    strokeWidth: 2,
                                   );
                                 },
-                              ),
-                              borderData: FlBorderData(
-                                show: true,
-                                border: Border.all(
-                                  color: Colors.transparent,
-                                ),
-                              ),
+                                icon: Image.asset(
+                                  "assets/img/notification_active.png",
+                                  width: 25,
+                                  height: 25,
+                                  fit: BoxFit.fitHeight,
+                                ))
+                          ],
+                        ),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Container(
+                          height: media.width * 0.4,
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(colors: TColor.primaryG),
+                              borderRadius:
+                                  BorderRadius.circular(media.width * 0.075)),
+                          child: Stack(alignment: Alignment.center, children: [
+                            Image.asset(
+                              "assets/img/bg_dots.png",
+                              height: media.width * 0.4,
+                              width: double.maxFinite,
+                              fit: BoxFit.fitHeight,
                             ),
-                          )),
-                      SizedBox(
-                        height: media.width * 0.05,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Latest Workout",
-                            style: TextStyle(
-                                color: TColor.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700),
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "See More",
-                              style: TextStyle(
-                                  color: TColor.gray,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          )
-                        ],
-                      ),
-                      lastWorkoutArr.isNotEmpty
-                          ? ListView.builder(
-                              padding: EdgeInsets.zero,
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: lastWorkoutArr.length,
-                              itemBuilder: (context, index) {
-                                var wObj = lastWorkoutArr[index] as Map? ?? {};
-                                return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const FinishedWorkoutView(),
-                                        ),
-                                      );
-                                    },
-                                    child: WorkoutRow(wObj: wObj));
-                              })
-                          : const SizedBox(),
-                      SizedBox(
-                        height: media.width * 0.1,
-                      ),
-                      mealPlan != {} && nutritionArr.isNotEmpty
-                          ? SingleChildScrollView(
-                              padding: const EdgeInsets.all(15),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 25, horizontal: 25),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Selected Meal Plan For Tody',
-                                          style: TextStyle(
-                                              color: TColor.primaryColor1,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "BMI (Body Mass Index)",
+                                        style: TextStyle(
+                                            color: TColor.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      Text(
+                                        "You have a ${getBMIStatus(user.profile.bmi)}.",
+                                        style: TextStyle(
+                                            color:
+                                                TColor.white.withOpacity(0.7),
+                                            fontSize: 12),
+                                      ),
+                                      SizedBox(
+                                        height: media.width * 0.05,
+                                      ),
+                                      SizedBox(
+                                          width: 120,
+                                          height: 35,
+                                          child: RoundButton(
+                                              title: "View More",
+                                              type: RoundButtonType.bgSGradient,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              onPressed: () {}))
+                                    ],
+                                  ),
+                                  AspectRatio(
+                                    aspectRatio: 1,
+                                    child: PieChart(
+                                      PieChartData(
+                                        pieTouchData: PieTouchData(
+                                          touchCallback: (FlTouchEvent event,
+                                              pieTouchResponse) {},
                                         ),
-                                        SizedBox(
-                                          height: media.height * 0.05,
+                                        startDegreeOffset: 250,
+                                        borderData: FlBorderData(
+                                          show: false,
                                         ),
-                                        Text(
-                                          "BreakFast",
-                                          style: TextStyle(
-                                              color: TColor.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                        MealPlanDetailsRow(
-                                            mObj: mealPlan['breakfast_recipe'],
-                                            dObj: MealType.fromJson(
-                                                mealPlan['breakfast_recipe']
-                                                    ['meal_type'])),
-                                      ],
+                                        sectionsSpace: 1,
+                                        centerSpaceRadius: 0,
+                                        sections: showingSections(),
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Lunch",
-                                          style: TextStyle(
-                                              color: TColor.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                        MealPlanDetailsRow(
-                                            mObj: mealPlan['lunch_recipe'],
-                                            dObj: MealType.fromJson(
-                                                mealPlan['lunch_recipe']
-                                                    ['meal_type'])),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Snacks",
-                                          style: TextStyle(
-                                              color: TColor.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                        MealPlanDetailsRow(
-                                            mObj: mealPlan['snack_recipe'],
-                                            dObj: MealType.fromJson(
-                                                mealPlan['snack_recipe']
-                                                    ['meal_type'])),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Dinner",
-                                          style: TextStyle(
-                                              color: TColor.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                        MealPlanDetailsRow(
-                                            mObj: mealPlan['dinner_recipe'],
-                                            dObj: MealType.fromJson(
-                                                mealPlan['dinner_recipe']
-                                                    ['meal_type'])),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: media.width * 0.05,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Today Meal Nutritions",
-                                          style: TextStyle(
-                                              color: TColor.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  ListView.builder(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: nutritionArr.length,
-                                      itemBuilder: (context, index) {
-                                        var nObj =
-                                            nutritionArr[index] as Map? ?? {};
-
-                                        return NutritionRow(
-                                          nObj: nObj,
-                                        );
-                                      }),
-                                  SizedBox(
-                                    height: media.height * 0.1,
                                   ),
                                 ],
                               ),
                             )
-                          : const SizedBox(),
-                    ],
+                          ]),
+                        ),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: double.maxFinite,
+                              height: media.width * 0.45,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 25, horizontal: 20),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(25),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Colors.black12, blurRadius: 2)
+                                  ]),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Calories",
+                                      style: TextStyle(
+                                          color: TColor.black,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    ShaderMask(
+                                      blendMode: BlendMode.srcIn,
+                                      shaderCallback: (bounds) {
+                                        return LinearGradient(
+                                                colors: TColor.primaryG,
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight)
+                                            .createShader(Rect.fromLTRB(0, 0,
+                                                bounds.width, bounds.height));
+                                      },
+                                      child: Text(
+                                        '${user.profile.calories} calories',
+                                        style: TextStyle(
+                                            color:
+                                                TColor.white.withOpacity(0.7),
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: SizedBox(
+                                        width: media.width * 0.2,
+                                        height: media.width * 0.2,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              width: media.width * 0.15,
+                                              height: media.width * 0.15,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                    colors: TColor.primaryG),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        media.width * 0.075),
+                                              ),
+                                              child: FittedBox(
+                                                child: Text(
+                                                  (user.profile.calories -
+                                                          todayUserDetails[
+                                                              'calories'])
+                                                      .toStringAsFixed(2),
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color: TColor.white,
+                                                      fontSize: 11),
+                                                ),
+                                              ),
+                                            ),
+                                            SimpleCircularProgressBar(
+                                              progressStrokeWidth: 10,
+                                              backStrokeWidth: 10,
+                                              progressColors: (user.profile
+                                                              .calories -
+                                                          todayUserDetails[
+                                                              'calories'] <
+                                                      0)
+                                                  ? TColor
+                                                      .secondaryG // Use secondaryG if the difference is negative
+                                                  : TColor
+                                                      .primaryG, // Use primaryG color otherwise
+
+                                              backColor: Colors.grey.shade100,
+                                              valueNotifier: ValueNotifier(
+                                                  todayUserDetails['calories'] *
+                                                      100 /
+                                                      user.profile.calories),
+                                              startAngle: -180,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ]),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: media.width * 0.1,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Workout Progress",
+                              style: TextStyle(
+                                  color: TColor.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Container(
+                            padding: const EdgeInsets.only(left: 15),
+                            height: media.width * 0.5,
+                            width: double.maxFinite,
+                            child: LineChart(
+                              LineChartData(
+                                showingTooltipIndicators:
+                                    showingTooltipOnSpots.map((index) {
+                                  return ShowingTooltipIndicators([
+                                    LineBarSpot(
+                                      tooltipsOnBar,
+                                      lineBarsData.indexOf(tooltipsOnBar),
+                                      tooltipsOnBar.spots[index],
+                                    ),
+                                  ]);
+                                }).toList(),
+                                lineTouchData: LineTouchData(
+                                  enabled: true,
+                                  handleBuiltInTouches: false,
+                                  touchCallback: (FlTouchEvent event,
+                                      LineTouchResponse? response) {
+                                    if (response == null ||
+                                        response.lineBarSpots == null) {
+                                      return;
+                                    }
+                                    if (event is FlTapUpEvent) {
+                                      final spotIndex = response
+                                          .lineBarSpots!.first.spotIndex;
+                                      showingTooltipOnSpots.clear();
+                                      setState(() {
+                                        showingTooltipOnSpots.add(spotIndex);
+                                      });
+                                    }
+                                  },
+                                  mouseCursorResolver: (FlTouchEvent event,
+                                      LineTouchResponse? response) {
+                                    if (response == null ||
+                                        response.lineBarSpots == null) {
+                                      return SystemMouseCursors.basic;
+                                    }
+                                    return SystemMouseCursors.click;
+                                  },
+                                  getTouchedSpotIndicator:
+                                      (LineChartBarData barData,
+                                          List<int> spotIndexes) {
+                                    return spotIndexes.map((index) {
+                                      return TouchedSpotIndicatorData(
+                                        const FlLine(
+                                          color: Colors.transparent,
+                                        ),
+                                        FlDotData(
+                                          show: true,
+                                          getDotPainter:
+                                              (spot, percent, barData, index) =>
+                                                  FlDotCirclePainter(
+                                            radius: 3,
+                                            color: Colors.white,
+                                            strokeWidth: 3,
+                                            strokeColor: TColor.secondaryColor1,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList();
+                                  },
+                                  touchTooltipData: LineTouchTooltipData(
+                                    tooltipBgColor: TColor.secondaryColor1,
+                                    tooltipRoundedRadius: 20,
+                                    getTooltipItems:
+                                        (List<LineBarSpot> lineBarsSpot) {
+                                      return lineBarsSpot.map((lineBarSpot) {
+                                        return LineTooltipItem(
+                                          "${lineBarSpot.x.toInt()} mins ago",
+                                          const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ),
+                                lineBarsData: lineBarsData1,
+                                minY: 0,
+                                maxY: 500,
+                                titlesData: FlTitlesData(
+                                    show: true,
+                                    leftTitles: const AxisTitles(),
+                                    topTitles: const AxisTitles(),
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: bottomTitles,
+                                    ),
+                                    rightTitles: AxisTitles(
+                                      sideTitles: rightTitles,
+                                    )),
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawHorizontalLine: true,
+                                  horizontalInterval: 25,
+                                  drawVerticalLine: false,
+                                  getDrawingHorizontalLine: (value) {
+                                    return FlLine(
+                                      color: TColor.gray.withOpacity(0.15),
+                                      strokeWidth: 2,
+                                    );
+                                  },
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                    color: Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            )),
+                        SizedBox(
+                          height: media.width * 0.05,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Latest Workout",
+                              style: TextStyle(
+                                  color: TColor.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                "See More",
+                                style: TextStyle(
+                                    color: TColor.gray,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            )
+                          ],
+                        ),
+                        lastWorkoutArr.isNotEmpty
+                            ? ListView.builder(
+                                padding: EdgeInsets.zero,
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: lastWorkoutArr.length,
+                                itemBuilder: (context, index) {
+                                  var wObj =
+                                      lastWorkoutArr[index] as Map? ?? {};
+                                  return InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const FinishedWorkoutView(),
+                                          ),
+                                        );
+                                      },
+                                      child: WorkoutRow(wObj: wObj));
+                                })
+                            : const SizedBox(),
+                        SizedBox(
+                          height: media.width * 0.1,
+                        ),
+                        mealPlan != {} && nutritionArr.isNotEmpty
+                            ? SingleChildScrollView(
+                                padding: const EdgeInsets.all(15),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Selected Meal Plan For Tody',
+                                      style: TextStyle(
+                                          color: TColor.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(
+                                      height: media.height * 0.05,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "BreakFast",
+                                            style: TextStyle(
+                                                color: TColor.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          MealPlanDetailsRow(
+                                              mObj:
+                                                  mealPlan['breakfast_recipe'],
+                                              dObj: MealType.fromJson(
+                                                  mealPlan['breakfast_recipe']
+                                                      ['meal_type'])),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Lunch",
+                                            style: TextStyle(
+                                                color: TColor.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          MealPlanDetailsRow(
+                                              mObj: mealPlan['lunch_recipe'],
+                                              dObj: MealType.fromJson(
+                                                  mealPlan['lunch_recipe']
+                                                      ['meal_type'])),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Snacks",
+                                            style: TextStyle(
+                                                color: TColor.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          MealPlanDetailsRow(
+                                              mObj: mealPlan['snack_recipe'],
+                                              dObj: MealType.fromJson(
+                                                  mealPlan['snack_recipe']
+                                                      ['meal_type'])),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Dinner",
+                                            style: TextStyle(
+                                                color: TColor.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          MealPlanDetailsRow(
+                                              mObj: mealPlan['dinner_recipe'],
+                                              dObj: MealType.fromJson(
+                                                  mealPlan['dinner_recipe']
+                                                      ['meal_type'])),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: media.width * 0.05,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Today Meal Nutritions",
+                                            style: TextStyle(
+                                                color: TColor.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    ListView.builder(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: nutritionArr.length,
+                                        itemBuilder: (context, index) {
+                                          var nObj =
+                                              nutritionArr[index] as Map? ?? {};
+
+                                          return NutritionRow(
+                                            nObj: nObj,
+                                          );
+                                        }),
+                                    SizedBox(
+                                      height: media.height * 0.1,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox(),
+                      ],
+                    ),
                   ),
                 ),
               ),
