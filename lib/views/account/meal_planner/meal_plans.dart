@@ -49,7 +49,7 @@ class _MealPlansState extends State<MealPlans> {
     setState(() {
       mealPlans = fetchedData['data'];
       pageNumber = fetchedData['current_page'];
-      lastPage = fetchedData['to'];
+      lastPage = fetchedData['last_page'];
       isLoading = false;
     });
   }
@@ -67,7 +67,7 @@ class _MealPlansState extends State<MealPlans> {
         mealPlans.addAll(fetchedData['data']);
 
         pageNumber = fetchedData['current_page'];
-        lastPage = fetchedData['to'];
+        lastPage = fetchedData['last_page'];
         isLoading = false;
       });
     }

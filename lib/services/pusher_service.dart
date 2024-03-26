@@ -3,15 +3,18 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fyp_flutter/models/chat_message.dart';
+import 'package:fyp_flutter/models/notification.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
+import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class PusherService {
   Future<dynamic> getMessages(
       {required String channelName,
-      required ConversationProvider convProvider}) async {
+      required ConversationProvider convProvider,
+      required NotificationProvider notiProvider}) async {
     PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
     try {
       await pusher.init(
@@ -29,6 +32,7 @@ class PusherService {
           },
           onEvent: (PusherEvent event) {
             Map<String, dynamic> jsonData = jsonDecode(event.data);
+            print(jsonData);
 
             if (jsonData.containsKey('read')) {
               Map<String, dynamic> read = jsonData['read'];
@@ -53,7 +57,7 @@ class PusherService {
                         android: androidPlatformChannelSpecifics);
                 await flutterLocalNotificationsPlugin.show(
                     0,
-                    'New Notification',
+                    'New Chat Message',
                     message.message,
                     platformChannelSpecifics,
                     payload: 'item x');
@@ -64,6 +68,52 @@ class PusherService {
               convProvider.saveMessage(chatMessage: message);
 
               return true;
+            }
+            if (jsonData.containsKey('notification')) {
+              print("hello from pusher");
+
+              try {
+                // Access the notification object
+                Map<String, dynamic> notification = jsonData['notification'];
+
+                // Parse the notification object into a NotificationModel
+                NotificationModel message =
+                    NotificationModel.fromJson(notification);
+
+                // Print the message
+                print(message);
+
+                // Show local notification
+                final FlutterLocalNotificationsPlugin
+                    flutterLocalNotificationsPlugin =
+                    FlutterLocalNotificationsPlugin();
+
+                Future<void> showNotification() async {
+                  const AndroidNotificationDetails
+                      androidPlatformChannelSpecifics =
+                      AndroidNotificationDetails('1', 'HealthHub Pro',
+                          importance: Importance.max, priority: Priority.high);
+                  const NotificationDetails platformChannelSpecifics =
+                      NotificationDetails(
+                          android: androidPlatformChannelSpecifics);
+                  await flutterLocalNotificationsPlugin.show(
+                      0,
+                      'New Notification',
+                      message.message,
+                      platformChannelSpecifics,
+                      payload: 'item x');
+                }
+
+                showNotification();
+
+                // Save notification
+                notiProvider.saveNotification(item: message);
+
+                return true;
+              } catch (e) {
+                print('Error parsing notification data: $e');
+                return false;
+              }
             }
           },
           onSubscriptionError: (String message, dynamic e) {

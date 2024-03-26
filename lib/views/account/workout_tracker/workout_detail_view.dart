@@ -116,6 +116,14 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
           type: widget.dObj['user_id'] == null ? null : 'customized');
       if (widget.done != null) {
         widget.done!();
+        await WorkoutRecommendationService(authProvider).logWorkout(
+            workoutId: widget.dObj['id'],
+            caloriesBurned: totalCaloriesBurned,
+            workoutName: widget.dObj['name'],
+            startAt: startedAt,
+            endAt: endedAt,
+            completionStatus: completionStatus,
+            type: widget.dObj['user_id'] == null ? null : 'customized');
       }
 
       Navigator.push(

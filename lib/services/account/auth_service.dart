@@ -124,7 +124,7 @@ class AuthService {
       'phone_number': phoneNumber,
       'password': password,
     });
-
+    print(url);
     var response = await http.post(
       Uri.parse(url),
       headers: headers,
@@ -212,7 +212,7 @@ class AuthService {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      throw Exception('Failed to Login');
+      throw Exception(response.body);
     }
   }
 

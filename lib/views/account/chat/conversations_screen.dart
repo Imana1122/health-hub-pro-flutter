@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common/size_config.dart';
@@ -6,6 +5,7 @@ import 'package:fyp_flutter/common_widget/chat_cards/conversation_card.dart';
 import 'package:fyp_flutter/models/dietician_chat_model.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
+import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/pusher_service.dart';
 import 'package:fyp_flutter/views/account/chat/chat_screen.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
@@ -22,18 +22,21 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   late AuthProvider authProvider;
   List<DieticianChatModel> chatParticipants = [];
   late ConversationProvider convProvider;
+  late NotificationProvider notiProvider;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    connectPusher();
+    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+
     convProvider = Provider.of<ConversationProvider>(context, listen: false);
     chatParticipants = convProvider.conversations;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ConversationProvider>(context, listen: false)
           .getChatParticipants(token: authProvider.getAuthenticatedToken());
     });
+    connectPusher();
   }
 
   // Inside the connectPusher method
@@ -41,9 +44,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     PusherService pusherService =
         PusherService(); // Create an instance of PusherService
     await pusherService.getMessages(
-      channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
-      convProvider: convProvider,
-    );
+        channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
+        convProvider: convProvider,
+        notiProvider: notiProvider);
   }
 
   @override

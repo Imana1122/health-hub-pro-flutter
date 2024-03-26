@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
+import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/views/account/login/allergen_filter.dart';
 import 'package:fyp_flutter/views/account/login/cuisine_preference.dart';
 import 'package:fyp_flutter/views/account/login/health_condition_filter.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => DieticianAuthProvider()),
         ChangeNotifierProvider(create: (context) => ConversationProvider()),
+        ChangeNotifierProvider(create: (context) => NotificationProvider()),
         ChangeNotifierProvider(
             create: (context) => DieticianConversationProvider()),
       ],

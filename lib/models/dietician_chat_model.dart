@@ -11,8 +11,7 @@ class DieticianChatModel {
   final String speciality;
   final String bio;
   final String description;
-  final String esewaClientId;
-  final String esewaSecretKey;
+  final String esewaId;
 
   final int bookingAmount;
   final int status;
@@ -36,8 +35,7 @@ class DieticianChatModel {
     required this.speciality,
     required this.bio,
     required this.description,
-    required this.esewaClientId,
-    required this.esewaSecretKey,
+    required this.esewaId,
     required this.bookingAmount,
     required this.status,
     required this.approvedStatus,
@@ -60,8 +58,7 @@ class DieticianChatModel {
         speciality = '',
         bio = '',
         description = '',
-        esewaClientId = '',
-        esewaSecretKey = '',
+        esewaId = '',
         bookingAmount = 0,
         status = 0,
         approvedStatus = 0,
@@ -89,8 +86,7 @@ class DieticianChatModel {
       speciality: json['speciality'],
       bio: json['bio'],
       description: json['description'],
-      esewaClientId: json['esewa_client_id'],
-      esewaSecretKey: json['esewa_secret_key'],
+      esewaId: json['esewa_id'],
       bookingAmount: int.parse(json['booking_amount']),
       status: json['status'],
       approvedStatus: json['approved_status'],

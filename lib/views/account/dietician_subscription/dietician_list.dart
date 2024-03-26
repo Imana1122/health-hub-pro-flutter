@@ -2,6 +2,7 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/dietician_booking_service.dart';
 import 'package:fyp_flutter/views/account/dietician_subscription/dietician_details.dart';
+import 'package:fyp_flutter/views/account/dietician_subscription/payment_details.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -34,8 +35,10 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
       print("dietician :  $dieticianId");
       await DieticianBookingService(authProvider)
           .bookDietician(dieticianId: dieticianId);
-
-      await _loadDieticians();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PaymentDetails()),
+      );
     } catch (e) {
       // Handle any errors that occur during booking
       // For example, show a toast message with the error

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/account/home_service.dart';
 import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
@@ -57,6 +58,7 @@ class _HomeViewState extends State<HomeView> {
   bool isLoading = false;
   List lastWorkoutArr = [];
   List nutritionArr = [];
+  late NotificationProvider notiProvider;
   @override
   void initState() {
     super.initState();
@@ -74,6 +76,11 @@ class _HomeViewState extends State<HomeView> {
     }
     loadDetails();
     _loadLineChartDetails(type: 'Monthly');
+    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notiProvider.getNotifications(
+          token: authProvider.getAuthenticatedToken());
+    });
   }
 
   void loadDetails() async {
@@ -139,78 +146,83 @@ class _HomeViewState extends State<HomeView> {
             type: type.toLowerCase()); // Convert type to lowercase
     setState(() {
       lineChartData = chartData;
-      parsedList = lineChartData.map<Map<String, dynamic>>((item) {
-        return Map<String, dynamic>.from(item);
-      }).toList();
-      spots = parsedList.map((e) {
-        double x;
-        if (e['x'] is String && selectedType == "Daily") {
-          // Parse the string value to double
-          String result = e['x'].replaceAll("-", "");
-          // DateTime result = DateTime.parse(e['x']);
-          double doubleValue = double.parse(result);
-          x = doubleValue;
-        } else if (e['x'] is String && selectedType == "Monthly") {
-          String dateString = e['x'];
-          List<String> dateParts = dateString.split("-");
-          int year = int.parse(dateParts[0]);
-          int month = int.parse(dateParts[1]);
-          int numericDate = year * 100 + month;
-          x = numericDate.toDouble();
-        } else {
-          x = 0.0;
-        }
-        double yValue = double.parse(e['y'].toStringAsFixed(1));
+      print(lineChartData);
+      if (lineChartData.isNotEmpty) {
+        print('hello');
+        parsedList = lineChartData.map<Map<String, dynamic>>((item) {
+          return Map<String, dynamic>.from(item);
+        }).toList();
+        spots = parsedList.map((e) {
+          double x;
+          if (e['x'] is String && selectedType == "Daily") {
+            // Parse the string value to double
+            String result = e['x'].replaceAll("-", "");
+            // DateTime result = DateTime.parse(e['x']);
+            double doubleValue = double.parse(result);
+            x = doubleValue;
+          } else if (e['x'] is String && selectedType == "Monthly") {
+            String dateString = e['x'];
+            List<String> dateParts = dateString.split("-");
+            int year = int.parse(dateParts[0]);
+            int month = int.parse(dateParts[1]);
+            int numericDate = year * 100 + month;
+            x = numericDate.toDouble();
+          } else {
+            x = 0.0;
+          }
+          double yValue = double.parse(e['y'].toStringAsFixed(1));
 
-        return FlSpot(x, yValue);
-      }).toList();
+          return FlSpot(x, yValue);
+        }).toList();
 
-      // Convert parsed list into list of FlSpot
-      List<FlSpot> flSpots = parsedList.map((data) {
-        double x;
-        if (data['x'] is String && selectedType == "Daily") {
-          // Parse the string value to double
-          String result = data['x'].replaceAll("-", "");
-          double doubleValue = double.parse(result);
-          x = doubleValue;
-        } else if (data['x'] is String && selectedType == "Monthly") {
-          String dateString = data['x'];
-          List<String> dateParts = dateString.split("-");
-          int year = int.parse(dateParts[0]);
-          int month = int.parse(dateParts[1]);
-          int numericDate = year * 100 +
-              month; // For example, 2022-02 becomes 202202.0 as a int
-          x = numericDate.toDouble();
-        } else {
-          x = 0.0;
-        }
-        double yValue = double.parse(data['y'].toStringAsFixed(1));
-        return FlSpot(x, yValue);
-      }).toList();
-      lineChartBarData1_1 = LineChartBarData(
-        isCurved: true,
-        gradient: LinearGradient(colors: TColor.secondaryG),
-        isStrokeCapRound: true,
-        belowBarData: BarAreaData(
-          show: true,
-          gradient: LinearGradient(
-            colors: TColor.secondaryG
-                .map((color) => color.withOpacity(0.3))
-                .toList(),
+        // Convert parsed list into list of FlSpot
+        List<FlSpot> flSpots = parsedList.map((data) {
+          double x;
+          if (data['x'] is String && selectedType == "Daily") {
+            // Parse the string value to double
+            String result = data['x'].replaceAll("-", "");
+            double doubleValue = double.parse(result);
+            x = doubleValue;
+          } else if (data['x'] is String && selectedType == "Monthly") {
+            String dateString = data['x'];
+            List<String> dateParts = dateString.split("-");
+            int year = int.parse(dateParts[0]);
+            int month = int.parse(dateParts[1]);
+            int numericDate = year * 100 +
+                month; // For example, 2022-02 becomes 202202.0 as a int
+            x = numericDate.toDouble();
+          } else {
+            x = 0.0;
+          }
+          double yValue = double.parse(data['y'].toStringAsFixed(1));
+          return FlSpot(x, yValue);
+        }).toList();
+        lineChartBarData1_1 = LineChartBarData(
+          isCurved: true,
+          gradient: LinearGradient(colors: TColor.secondaryG),
+          isStrokeCapRound: true,
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: TColor.secondaryG
+                  .map((color) => color.withOpacity(0.3))
+                  .toList(),
+            ),
           ),
-        ),
-        barWidth: 2,
-        dotData: FlDotData(
-          show: true,
-          getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-            radius: 3,
-            color: Colors.white,
-            strokeWidth: 1,
-            strokeColor: TColor.secondaryColor1,
+          barWidth: 2,
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) =>
+                FlDotCirclePainter(
+              radius: 3,
+              color: Colors.white,
+              strokeWidth: 1,
+              strokeColor: TColor.secondaryColor1,
+            ),
           ),
-        ),
-        spots: flSpots,
-      );
+          spots: flSpots,
+        );
+      }
       isLoading = false;
     });
   }
@@ -266,22 +278,64 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               ],
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const NotificationView(),
+                            Consumer<NotificationProvider>(
+                              builder: (context, notiProvider, _) {
+                                // Count the number of unread notifications
+                                int unreadNotificationCount = notiProvider
+                                    .notifications
+                                    .where((notification) =>
+                                        notification.read == 0)
+                                    .length;
+
+                                return Stack(
+                                  children: [
+                                    IconButton(
+                                      icon: Image.asset(
+                                        "assets/img/notification_active.png",
+                                        width: 25,
+                                        height: 25,
+                                        fit: BoxFit.fitHeight,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const NotificationView(),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                                icon: Image.asset(
-                                  "assets/img/notification_active.png",
-                                  width: 25,
-                                  height: 25,
-                                  fit: BoxFit.fitHeight,
-                                ))
+                                    if (unreadNotificationCount >
+                                        0) // Show count only if there are unread notifications
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Text(
+                                            '$unreadNotificationCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            )
                           ],
                         ),
                         SizedBox(
@@ -490,121 +544,129 @@ class _HomeViewState extends State<HomeView> {
                         SizedBox(
                           height: media.width * 0.05,
                         ),
-                        Container(
-                            padding: const EdgeInsets.only(left: 15),
-                            height: media.width * 0.5,
-                            width: double.maxFinite,
-                            child: LineChart(
-                              LineChartData(
-                                showingTooltipIndicators:
-                                    showingTooltipOnSpots.map((index) {
-                                  return ShowingTooltipIndicators([
-                                    LineBarSpot(
-                                      tooltipsOnBar,
-                                      lineBarsData.indexOf(tooltipsOnBar),
-                                      tooltipsOnBar.spots[index],
-                                    ),
-                                  ]);
-                                }).toList(),
-                                lineTouchData: LineTouchData(
-                                  enabled: true,
-                                  handleBuiltInTouches: false,
-                                  touchCallback: (FlTouchEvent event,
-                                      LineTouchResponse? response) {
-                                    if (response == null ||
-                                        response.lineBarSpots == null) {
-                                      return;
-                                    }
-                                    if (event is FlTapUpEvent) {
-                                      final spotIndex = response
-                                          .lineBarSpots!.first.spotIndex;
-                                      showingTooltipOnSpots.clear();
-                                      setState(() {
-                                        showingTooltipOnSpots.add(spotIndex);
-                                      });
-                                    }
-                                  },
-                                  mouseCursorResolver: (FlTouchEvent event,
-                                      LineTouchResponse? response) {
-                                    if (response == null ||
-                                        response.lineBarSpots == null) {
-                                      return SystemMouseCursors.basic;
-                                    }
-                                    return SystemMouseCursors.click;
-                                  },
-                                  getTouchedSpotIndicator:
-                                      (LineChartBarData barData,
-                                          List<int> spotIndexes) {
-                                    return spotIndexes.map((index) {
-                                      return TouchedSpotIndicatorData(
-                                        const FlLine(
-                                          color: Colors.transparent,
+                        lineChartData.isNotEmpty
+                            ? Container(
+                                padding: const EdgeInsets.only(left: 15),
+                                height: media.width * 0.5,
+                                width: double.maxFinite,
+                                child: LineChart(
+                                  LineChartData(
+                                    showingTooltipIndicators:
+                                        showingTooltipOnSpots.map((index) {
+                                      return ShowingTooltipIndicators([
+                                        LineBarSpot(
+                                          tooltipsOnBar,
+                                          lineBarsData.indexOf(tooltipsOnBar),
+                                          tooltipsOnBar.spots[index],
                                         ),
-                                        FlDotData(
-                                          show: true,
-                                          getDotPainter:
-                                              (spot, percent, barData, index) =>
+                                      ]);
+                                    }).toList(),
+                                    lineTouchData: LineTouchData(
+                                      enabled: true,
+                                      handleBuiltInTouches: false,
+                                      touchCallback: (FlTouchEvent event,
+                                          LineTouchResponse? response) {
+                                        if (response == null ||
+                                            response.lineBarSpots == null) {
+                                          return;
+                                        }
+                                        if (event is FlTapUpEvent) {
+                                          final spotIndex = response
+                                              .lineBarSpots!.first.spotIndex;
+                                          showingTooltipOnSpots.clear();
+                                          setState(() {
+                                            showingTooltipOnSpots
+                                                .add(spotIndex);
+                                          });
+                                        }
+                                      },
+                                      mouseCursorResolver: (FlTouchEvent event,
+                                          LineTouchResponse? response) {
+                                        if (response == null ||
+                                            response.lineBarSpots == null) {
+                                          return SystemMouseCursors.basic;
+                                        }
+                                        return SystemMouseCursors.click;
+                                      },
+                                      getTouchedSpotIndicator:
+                                          (LineChartBarData barData,
+                                              List<int> spotIndexes) {
+                                        return spotIndexes.map((index) {
+                                          return TouchedSpotIndicatorData(
+                                            const FlLine(
+                                              color: Colors.transparent,
+                                            ),
+                                            FlDotData(
+                                              show: true,
+                                              getDotPainter: (spot, percent,
+                                                      barData, index) =>
                                                   FlDotCirclePainter(
-                                            radius: 3,
-                                            color: Colors.white,
-                                            strokeWidth: 3,
-                                            strokeColor: TColor.secondaryColor1,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList();
-                                  },
-                                  touchTooltipData: LineTouchTooltipData(
-                                    tooltipBgColor: TColor.secondaryColor1,
-                                    tooltipRoundedRadius: 20,
-                                    getTooltipItems:
-                                        (List<LineBarSpot> lineBarsSpot) {
-                                      return lineBarsSpot.map((lineBarSpot) {
-                                        return LineTooltipItem(
-                                          "${lineBarSpot.x.toInt()} mins ago",
-                                          const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        );
-                                      }).toList();
-                                    },
-                                  ),
-                                ),
-                                lineBarsData: lineBarsData1,
-                                minY: 0,
-                                maxY: 500,
-                                titlesData: FlTitlesData(
-                                    show: true,
-                                    leftTitles: const AxisTitles(),
-                                    topTitles: const AxisTitles(),
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: bottomTitles,
+                                                radius: 3,
+                                                color: Colors.white,
+                                                strokeWidth: 3,
+                                                strokeColor:
+                                                    TColor.secondaryColor1,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList();
+                                      },
+                                      touchTooltipData: LineTouchTooltipData(
+                                        tooltipBgColor: TColor.secondaryColor1,
+                                        tooltipRoundedRadius: 20,
+                                        getTooltipItems:
+                                            (List<LineBarSpot> lineBarsSpot) {
+                                          return lineBarsSpot
+                                              .map((lineBarSpot) {
+                                            return LineTooltipItem(
+                                              "${lineBarSpot.x.toInt()} mins ago",
+                                              const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            );
+                                          }).toList();
+                                        },
+                                      ),
                                     ),
-                                    rightTitles: AxisTitles(
-                                      sideTitles: rightTitles,
-                                    )),
-                                gridData: FlGridData(
-                                  show: true,
-                                  drawHorizontalLine: true,
-                                  horizontalInterval: 25,
-                                  drawVerticalLine: false,
-                                  getDrawingHorizontalLine: (value) {
-                                    return FlLine(
-                                      color: TColor.gray.withOpacity(0.15),
-                                      strokeWidth: 2,
-                                    );
-                                  },
-                                ),
-                                borderData: FlBorderData(
-                                  show: true,
-                                  border: Border.all(
-                                    color: Colors.transparent,
+                                    lineBarsData: lineBarsData1,
+                                    minY: 0,
+                                    maxY: 500,
+                                    titlesData: FlTitlesData(
+                                        show: true,
+                                        leftTitles: const AxisTitles(),
+                                        topTitles: const AxisTitles(),
+                                        bottomTitles: AxisTitles(
+                                          sideTitles: bottomTitles,
+                                        ),
+                                        rightTitles: AxisTitles(
+                                          sideTitles: rightTitles,
+                                        )),
+                                    gridData: FlGridData(
+                                      show: true,
+                                      drawHorizontalLine: true,
+                                      horizontalInterval: 25,
+                                      drawVerticalLine: false,
+                                      getDrawingHorizontalLine: (value) {
+                                        return FlLine(
+                                          color: TColor.gray.withOpacity(0.15),
+                                          strokeWidth: 2,
+                                        );
+                                      },
+                                    ),
+                                    borderData: FlBorderData(
+                                      show: true,
+                                      border: Border.all(
+                                        color: Colors.transparent,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            )),
+                                ))
+                            : Container(
+                                alignment: Alignment.bottomCenter,
+                                child:
+                                    const Text('Not workout progress found.')),
                         SizedBox(
                           height: media.width * 0.05,
                         ),

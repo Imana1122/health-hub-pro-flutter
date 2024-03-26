@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
@@ -12,9 +13,9 @@ import 'package:fyp_flutter/models/dietician_chat_model.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
+import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/pusher_service.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -34,75 +35,26 @@ class _ChatScreenState extends State<ChatScreen> {
   late ConversationProvider convProvider;
   List<DieticianChatModel> chatParticipants = [];
   final FlutterSoundRecorder _audioRecorder = FlutterSoundRecorder();
-  bool _isRecording = false;
-  bool isRecordReady = false;
-  String? _audioFilePath;
+
   File? audioFile;
   File? file;
+  late NotificationProvider notiProvider;
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     convProvider = Provider.of<ConversationProvider>(context, listen: false);
+    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+
     chatParticipants = convProvider.conversations;
     readMessages();
 
-    connectPusher();
     _scrollController = ScrollController()..addListener(_scrollListener);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
     loadMore();
-    initRecorder();
-  }
-
-  Future initRecorder() async {
-    final status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
-      throw 'Microphone permission not granted';
-    }
-    await _audioRecorder.openRecorder();
-    setState(() {
-      isRecordReady = true;
-      _audioRecorder.setSubscriptionDuration(const Duration(milliseconds: 500));
-    });
-  }
-
-  Future<void> _startRecording() async {
-    if (!isRecordReady) return;
-    try {
-      String audioFilePath = 'audio'; // You can specify any file extension
-
-      // Start recording to the specified file path
-      await _audioRecorder.startRecorder(toFile: audioFilePath);
-
-      setState(() {
-        _isRecording = true;
-      });
-    } catch (e) {
-      print('Error starting recording: $e');
-    }
-  }
-
-  Future<void> _stopRecording() async {
-    if (!isRecordReady) return;
-    try {
-      final path = await _audioRecorder.stopRecorder();
-      setState(() {
-        _isRecording = false;
-        _audioFilePath = path;
-      });
-
-      if (_audioFilePath != null) {
-        setState(() {
-          audioFile = File(_audioFilePath!);
-        });
-        sendMessage(audioFile);
-        _audioFilePath = null;
-      }
-    } catch (e) {
-      print('Error stopping recording: $e');
-    }
   }
 
   void _scrollListener() {
@@ -116,21 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollController.dispose();
     _audioRecorder.closeRecorder();
     super.dispose();
-  }
-
-  // Inside the connectPusher method
-  void connectPusher() async {
-    PusherService pusherService =
-        PusherService(); // Create an instance of PusherService
-    var result = await pusherService.getMessages(
-      channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
-      convProvider: convProvider,
-    );
-    if (result == true) {
-      convProvider.readMessages(
-          senderId: widget.conversation.id,
-          token: authProvider.getAuthenticatedToken());
-    }
   }
 
   void loadMore() {
@@ -276,48 +213,18 @@ class _ChatScreenState extends State<ChatScreen> {
                           }
                         },
                       ),
-                      IconButton(
-                        icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-                        onPressed: () {
-                          if (_isRecording) {
-                            _stopRecording();
-                          } else {
-                            _startRecording();
-                          }
-                        },
-                      ),
                       const SizedBox(
                         width: 12,
                       ),
-                      _isRecording
-                          ? StreamBuilder(
-                              stream: _audioRecorder.onProgress,
-                              builder: (context, snapshot) {
-                                final duration = snapshot.hasData
-                                    ? snapshot.data!.duration
-                                    : Duration.zero;
-                                String twoDigits(int n) =>
-                                    n.toString().padLeft(2);
-                                final twoDigitMinutes =
-                                    twoDigits(duration.inMinutes.remainder(60));
-                                final twoDigitSeconds =
-                                    twoDigits(duration.inSeconds.remainder(60));
-                                return Text(
-                                    "$twoDigitMinutes: $twoDigitSeconds ",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: TColor.primaryColor1));
-                              })
-                          : Expanded(
-                              child: TextField(
-                                controller: messageTextController,
-                                decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Type your message...',
-                                    hintStyle: TextStyle()),
-                              ),
-                            ),
+                      Expanded(
+                        child: TextField(
+                          controller: messageTextController,
+                          decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Type your message...',
+                              hintStyle: TextStyle()),
+                        ),
+                      ),
                       Provider.of<ConversationProvider>(context).busy
                           ? const CircularProgressIndicator()
                           : InkWell(

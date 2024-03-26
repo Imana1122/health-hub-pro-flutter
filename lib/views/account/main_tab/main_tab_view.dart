@@ -1,7 +1,12 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/tab_button.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/providers/conversation_provider.dart';
+import 'package:fyp_flutter/providers/notification_provider.dart';
+import 'package:fyp_flutter/services/pusher_service.dart';
 import 'package:fyp_flutter/views/account/meal_planner/meal_plans.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
+import 'package:provider/provider.dart';
 import 'select_view.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +25,38 @@ class _MainTabViewState extends State<MainTabView> {
   int selectTab = 0;
   final PageStorageBucket pageBucket = PageStorageBucket();
   Widget currentTab = const HomeView();
+  late NotificationProvider notiProvider;
+  late AuthProvider authProvider;
+  late ConversationProvider convProvider;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Access the authentication provider
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    convProvider = Provider.of<ConversationProvider>(context, listen: false);
+    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notiProvider.getNotifications(
+          token: authProvider.getAuthenticatedToken());
+    });
+    connectPusher();
+  }
+
+  // Inside the connectPusher method
+  void connectPusher() async {
+    PusherService pusherService =
+        PusherService(); // Create an instance of PusherService
+    var result = await pusherService.getMessages(
+        channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
+        notiProvider: notiProvider,
+        convProvider: convProvider);
+    if (result == true) {
+      notiProvider.readNotifications(
+          token: authProvider.getAuthenticatedToken());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

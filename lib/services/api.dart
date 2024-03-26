@@ -301,8 +301,11 @@ class Api {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       if (data['status'] == true) {
-        print(data['data']);
-        return data['data'];
+        if (data.containsKey('data')) {
+          return data['data'];
+        } else {
+          return [];
+        }
       } else {
         print("Error");
         throw Exception('Failed to get');
