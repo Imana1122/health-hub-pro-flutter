@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fyp_flutter/models/chat_message.dart';
 import 'package:fyp_flutter/models/user_chat_model.dart';
 import 'package:fyp_flutter/providers/base_provider.dart';
@@ -41,9 +43,9 @@ class DieticianConversationProvider extends BaseProvider {
   }
 
   Future<ChatMessage> storeMessage(String message,
-      {required String token, required String userId}) async {
+      {required String token, required String userId, File? file}) async {
     setBusy(true);
-    var data = await _conversationService.storeMessage(message,
+    var data = await _conversationService.storeMessage(message, file,
         userId: userId, token: token);
 
     notifyListeners();
@@ -72,8 +74,6 @@ class DieticianConversationProvider extends BaseProvider {
 
     // If the chat participant is found, add the loaded messages to their existing messages
     if (chatParticipant != UserChatModel.empty()) {
-      // Add the loaded messages to the existing messages list
-      print(loadedMessages['data']);
       List<dynamic> dynamicList = loadedMessages['data'];
       List<ChatMessage> chatMessagesList = dynamicList.map((data) {
         // Assuming ChatMessage.fromJson() converts dynamic data to ChatMessage
@@ -81,13 +81,11 @@ class DieticianConversationProvider extends BaseProvider {
       }).toList();
       chatParticipant.currentMessagePage = loadedMessages['current_page'];
       chatParticipant.messages.insertAll(0, chatMessagesList);
-      // chatParticipant.currentMessagePage = loadedMessages['current_page'];
     }
+    setBusy(false);
 
     // Notify listeners about the changes
     notifyListeners();
-
-    setBusy(false);
   }
 
   Future<dynamic> readMessages(

@@ -25,18 +25,18 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
   TextEditingController emailController = TextEditingController(text: '');
   TextEditingController phoneNumberController = TextEditingController(text: '');
   TextEditingController descriptionController = TextEditingController(text: '');
-  TextEditingController passwordController = TextEditingController(text: '');
+  TextEditingController specialityController = TextEditingController(text: '');
 
-  TextEditingController esewaClientIdController =
-      TextEditingController(text: '');
-  TextEditingController esewaSecretKeyController =
-      TextEditingController(text: '');
+  TextEditingController esewaIdController = TextEditingController(text: '');
 
   TextEditingController bookingAmountController =
       TextEditingController(text: '');
   TextEditingController bioController = TextEditingController(text: '');
-  final GlobalKey<FlutterSummernoteState> _descriptionEditor = GlobalKey();
-  final GlobalKey<FlutterSummernoteState> _specialityEditor = GlobalKey();
+  TextEditingController passwordController = TextEditingController(text: '');
+  TextEditingController confirmPasswordController =
+      TextEditingController(text: '');
+  bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
 
   bool isLoading = false;
   bool isCheck = false;
@@ -110,28 +110,20 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
       });
 
       if (isCheck) {
-        String description = '';
-        String speciality = '';
-
-        description = await _descriptionEditor.currentState!.getText();
-        speciality = await _specialityEditor.currentState!.getText();
-
-        print("Description :: $description");
-
         if (await authProvider.register(
-          firstName: firstNameController.text.trim(),
-          email: emailController.text.trim(),
-          phoneNumber: phoneNumberController.text.trim(),
-          lastName: lastNameController.text.trim(),
-          description: description.trim(),
-          esewaClientId: esewaClientIdController.text.trim(),
-          esewaSecretKey: esewaSecretKeyController.text.trim(),
-          bookingAmount: bookingAmountController.text.trim(),
-          bio: bioController.text.trim(),
-          cv: cvFile,
-          image: imageFile,
-          speciality: speciality,
-        )) {
+            firstName: firstNameController.text.trim(),
+            email: emailController.text.trim(),
+            phoneNumber: phoneNumberController.text.trim(),
+            lastName: lastNameController.text.trim(),
+            description: descriptionController.text.trim(),
+            esewaId: esewaIdController.text.trim(),
+            bookingAmount: bookingAmountController.text.trim(),
+            bio: bioController.text.trim(),
+            cv: cvFile,
+            image: imageFile,
+            speciality: specialityController.text.trim(),
+            password: passwordController.text.trim(),
+            passwordConfirmation: confirmPasswordController.text.trim())) {
           Navigator.pushNamed(context, '/login-dietician');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -184,10 +176,30 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      TColor.primaryColor2,
-                      TColor.primaryColor1,
-                    ],
+                    colors: [TColor.primaryColor2, TColor.primaryColor1],
+                  ),
+                ),
+              ),
+              backgroundColor: TColor.white,
+              centerTitle: true,
+              elevation: 0,
+              leading: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  height: 40,
+                  width: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: TColor.lightGray,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Image.asset(
+                    "assets/img/black_btn.png",
+                    width: 15,
+                    height: 15,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -195,11 +207,11 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Hello Dietician,",
+                    "Hey Dietician,",
                     style: TextStyle(color: TColor.gray, fontSize: 16),
                   ),
                   Text(
-                    "Create an Account",
+                    "Please Sign up",
                     style: TextStyle(
                       color: TColor.white,
                       fontSize: 20,
@@ -208,8 +220,6 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                   ),
                 ],
               ),
-              centerTitle: true, // Center the title horizontally
-              elevation: 4, // Add some elevation to the app bar
             ),
             backgroundColor: TColor.white,
             body: SingleChildScrollView(
@@ -255,16 +265,8 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                         height: media.width * 0.04,
                       ),
                       RoundTextField(
-                        hitText: 'Esewa Client ID',
-                        controller: esewaClientIdController,
-                        icon: const Icon(Icons.credit_card),
-                      ),
-                      SizedBox(
-                        height: media.width * 0.04,
-                      ),
-                      RoundTextField(
-                        hitText: 'Esewa Secret Key',
-                        controller: esewaSecretKeyController,
+                        hitText: 'Esewa ID',
+                        controller: esewaIdController,
                         icon: const Icon(Icons.credit_card),
                       ),
                       SizedBox(
@@ -382,86 +384,77 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                       SizedBox(
                         height: media.width * 0.05,
                       ),
-                      Container(
-                        width: media.width,
-                        height: 50,
-                        padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color: Color.fromARGB(255, 182, 208, 229),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5),
-                          ),
-                        ),
-                        child: const Row(
-                          children: [
-                            Text('Speciality'),
-                            Spacer(),
-                            Icon(Icons.description),
-                          ],
-                        ),
-                      ),
-                      FlutterSummernote(
-                        key: _specialityEditor,
-                        height: media.height * 0.5,
-                        hasAttachment: true,
-                        showBottomToolbar: true,
-                        customToolbar: """""
-             [
-                          ['style', ['bold', 'italic', 'underline', 'clear']],
-                          ['font', ['strikethrough', 'superscript', 'subscript']],
-                          ['fontsize', ['fontsize']],
-                          ['color', ['color']],
-                          ['para', ['ul', 'ol', 'paragraph']],
-                          ['height', ['height']],
-                          ['insert', ['link', 'picture', 'video']],
-                          ['view', ['fullscreen', 'codeview', 'help']]
-                        ]
-            """
-                            "",
+                      RoundTextField(
+                        hitText: 'Speciality',
+                        controller: specialityController,
+                        maxLines: 6,
+                        icon: const Icon(Icons.folder_special),
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(
                         height: media.width * 0.04,
                       ),
-                      Container(
-                        width: media.width,
-                        height: 50,
-                        padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color: Color.fromARGB(255, 182, 208, 229),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5),
-                          ),
-                        ),
-                        child: const Row(
-                          children: [
-                            Text("Description"),
-                            Spacer(),
-                            Icon(Icons.description),
-                          ],
-                        ),
+                      RoundTextField(
+                        hitText: 'Description',
+                        controller: descriptionController,
+                        maxLines: 6,
+                        icon: const Icon(Icons.description),
+                        keyboardType: TextInputType.number,
                       ),
-                      FlutterSummernote(
-                        key: _descriptionEditor,
-                        height: media.height * 0.5,
-                        hasAttachment: true,
-                        showBottomToolbar: true,
-                        customToolbar: """""
-             [
-                          ['style', ['bold', 'italic', 'underline', 'clear']],
-                          ['font', ['strikethrough', 'superscript', 'subscript']],
-                          ['fontsize', ['fontsize']],
-                          ['color', ['color']],
-                          ['para', ['ul', 'ol', 'paragraph']],
-                          ['height', ['height']],
-                          ['insert', ['link', 'picture', 'video']],
-                          ['view', ['fullscreen', 'codeview', 'help']]
-                        ]
-            """
-                            "",
+                      SizedBox(
+                        height: media.width * 0.04,
+                      ),
+                      RoundTextField(
+                        hitText: "Password",
+                        controller: passwordController,
+                        icon: const Icon(Icons.lock),
+                        obscureText: obscurePassword,
+                        keyboardType: TextInputType.visiblePassword,
+                        rigtIcon: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                obscurePassword = !obscurePassword;
+                              });
+                            },
+                            child: Container(
+                                alignment: Alignment.center,
+                                width: 20,
+                                height: 20,
+                                child: Image.asset(
+                                  "assets/img/show_password.png",
+                                  width: 20,
+                                  height: 20,
+                                  fit: BoxFit.contain,
+                                  color: TColor.gray,
+                                ))),
+                      ),
+                      SizedBox(
+                        height: media.width * 0.05,
+                      ),
+                      RoundTextField(
+                        hitText: "Password Confirmation",
+                        controller: confirmPasswordController,
+                        keyboardType: TextInputType.visiblePassword,
+                        icon: const Icon(Icons.lock),
+                        obscureText: obscureConfirmPassword,
+                        rigtIcon: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                obscureConfirmPassword =
+                                    !obscureConfirmPassword;
+                              });
+                            },
+                            child: Container(
+                                alignment: Alignment.center,
+                                width: 20,
+                                height: 20,
+                                child: Image.asset(
+                                  "assets/img/show_password.png",
+                                  width: 20,
+                                  height: 20,
+                                  fit: BoxFit.contain,
+                                  color: TColor.gray,
+                                ))),
                       ),
                       SizedBox(
                         height: media.width * 0.04,
@@ -539,30 +532,5 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
               ),
             ),
           );
-  }
-
-  InputDecoration _getInputDecoration(String label, IconData icon) {
-    return InputDecoration(
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        hintText: label,
-        border: const OutlineInputBorder(),
-        labelText: label,
-        prefixIcon: Container(
-          width: 50, // Adjust width as needed
-          height: 52,
-          margin: const EdgeInsets.only(right: 3),
-          decoration: const BoxDecoration(
-            shape: BoxShape.rectangle, // Makes the container circular
-            color: Color.fromARGB(
-                255, 182, 208, 229), // Change the background color as desired
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5),
-              bottomLeft: Radius.circular(5),
-            ),
-          ),
-          child: Icon(icon),
-        ),
-        hintStyle: TextStyle(color: TColor.gray, fontSize: 12));
   }
 }

@@ -13,9 +13,15 @@ class DieticianProfileEditView extends StatefulWidget {
 }
 
 class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
+  late TextEditingController firstNameController;
+  late TextEditingController lastNameController;
   late TextEditingController bioController;
   late TextEditingController emailController;
   late TextEditingController phoneNumberController;
+  late TextEditingController specialityController;
+  late TextEditingController descriptionController;
+  late TextEditingController esewaIdController;
+
   bool isLoading = false;
 
   @override
@@ -35,11 +41,22 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
         );
       });
     } else {
+      firstNameController =
+          TextEditingController(text: authProvider.dietician.firstName);
+      lastNameController =
+          TextEditingController(text: authProvider.dietician.lastName);
+
       bioController = TextEditingController(text: authProvider.dietician.bio);
       emailController =
           TextEditingController(text: authProvider.dietician.email);
       phoneNumberController =
           TextEditingController(text: authProvider.dietician.phoneNumber);
+      specialityController =
+          TextEditingController(text: authProvider.dietician.speciality);
+      descriptionController =
+          TextEditingController(text: authProvider.dietician.description);
+      esewaIdController =
+          TextEditingController(text: authProvider.dietician.esewaId);
     }
   }
 
@@ -50,10 +67,14 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
     DieticianAuthProvider authProvider =
         Provider.of<DieticianAuthProvider>(context, listen: false);
     bool success = await authProvider.updatePersonalInfo(
-      bio: bioController.text,
-      phoneNumber: phoneNumberController.text,
-      email: emailController.text,
-    );
+        firstName: firstNameController.text,
+        lastName: lastNameController.text,
+        bio: bioController.text,
+        phoneNumber: phoneNumberController.text,
+        email: emailController.text,
+        speciality: specialityController.text,
+        description: descriptionController.text,
+        esewaId: esewaIdController.text);
 
     if (success) {
       // Handle success, you can navigate back or show a success message
@@ -102,32 +123,64 @@ class _DieticianProfileEditViewState extends State<DieticianProfileEditView> {
             appBar: AppBar(
               title: const Text('Edit Profile'),
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: bioController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: phoneNumberController,
-                    decoration:
-                        const InputDecoration(labelText: 'Phone Number'),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _saveProfile,
-                    child: const Text('Save'),
-                  ),
-                ],
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: firstNameController,
+                      decoration:
+                          const InputDecoration(labelText: 'First Name'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: lastNameController,
+                      decoration: const InputDecoration(labelText: 'Last Name'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: bioController,
+                      decoration: const InputDecoration(labelText: 'Bio'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: phoneNumberController,
+                      decoration:
+                          const InputDecoration(labelText: 'Phone Number'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: specialityController,
+                      maxLines: 5,
+                      decoration:
+                          const InputDecoration(labelText: 'Speciality'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: descriptionController,
+                      maxLines: 5,
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: esewaIdController,
+                      decoration: const InputDecoration(labelText: 'Esewa Id'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _saveProfile,
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

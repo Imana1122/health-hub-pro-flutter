@@ -1,9 +1,11 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/tab_button.dart';
+import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/pusher_service.dart';
+import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
 import 'package:fyp_flutter/views/account/meal_planner/meal_plans.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
@@ -37,10 +39,22 @@ class _MainTabViewState extends State<MainTabView> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     convProvider = Provider.of<ConversationProvider>(context, listen: false);
     notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+    print("Data:: ${authProvider.getAuthenticatedUser().profile.height}");
+
+    if (authProvider.getAuthenticatedUser().profile.height == null) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CompleteProfileView()),
+        );
+      });
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notiProvider.getNotifications(
           token: authProvider.getAuthenticatedToken());
     });
+
     connectPusher();
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/views/account/photo_progress/add_progress_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 
 import '../../../common/color_extension.dart';
@@ -170,14 +171,6 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                                   ),
                                 ),
                                 const Spacer(),
-                                SizedBox(
-                                  width: 110,
-                                  height: 35,
-                                  child: RoundButton(
-                                      title: "Learn More",
-                                      fontSize: 12,
-                                      onPressed: () {}),
-                                )
                               ]),
                           Image.asset(
                             "assets/img/progress_each_photo.png",
@@ -242,13 +235,6 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                               fontSize: 16,
                               fontWeight: FontWeight.w700),
                         ),
-                        TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "See more",
-                              style:
-                                  TextStyle(color: TColor.gray, fontSize: 12),
-                            ))
                       ],
                     ),
                   ),
@@ -313,14 +299,12 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
         ),
         floatingActionButton: InkWell(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => SleepAddAlarmView(
-            //       date: _selectedDateAppBBar,
-            //     ),
-            //   ),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProgressForm(),
+              ),
+            );
           },
           child: Container(
             width: 55,

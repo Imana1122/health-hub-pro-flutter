@@ -5,9 +5,11 @@ import 'package:esewa_flutter_sdk/esewa_flutter_sdk.dart';
 import 'package:esewa_flutter_sdk/esewa_payment.dart';
 import 'package:esewa_flutter_sdk/esewa_payment_success_result.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/views/account/dietician_subscription/payment_details.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../base_api.dart';
@@ -46,9 +48,8 @@ class DieticianBookingService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
-  Future<dynamic> bookDietician({
-    required String dieticianId,
-  }) async {
+  Future<dynamic> bookDietician(
+      {required String dieticianId, required BuildContext context}) async {
     var url = '${dotenv.env['BASE_URL']}/api/account/book-dieticians';
     String token = authProvider.user.token;
     print(url);
@@ -101,7 +102,11 @@ class DieticianBookingService extends BaseApi {
               onPaymentSuccess: (EsewaPaymentSuccessResult data) async {
                 debugPrint(":::SUCCESS::: => $data");
                 bool result = await verifyTransactionStatus(data);
-
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PaymentDetails()),
+                );
                 return result;
               },
               onPaymentFailure: (data) {

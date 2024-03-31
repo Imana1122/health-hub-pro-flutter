@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/round_textfield.dart';
@@ -5,6 +7,7 @@ import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/views/layouts/unauthenticated_layout.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class SignUpView extends StatefulWidget {
@@ -25,6 +28,7 @@ class _SignUpViewState extends State<SignUpView> {
       TextEditingController(text: '');
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
+  File? imageFile;
 
   bool isLoading = false;
   bool isCheck = false;
@@ -40,10 +44,26 @@ class _SignUpViewState extends State<SignUpView> {
     if (authProvider.isLoggedIn) {
       // Navigate to DieticianProfilePage and replace the current route
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context,
-            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
+        Navigator.pushReplacementNamed(context, '/');
       });
     }
+  }
+
+  void handleImageUpload() async {
+    setState(() {
+      isLoading = true;
+    });
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+        isLoading = false;
+      });
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -55,19 +75,32 @@ class _SignUpViewState extends State<SignUpView> {
         isLoading = true;
       });
       if (isCheck) {
-        if (await authProvider.register(
-            name: nameController.text.trim(),
-            email: emailController.text.trim(),
-            phoneNumber: phoneNumberController.text.trim(),
-            password: passwordController.text.trim(),
-            passwordConfirmation: confirmPasswordController.text.trim())) {
-          Navigator.pushNamed(context, '/complete-profile');
+        if (imageFile != null) {
+          if (await authProvider.register(
+              image: imageFile!,
+              name: nameController.text.trim(),
+              email: emailController.text.trim(),
+              phoneNumber: phoneNumberController.text.trim(),
+              password: passwordController.text.trim(),
+              passwordConfirmation: confirmPasswordController.text.trim())) {
+            Navigator.pushNamed(context, '/complete-profile');
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  'Problems in registering.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Colors.red,
               content: Text(
-                'Problems in registering.',
+                'Profile image is not uploaded.',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -149,7 +182,7 @@ class _SignUpViewState extends State<SignUpView> {
                           height: media.width * 0.09,
                         ),
                         RoundTextField(
-                          hitText: "First Name",
+                          hitText: "Full Name",
                           controller: nameController,
                           icon: const Icon(Icons.person),
                           keyboardType: TextInputType.name,
@@ -200,10 +233,10 @@ class _SignUpViewState extends State<SignUpView> {
                                   ))),
                         ),
                         SizedBox(
-                          height: media.width * 0.04,
+                          height: media.width * 0.05,
                         ),
                         RoundTextField(
-                          hitText: "Password",
+                          hitText: "Password Confirmation",
                           controller: confirmPasswordController,
                           keyboardType: TextInputType.visiblePassword,
                           icon: const Icon(Icons.lock),
@@ -226,6 +259,48 @@ class _SignUpViewState extends State<SignUpView> {
                                     fit: BoxFit.contain,
                                     color: TColor.gray,
                                   ))),
+                        ),
+                        SizedBox(
+                          height: media.width * 0.04,
+                        ),
+                        InkWell(
+                          onTap: () => handleImageUpload(),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: TColor.gray.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.attach_file,
+                                  color: TColor.gray,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    imageFile != null
+                                        ? imageFile!.path.split('/').last
+                                        : 'Upload Profile Image',
+                                    style: TextStyle(color: TColor.gray),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (imageFile != null)
+                                  Flexible(
+                                    child: Image.file(
+                                      imageFile!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: media.width * 0.04,
                         ),
                         Row(
                           // crossAxisAlignment: CrossAxisAlignment.,

@@ -106,6 +106,29 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
                   ),
                 ),
               ),
+              backgroundColor: TColor.white,
+              centerTitle: true,
+              elevation: 0,
+              leading: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  height: 40,
+                  width: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: TColor.lightGray,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Image.asset(
+                    "assets/img/black_btn.png",
+                    width: 15,
+                    height: 15,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -114,7 +137,7 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
                     style: TextStyle(color: TColor.gray, fontSize: 16),
                   ),
                   Text(
-                    "Please Login.",
+                    "Welcome Back",
                     style: TextStyle(
                       color: TColor.white,
                       fontSize: 20,
@@ -123,8 +146,6 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
                   ),
                 ],
               ),
-              centerTitle: true, // Center the title horizontally
-              elevation: 4, // Add some elevation to the app bar
             ),
             backgroundColor: TColor.white,
             body: SingleChildScrollView(

@@ -34,18 +34,15 @@ class _ChatScreenState extends State<ChatScreen> {
   late AuthProvider authProvider;
   late ConversationProvider convProvider;
   List<DieticianChatModel> chatParticipants = [];
-  final FlutterSoundRecorder _audioRecorder = FlutterSoundRecorder();
 
   File? audioFile;
   File? file;
-  late NotificationProvider notiProvider;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     convProvider = Provider.of<ConversationProvider>(context, listen: false);
-    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
 
     chatParticipants = convProvider.conversations;
     readMessages();
@@ -66,7 +63,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _audioRecorder.closeRecorder();
     super.dispose();
   }
 

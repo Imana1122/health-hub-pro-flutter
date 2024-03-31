@@ -3,11 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_windows
   file_selector_windows
   flutter_tts
   permission_handler_windows
-  record_windows
   simple_animation_progress_bar
   url_launcher_windows
 )

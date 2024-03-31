@@ -81,13 +81,14 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
       var result = await weightPlanService.setGoal(goal: selectedGoalId);
       if (result == true || result != null) {
         if (user.profile.weightPlanId == '') {
+          print('hello');
           user.profile.weightPlanId = result['weight_plan_id'];
-          user.profile.calories = result['calories'];
-          user.profile.protein = result['protein'];
-          user.profile.totalFat = result['total_fat'];
-          user.profile.carbohydrates = result['carbohydrates'];
-          user.profile.sodium = result['sodium'];
-          user.profile.sugar = result['sugar'];
+          user.profile.calories = result['calories'].toDouble();
+          user.profile.protein = result['protein'].toDouble();
+          user.profile.totalFat = result['total_fat'].toDouble();
+          user.profile.carbohydrates = result['carbohydrates'].toDouble();
+          user.profile.sodium = result['sodium'].toDouble();
+          user.profile.sugar = result['sugar'].toDouble();
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -96,12 +97,12 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
           );
         } else {
           user.profile.weightPlanId = result['weight_plan_id'];
-          user.profile.calories = result['calories'];
-          user.profile.protein = result['protein'];
-          user.profile.totalFat = result['total_fat'];
-          user.profile.carbohydrates = result['carbohydrates'];
-          user.profile.sodium = result['sodium'];
-          user.profile.sugar = result['sugar'];
+          user.profile.calories = result['calories'].toDouble();
+          user.profile.protein = result['protein'].toDouble();
+          user.profile.totalFat = result['total_fat'].toDouble();
+          user.profile.carbohydrates = result['carbohydrates'].toDouble();
+          user.profile.sodium = result['sodium'].toDouble();
+          user.profile.sugar = result['sugar'].toDouble();
 
           Navigator.pushNamed(context, '/profile');
         }

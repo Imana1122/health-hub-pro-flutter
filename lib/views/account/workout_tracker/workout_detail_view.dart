@@ -68,7 +68,9 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
     setState(() {
       final exerciseKeys = widget.dObj['exercises'].keys.toList();
 
-      for (int i = 0; i < exerciseKeys.length; i += 3) {
+      for (int i = 0;
+          i < exerciseKeys.length;
+          i += int.parse(widget.dObj['no_of_ex_per_set'])) {
         final endIndex =
             (i + 3 < exerciseKeys.length) ? i + 3 : exerciseKeys.length;
         final setKeys = exerciseKeys.sublist(i, endIndex);
@@ -403,7 +405,7 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                                   TextButton(
                                     onPressed: () {},
                                     child: Text(
-                                      "${youArr.length} Sets",
+                                      "${exerciseSets.length} Sets",
                                       style: TextStyle(
                                           color: TColor.gray, fontSize: 12),
                                     ),

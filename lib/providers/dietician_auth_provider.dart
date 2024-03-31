@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/models/dietician.dart';
 import 'package:fyp_flutter/services/dietician/dietician_auth_service.dart';
-import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class DieticianAuthProvider with ChangeNotifier {
   late Dietician _dietician;
@@ -21,35 +19,36 @@ class DieticianAuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> register({
-    required firstName,
-    required lastName,
-    required email,
-    required phoneNumber,
-    required cv,
-    required image,
-    required speciality,
-    required description,
-    required esewaClientId,
-    required esewaSecretKey,
-    required bookingAmount,
-    required bio,
-  }) async {
+  Future<bool> register(
+      {required firstName,
+      required lastName,
+      required email,
+      required phoneNumber,
+      required cv,
+      required image,
+      required speciality,
+      required description,
+      required esewaId,
+      required bookingAmount,
+      required bio,
+      required String password,
+      required String passwordConfirmation}) async {
     try {
       bool result = await DieticianAuthService().register(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phoneNumber: phoneNumber,
-        cv: cv,
-        image: image,
-        speciality: speciality,
-        description: description,
-        esewaClientId: esewaClientId,
-        esewaSecretKey: esewaSecretKey,
-        bookingAmount: bookingAmount,
-        bio: bio,
-      );
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          phoneNumber: phoneNumber,
+          cv: cv,
+          image: image,
+          speciality: speciality,
+          description: description,
+          esewaId: esewaId,
+          bookingAmount: bookingAmount,
+          bio: bio,
+          password: password,
+          passwordConfirmation: passwordConfirmation);
+      notifyListeners();
 
       return result;
     } catch (e) {
@@ -69,50 +68,8 @@ class DieticianAuthProvider with ChangeNotifier {
       );
 
       _dietician = dietician;
-      PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
-      try {
-        await pusher.init(
-            apiKey: dotenv.env['PUSHER_APP_KEY'] ?? '',
-            cluster: dotenv.env['PUSHER_APP_CLUSTER'] ?? '',
-            onConnectionStateChange:
-                (dynamic currentState, dynamic previousState) {
-              print("Connection: $currentState");
-            },
-            onError: (String message, int? code, dynamic e) {
-              print("onError: $message code: $code exception: $e");
-            },
-            onSubscriptionSucceeded: (String channelName, dynamic data) {
-              print("onSubscriptionSucceeded: $channelName data: $data");
-            },
-            onEvent: (PusherEvent event) {
-              print('Received event: $event');
-            },
-            onSubscriptionError: (String message, dynamic e) {
-              print("onSubscriptionError: $message Exception: $e");
-            },
-            onDecryptionFailure: (String event, String reason) {
-              print("onDecryptionFailure: $event reason: $reason");
-            },
-            onMemberAdded: (String channelName, PusherMember member) {
-              print("onMemberAdded: $channelName member: $member");
-            },
-            onMemberRemoved: (String channelName, PusherMember member) {
-              print("onMemberRemoved: $channelName member: $member");
-            },
-            authEndpoint: "${dotenv.env['BASE_URL']}/api/pusher/auth",
-            onAuthorizer:
-                (String channelName, String socketId, dynamic options) async {
-              return {
-                "auth": "foo:bar",
-                "channel_data": '{"user_id": 1}',
-                "shared_secret": "foobar"
-              };
-            });
-        await pusher.subscribe(channelName: 'fyp-development');
-        await pusher.connect();
-      } catch (e) {
-        print("ERROR: $e");
-      }
+      notifyListeners();
+
       _isLoggedIn = true;
 
       return true;
@@ -128,6 +85,7 @@ class DieticianAuthProvider with ChangeNotifier {
           await DieticianAuthService().logout(token: _dietician.token);
       if (result == true) {
         _dietician = Dietician.empty();
+        notifyListeners();
 
         _isLoggedIn = false; // Set to false for logout
         return true;
@@ -140,22 +98,36 @@ class DieticianAuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> updatePersonalInfo({
-    required String bio,
-    required String phoneNumber,
-    required String email,
-  }) async {
+  Future<bool> updatePersonalInfo(
+      {required String firstName,
+      required String lastName,
+      required String bio,
+      required String phoneNumber,
+      required String email,
+      required String speciality,
+      required String esewaId,
+      required String description}) async {
     try {
       var dieticianData = await DieticianAuthService().updatePersonalInfo(
+          firstName: firstName,
+          lastName: lastName,
           bio: bio,
           phoneNumber: phoneNumber,
           email: email,
+          speciality: speciality,
+          description: description,
+          esewaId: esewaId,
           token: _dietician.token);
 
-      _dietician.firstName = dieticianData['bio'];
+      _dietician.firstName = dieticianData['first_name'];
+      _dietician.lastName = dieticianData['last_name'];
+      _dietician.bio = dieticianData['bio'];
+      _dietician.speciality = dieticianData['speciality'];
+      _dietician.description = dieticianData['description'];
+      _dietician.esewaId = dieticianData['esewa_id'];
       _dietician.email = dieticianData['email'];
       _dietician.phoneNumber = dieticianData['phone_number'];
-
+      notifyListeners();
       return true;
     } catch (e) {
       print(e);
@@ -174,6 +146,7 @@ class DieticianAuthProvider with ChangeNotifier {
           password: password,
           passwordConfirmation: passwordConfirmation,
           token: _dietician.token);
+      notifyListeners();
 
       return result;
     } catch (e) {

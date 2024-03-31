@@ -179,13 +179,6 @@ class _DieticianProfileViewState extends State<DieticianProfileView> {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              Text(
-                                authenticatedUser.bio,
-                                style: TextStyle(
-                                  color: TColor.gray,
-                                  fontSize: 12,
-                                ),
-                              )
                             ],
                           ),
                         ),
@@ -212,151 +205,58 @@ class _DieticianProfileViewState extends State<DieticianProfileView> {
                       height: 15,
                     ),
                     TitleSubtitleCell(
-                      title: "NRs. ${authenticatedUser.bookingAmount}",
-                      subtitle: "Booking Amount",
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TitleSubtitleCell(
-                      title: authenticatedUser.description,
-                      subtitle: "Description",
+                      title: "Booking Amount",
+                      subtitle: "NRs. ${authenticatedUser.bookingAmount}",
                     ),
                     const SizedBox(
                       height: 25,
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      decoration: BoxDecoration(
-                          color: TColor.white,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 2)
-                          ]),
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      decoration: BoxDecoration(
-                          color: TColor.white,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 2)
-                          ]),
+                    DefaultTabController(
+                      length: 3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Notification",
-                            style: TextStyle(
-                              color: TColor.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                          const TabBar(
+                            tabs: [
+                              Tab(text: 'Description'),
+                              Tab(text: 'Speciality'),
+                              Tab(text: 'Bio'),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 300, // Height of the Tab content
+                            child: TabBarView(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    authenticatedUser.description,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    authenticatedUser.speciality,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    authenticatedUser.bio,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          SizedBox(
-                            height: 30,
-                            child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Image.asset("assets/img/p_notification.png",
-                                      height: 15,
-                                      width: 15,
-                                      fit: BoxFit.contain),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Pop-up Notification",
-                                      style: TextStyle(
-                                        color: TColor.black,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  CustomAnimatedToggleSwitch<bool>(
-                                    current: positive,
-                                    values: const [false, true],
-                                    spacing:
-                                        0.0, // Updated parameter name from 'dif' to 'spacing'
-                                    indicatorSize: const Size.square(30.0),
-                                    animationDuration:
-                                        const Duration(milliseconds: 200),
-                                    animationCurve: Curves.linear,
-                                    onChanged: (b) =>
-                                        setState(() => positive = b),
-                                    iconBuilder: (context, local, global) {
-                                      return const SizedBox();
-                                    },
-                                    onTap:
-                                        (TapProperties<bool> properties) async {
-                                      // Your onTap logic here
-                                      setState(() {
-                                        positive = !positive;
-                                      });
-                                    },
-                                    iconsTappable: false,
-                                    wrapperBuilder: (context, global, child) {
-                                      return Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Positioned(
-                                            left: 10.0,
-                                            right: 10.0,
-                                            height: 30.0,
-                                            child: DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: TColor.secondaryG,
-                                                ),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                  Radius.circular(50.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          child,
-                                        ],
-                                      );
-                                    },
-                                    foregroundIndicatorBuilder:
-                                        (context, global) {
-                                      return SizedBox.fromSize(
-                                        size: const Size(10, 10),
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            color: TColor.white,
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(50.0)),
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                  color: Colors.black38,
-                                                  spreadRadius: 0.05,
-                                                  blurRadius: 1.1,
-                                                  offset: Offset(0.0, 0.8))
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ]),
-                          )
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 25,
+                    SizedBox(
+                      height: media.width * 0.25,
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(

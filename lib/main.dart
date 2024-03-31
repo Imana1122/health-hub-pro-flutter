@@ -4,10 +4,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
+import 'package:fyp_flutter/providers/dietician_notification_provider.dart';
 import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/views/account/login/allergen_filter.dart';
 import 'package:fyp_flutter/views/account/login/cuisine_preference.dart';
 import 'package:fyp_flutter/views/account/login/health_condition_filter.dart';
+import 'package:fyp_flutter/views/account/workout_tracker/workout_schedule_view.dart';
+import 'package:fyp_flutter/views/account/workout_tracker/workout_tracker_view.dart';
 import 'package:fyp_flutter/views/dietician/layout.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_change_password.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
@@ -61,6 +64,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ConversationProvider()),
         ChangeNotifierProvider(create: (context) => NotificationProvider()),
         ChangeNotifierProvider(
+            create: (context) => DieticianNotificationProvider()),
+        ChangeNotifierProvider(
             create: (context) => DieticianConversationProvider()),
       ],
       child: MaterialApp(
@@ -80,8 +85,8 @@ class MyApp extends StatelessWidget {
 
           '/update-personal-data': (context) => const ProfileEditView(),
           '/dashboard': (context) => const WhatYourGoalView(),
-          '/personal-activity': (context) => const WhatYourGoalView(),
-          '/workout-progress': (context) => const WhatYourGoalView(),
+          '/personal-activity': (context) => const MainTabView(),
+          '/workout-progress': (context) => const WorkoutScheduleView(),
           '/change-password': (context) => const ChangePassword(),
           '/privacy-policy': (context) => const ChangePassword(),
           '/contact-us': (context) => const ChangePassword(),
@@ -92,7 +97,7 @@ class MyApp extends StatelessWidget {
           '/register-dietician': (context) => const DieticianSignUpView(),
           '/dietician-change-password': (context) =>
               const DieticianChangePassword(),
-          '/dietician-profile': (context) => const DieticianProfileView(),
+          '/dietician-profile': (context) => const DieticianCommonLayout(),
           '/dietician-update-profile': (context) =>
               const DieticianProfileEditView(),
         },

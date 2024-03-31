@@ -24,6 +24,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
   TextEditingController bustController = TextEditingController();
   TextEditingController targetedWeightController = TextEditingController();
   TextEditingController ageController = TextEditingController();
+  TextEditingController calorieDifferenceController = TextEditingController();
 
   bool isLoading = false;
   String selectedGender = "Choose gender"; // Add the selectedGender variable
@@ -60,6 +61,8 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
         targetedWeightController.text = userProfile.targetedWeight.toString();
         ageController.text = userProfile.age.toString();
         selectedGender = userProfile.gender.toString();
+        calorieDifferenceController.text =
+            userProfile.calorieDifference.toString();
       }
     }
   }
@@ -71,16 +74,17 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
 
     try {
       if (await authProvider.completeProfile(
-        height: double.parse(heightController.text.trim()),
-        weight: double.parse(weightController.text.trim()),
-        waist: double.parse(waistController.text.trim()),
-        hips: double.parse(hipsController.text.trim()),
-        bust: double.parse(bustController.text.trim()),
-        targetedWeight: double.parse(targetedWeightController.text.trim()),
-        age: int.parse(
-            ageController.text.trim()), // Fix typo: ageController.text()
-        gender: selectedGender,
-      )) {
+          height: double.parse(heightController.text.trim()),
+          weight: double.parse(weightController.text.trim()),
+          waist: double.parse(waistController.text.trim()),
+          hips: double.parse(hipsController.text.trim()),
+          bust: double.parse(bustController.text.trim()),
+          targetedWeight: double.parse(targetedWeightController.text.trim()),
+          age: int.parse(
+              ageController.text.trim()), // Fix typo: ageController.text()
+          gender: selectedGender,
+          calorieDifference:
+              double.parse(calorieDifferenceController.text.trim()))) {
         if (userProfile.weightPlanId == '') {
           Navigator.pushNamed(context, '/choose-goal');
         } else {
@@ -274,7 +278,8 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: heightController,
                                       hitText: "Your Height",
-                                      icon: const Icon(Icons.double_arrow_outlined),
+                                      icon: const Icon(
+                                          Icons.double_arrow_outlined),
                                     ),
                                   ),
                                   const SizedBox(
@@ -424,6 +429,40 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     ),
                                     child: Text(
                                       "KG",
+                                      style: TextStyle(
+                                          color: TColor.white, fontSize: 12),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: media.width * 0.04,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RoundTextField(
+                                      controller: calorieDifferenceController,
+                                      hitText: "CalorieDifference",
+                                      icon: const Icon(
+                                          Icons.double_arrow_outlined),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: TColor.secondaryG,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      "CAL",
                                       style: TextStyle(
                                           color: TColor.white, fontSize: 12),
                                     ),

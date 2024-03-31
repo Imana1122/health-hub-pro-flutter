@@ -6,10 +6,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/models/user.dart';
+import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/account/home_service.dart';
 import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
+import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
@@ -66,6 +68,17 @@ class _HomeViewState extends State<HomeView> {
     // Access the authentication provider
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     user = authProvider.getAuthenticatedUser();
+    print("Data:: ${authProvider.getAuthenticatedUser().profile.height}");
+
+    if (authProvider.getAuthenticatedUser().profile.height == 0) {
+      // Navigate to DieticianProfilePage and replace the current route
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CompleteProfileView()),
+        );
+      });
+    }
     // Check if the user is already logged in
     if (!authProvider.isLoggedIn) {
       // Navigate to DieticianProfilePage and replace the current route
@@ -74,6 +87,7 @@ class _HomeViewState extends State<HomeView> {
             '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
       });
     }
+
     loadDetails();
     _loadLineChartDetails(type: 'Monthly');
     notiProvider = Provider.of<NotificationProvider>(context, listen: false);
@@ -91,7 +105,6 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       todayUserDetails = result['mealData'];
       lastWorkoutArr = result['workoutLogs'];
-      print(result['mealPlan']);
       if (result.containsKey('mealPlan')) {
         mealPlan = result['mealPlan'];
         nutritionArr = [
@@ -146,9 +159,7 @@ class _HomeViewState extends State<HomeView> {
             type: type.toLowerCase()); // Convert type to lowercase
     setState(() {
       lineChartData = chartData;
-      print(lineChartData);
       if (lineChartData.isNotEmpty) {
-        print('hello');
         parsedList = lineChartData.map<Map<String, dynamic>>((item) {
           return Map<String, dynamic>.from(item);
         }).toList();

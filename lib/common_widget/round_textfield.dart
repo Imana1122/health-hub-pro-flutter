@@ -59,7 +59,7 @@ class _RoundTextFieldState extends State<RoundTextField> {
         color: TColor.lightGray,
         borderRadius: BorderRadius.circular(5),
       ),
-      child: TextField(
+      child: TextFormField(
         key: _textFieldKey,
         maxLines: widget.maxLines,
         controller: widget.controller,
@@ -90,6 +90,13 @@ class _RoundTextFieldState extends State<RoundTextField> {
           ),
           hintStyle: TextStyle(color: TColor.gray, fontSize: 12),
         ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            // Validate if the value is empty
+            return 'This field is required';
+          }
+          return null; // Return null if validation passes
+        },
       ),
     );
   }

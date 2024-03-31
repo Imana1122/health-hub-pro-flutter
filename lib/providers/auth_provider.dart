@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
@@ -23,13 +25,15 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> register(
-      {required String name,
+      {required File image,
+      required String name,
       required String email,
       required String phoneNumber,
       required String password,
       required String passwordConfirmation}) async {
     try {
       User user = await AuthService().register(
+          image: image,
           name: name,
           email: email,
           phoneNumber: phoneNumber,
@@ -95,7 +99,8 @@ class AuthProvider with ChangeNotifier {
       required double bust,
       required double targetedWeight,
       required int age,
-      required String gender}) async {
+      required String gender,
+      required calorieDifference}) async {
     try {
       UserProfile userProfile = await AuthService().completeProfile(
           height: height,
@@ -106,7 +111,8 @@ class AuthProvider with ChangeNotifier {
           targetedWeight: targetedWeight,
           age: age,
           gender: gender,
-          token: _user.token);
+          token: _user.token,
+          calorieDifference: calorieDifference);
       _user.profile = userProfile;
 
       return true;

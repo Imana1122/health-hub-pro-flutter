@@ -49,7 +49,7 @@ class Dietician {
       description: json['description'],
       esewaId: json['esewa_id'],
       bookingAmount:
-          json['booking_amount'].toDouble(), // Changed from int to double
+          double.parse(json['booking_amount']), // Changed from int to double
       bio: json['bio'],
       availabilityStatus: json['availability_status'],
       approvedStatus: json['approved_status'],

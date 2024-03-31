@@ -33,12 +33,8 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
     });
     try {
       print("dietician :  $dieticianId");
-      await DieticianBookingService(authProvider)
-          .bookDietician(dieticianId: dieticianId);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PaymentDetails()),
-      );
+      var result = await DieticianBookingService(authProvider)
+          .bookDietician(dieticianId: dieticianId, context: context);
     } catch (e) {
       // Handle any errors that occur during booking
       // For example, show a toast message with the error

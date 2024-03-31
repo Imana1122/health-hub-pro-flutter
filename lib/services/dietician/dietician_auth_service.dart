@@ -16,20 +16,20 @@ class DieticianAuthService {
     baseUrl += '/api';
   }
 
-  Future<bool> register({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phoneNumber,
-    required File cv,
-    required File image,
-    required String speciality,
-    required String description,
-    required String esewaClientId,
-    required String esewaSecretKey,
-    required String bookingAmount,
-    required String bio,
-  }) async {
+  Future<bool> register(
+      {required String firstName,
+      required String lastName,
+      required String email,
+      required String phoneNumber,
+      required File cv,
+      required File image,
+      required String speciality,
+      required String description,
+      required String esewaId,
+      required String bookingAmount,
+      required String bio,
+      required String password,
+      required String passwordConfirmation}) async {
     var url = '$baseUrl/dietician/process-register';
 
     // Create headers
@@ -46,11 +46,11 @@ class DieticianAuthService {
     request.fields['phone_number'] = phoneNumber;
     request.fields['speciality'] = speciality;
     request.fields['description'] = description;
-    request.fields['esewa_client_id'] = esewaClientId;
-    request.fields['esewa_secret_key'] = esewaSecretKey;
-
+    request.fields['esewa_id'] = esewaId;
     request.fields['booking_amount'] = bookingAmount;
     request.fields['bio'] = bio;
+    request.fields['password'] = password;
+    request.fields['password_confirmation'] = passwordConfirmation;
 
     // Add files to the request
     request.files.add(await http.MultipartFile.fromPath('cv', cv.path));
@@ -270,7 +270,7 @@ class DieticianAuthService {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      throw Exception('Failed to connect');
+      throw Exception(response.body);
     }
   }
 
@@ -331,24 +331,34 @@ class DieticianAuthService {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      throw Exception('Failed to Login');
+      throw Exception(response.body);
     }
   }
 
   Future<dynamic> updatePersonalInfo(
-      {required String bio,
+      {required String firstName,
+      required String lastName,
+      required String bio,
       required String email,
       required String phoneNumber,
+      required String speciality,
+      required String esewaId,
+      required String description,
       required String token}) async {
-    var url = '$baseUrl/dietician/update-info';
+    var url = '$baseUrl/dietician/update-profile';
     var headers = {
       'Content-Type': 'application/json',
       HttpHeaders.authorizationHeader: token
     };
     var body = jsonEncode({
+      'first_name': firstName,
+      'last_name': lastName,
       'bio': bio,
       'email': email,
       'phone_number': phoneNumber,
+      'speciality': speciality,
+      'description': description,
+      'esewa_id': esewaId
     });
     var response = await http.post(
       Uri.parse(url),
@@ -359,7 +369,7 @@ class DieticianAuthService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       if (data['status'] == true) {
-        var dieticianData = data['dietician'];
+        var dieticianData = data['data'];
 
         Fluttertoast.showToast(
           msg: "Successfully updated.",
@@ -393,7 +403,7 @@ class DieticianAuthService {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      throw Exception('Failed to Register');
+      throw Exception(response.body);
     }
   }
 }
