@@ -10,6 +10,7 @@ import 'package:fyp_flutter/models/user_chat_model.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
+import 'package:fyp_flutter/views/dietician/user_progress/shared_photo_progress_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -125,14 +126,27 @@ class _DieticianChatScreenState extends State<DieticianChatScreen> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(
-                  widget.conversation.image.isNotEmpty
-                      ? 'http://10.0.2.2:8000/uploads/users/${widget.conversation.image}'
-                      : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+              GestureDetector(
+                onTap: () {
+                  print("hello");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SharedPhotoProgressView(id: widget.conversation.id),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                    widget.conversation.image.isNotEmpty
+                        ? 'http://10.0.2.2:8000/storage/uploads/users/${widget.conversation.image}'
+                        : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+                  ),
                 ),
               ),
+
               const SizedBox(
                   width: 10), // Add spacing between the avatar and title
               Text(
@@ -197,6 +211,8 @@ class _DieticianChatScreenState extends State<DieticianChatScreen> {
                           FilePickerResult? result =
                               await FilePicker.platform.pickFiles(
                             allowMultiple: false,
+                            type: FileType.custom,
+                            allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                           );
                           if (result != null) {
                             file = File(result.files.single.path!);

@@ -28,6 +28,14 @@ class CustomizeWorkoutService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
+  Future<dynamic> getWorkoutDetails({required String id}) async {
+    print("from customizable workout");
+    var url = 'account/workout-details/$id?type=customized';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
   Future<dynamic> getExercises() async {
     var url = 'account/get-exercises';
     String token = authProvider.user.token;

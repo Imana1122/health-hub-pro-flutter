@@ -69,20 +69,30 @@ class _ProgressFormState extends State<ProgressForm> {
     setState(() {
       isLoading = true;
     });
-    var result = await ProgressService(authProvider).saveProgress(
-        body: body,
-        frontImage: frontImage,
-        backImage: backImage,
-        rightImage: rightImage,
-        leftImage: leftImage);
-    if (result) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PhotoProgressView(),
-        ),
-      );
-    } else {}
+    if (frontImage != null &&
+        backImage != null &&
+        rightImage != null &&
+        leftImage != null) {
+      var result = await ProgressService(authProvider).saveProgress(
+          body: body,
+          frontImage: frontImage,
+          backImage: backImage,
+          rightImage: rightImage,
+          leftImage: leftImage);
+      if (result) {
+        authProvider.getAuthenticatedUser().profile.height =
+            int.parse(heightController.text.trim());
+        authProvider.getAuthenticatedUser().profile.weight =
+            int.parse(weightController.text.trim());
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PhotoProgressView(),
+          ),
+        );
+      } else {}
+    }
   }
 
   @override
@@ -147,7 +157,7 @@ class _ProgressFormState extends State<ProgressForm> {
                   children: [
                     OutlinedTextField(
                       controller: weightController,
-                      icon: const Icon(Icons.play_for_work_outlined),
+                      icon: const Icon(Icons.monitor_weight),
                       hitText: 'Weight',
                     ),
                     SizedBox(
@@ -155,7 +165,7 @@ class _ProgressFormState extends State<ProgressForm> {
                     ),
                     OutlinedTextField(
                       controller: heightController,
-                      icon: const Icon(Icons.play_for_work_outlined),
+                      icon: const Icon(Icons.height_outlined),
                       hitText: 'Height',
                     ),
                     SizedBox(

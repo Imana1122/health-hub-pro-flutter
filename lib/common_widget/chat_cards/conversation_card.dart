@@ -28,7 +28,7 @@ class ConversationCard extends StatelessWidget {
       leading: ClipOval(
         child: Image.network(
           conversation.image.isNotEmpty
-              ? 'http://10.0.2.2:8000/uploads/dietician/profile/${conversation.image}'
+              ? 'http://10.0.2.2:8000/storage/uploads/dietician/profile/${conversation.image}'
               : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
         ),
       ),

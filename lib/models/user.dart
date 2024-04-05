@@ -10,7 +10,7 @@ class User {
   List<dynamic> cuisines; // Make the list dynamic
   List<dynamic> allergens; // Make the list dynamic
   List<dynamic> healthConditions; // Make the list dynamic
-  String image = '';
+  String image;
   User(
       {required this.id,
       required this.email,
@@ -21,7 +21,7 @@ class User {
       required this.cuisines, // Update the parameter to be dynamic
       required this.allergens, // Update the parameter to be dynamic
       required this.healthConditions, // Update the parameter to be dynamic
-      String image = ''});
+      required this.image});
 
   // Named constructor with default values
   User.empty()
@@ -52,6 +52,7 @@ class User {
       email: json['email'] ?? '',
       phoneNumber: json['phone_number'] ?? '',
       token: json['token'] ?? '',
+      image: json['image'] ?? '',
       profile: UserProfile.fromJson(json['profile'] ?? {}),
       cuisines: cuisinesJson ?? [],
       healthConditions: healthConditionsJson ?? [],
@@ -66,6 +67,8 @@ class User {
     data['email'] = email;
     data['phone_number'] =
         phoneNumber; // Assuming 'phone_number' is the key for phoneNumber
+    data['image'] = image;
+
     data['token'] = token;
     data['profile'] = profile.toJson();
     data['cuisines'] = cuisines;

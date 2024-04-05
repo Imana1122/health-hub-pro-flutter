@@ -126,7 +126,7 @@ class _DieticianSalaryPaymentHistoryState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      height: media.height,
+                      height: media.height * 0.2 * payments.length,
                       child: ListView.builder(
                         itemCount: payments.length,
                         itemBuilder: (context, index) {
@@ -141,7 +141,7 @@ class _DieticianSalaryPaymentHistoryState
                                 child: Icon(Icons.monetization_on),
                               ),
                               title: Text(
-                                'Payment ID: ${payment['id']}',
+                                'Amount: ${payment['amount']}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold),
                               ),
@@ -149,8 +149,6 @@ class _DieticianSalaryPaymentHistoryState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 8),
-                                  Text('Amount: ${payment['amount']}'),
-                                  const SizedBox(height: 4),
                                   Text('Year: ${payment['year']}'),
                                   const SizedBox(height: 4),
                                   Text(
@@ -168,23 +166,28 @@ class _DieticianSalaryPaymentHistoryState
                     SizedBox(
                       height: media.width * 0.05,
                     ),
-                    SizedBox(
-                      height: media.width * 0.05,
-                      child: Row(
-                        children: [
-                          const Spacer(), // Add Spacer to fill the remaining space
-                          InkWell(
-                            child: const Text('more'),
-                            onTap: () {
-                              setState(() {
-                                currentPage += 1;
-                              });
-                              _loadDetails();
-                            },
+                    lastPage > currentPage
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            height: media.width * 0.05,
+                            child: Row(
+                              children: [
+                                const Spacer(), // Add Spacer to fill the remaining space
+                                InkWell(
+                                  child: const Text('more'),
+                                  onTap: () {
+                                    if (lastPage > currentPage) {
+                                      setState(() {
+                                        currentPage += 1;
+                                      });
+                                      _loadDetails();
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
                           )
-                        ],
-                      ),
-                    ),
+                        : const SizedBox(),
                   ],
                 ),
               ),

@@ -15,6 +15,8 @@ import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/pusher_service.dart';
+import 'package:fyp_flutter/views/account/dietician_subscription/dietician_details.dart';
+import 'package:fyp_flutter/views/account/dietician_subscription/subscribed_dietician_details.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -82,7 +84,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage([File? selectedFile]) async {
-    print(selectedFile);
     FocusScope.of(context).requestFocus(FocusNode());
 
     String message = messageTextController.text.trim();
@@ -130,14 +131,26 @@ class _ChatScreenState extends State<ChatScreen> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(
-                  widget.conversation.image.isNotEmpty
-                      ? 'http://10.0.2.2:8000/uploads/dietician/profile/${widget.conversation.image}'
-                      : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+              GestureDetector(
+                onTap: () {
+                  Map<dynamic, dynamic> dietician = widget.conversation.toMap();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            SubscribedDieticianDetails(dietician: dietician)),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                    widget.conversation.image.isNotEmpty
+                        ? 'http://10.0.2.2:8000/storage/uploads/dietician/profile/${widget.conversation.image}'
+                        : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+                  ),
                 ),
               ),
+
               const SizedBox(
                   width: 10), // Add spacing between the avatar and title
               Text(
@@ -202,6 +215,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           FilePickerResult? result =
                               await FilePicker.platform.pickFiles(
                             allowMultiple: false,
+                            type: FileType.custom,
+                            allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                           );
                           if (result != null) {
                             file = File(result.files.single.path!);

@@ -18,8 +18,8 @@ class PaymentHistoryItem extends StatelessWidget {
         contentPadding: const EdgeInsets.all(8.0),
         leading: ClipOval(
           child: Image.network(
-            payment['image'] != null
-                ? 'http://10.0.2.2:8000/uploads/dietician/profile/${payment['image']}'
+            payment['dietician']['image'] != null
+                ? 'http://10.0.2.2:8000/storage/uploads/dietician/profile/${payment['dietician']['image']}'
                 : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
             width: 48,
             height: 48,
@@ -27,7 +27,7 @@ class PaymentHistoryItem extends StatelessWidget {
           ),
         ),
         title: Text(
-          '${payment['first_name']} ${payment['last_name']}',
+          '${payment['dietician']['first_name']} ${payment['dietician']['last_name']}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -57,7 +57,7 @@ class PaymentHistoryItem extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
                     child: Text(
-                      '${payment['booking_amount']}',
+                      '${payment['dietician']['booking_amount']}',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black,
@@ -86,8 +86,8 @@ class PaymentHistoryItem extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
                     child: Text(
-                      DateFormat.yMMMMd().add_Hm().add_jm().format(
-                            DateTime.parse(payment['created_at']).toLocal(),
+                      DateFormat.yMMMMd().add_jm().format(
+                            DateTime.parse(payment['updated_at']).toLocal(),
                           ),
                       style: const TextStyle(
                         fontSize: 14,

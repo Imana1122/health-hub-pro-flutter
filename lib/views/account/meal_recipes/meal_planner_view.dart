@@ -4,6 +4,7 @@ import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
@@ -35,12 +36,16 @@ class _MealPlannerViewState extends State<MealPlannerView> {
       LineChartBarData(); // Assuming this is LineChartBarData
   List<LineChartBarData> lineBarsData =
       []; // Assuming this is a list of LineChartBarData
-
+  String currentYear = DateFormat('yyyy').format(DateTime.now());
+  String? selectedYear;
+  String currentMonth = DateFormat('MM').format(DateTime.now());
+  String? selectedMonth;
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-
+    selectedYear = currentYear;
+    selectedMonth = currentMonth;
     // Check if the user is already logged in
     if (!authProvider.isLoggedIn) {
       // Navigate to DieticianProfilePage and replace the current route
@@ -53,13 +58,15 @@ class _MealPlannerViewState extends State<MealPlannerView> {
     _loadLineChartDetails();
   }
 
-  Future<void> _loadLineChartDetails({String type = 'daily'}) async {
+  Future<void> _loadLineChartDetails() async {
     setState(() {
       isLoading = true;
     });
     var chartData = await RecipeRecommendationService(authProvider)
         .getMealLineChartDetails(
-            type: type.toLowerCase()); // Convert type to lowercase
+            type: selectedType.toLowerCase(),
+            year: selectedYear!,
+            month: selectedMonth!); // Convert type to lowercase
     setState(() {
       lineChartData = chartData;
       parsedList = lineChartData.map<Map<String, dynamic>>((item) {
@@ -67,21 +74,12 @@ class _MealPlannerViewState extends State<MealPlannerView> {
       }).toList();
       spots = parsedList.map((e) {
         double x;
-        if (e['x'] is String && selectedType == "Daily") {
+        if (e['x'] is String) {
           // Parse the string value to double
-          String result = e['x'].replaceAll("-", "");
-          // DateTime result = DateTime.parse(e['x']);
-          double doubleValue = double.parse(result);
+          double doubleValue = double.parse(e['x']);
           x = doubleValue;
-        } else if (e['x'] is String && selectedType == "Monthly") {
-          String dateString = e['x'];
-          List<String> dateParts = dateString.split("-");
-          int year = int.parse(dateParts[0]);
-          int month = int.parse(dateParts[1]);
-          int numericDate = year * 100 + month;
-          x = numericDate.toDouble();
         } else {
-          x = 0.0;
+          x = e['x'].toDouble();
         }
         double yValue = double.parse(e['y'].toStringAsFixed(1));
 
@@ -91,21 +89,12 @@ class _MealPlannerViewState extends State<MealPlannerView> {
       // Convert parsed list into list of FlSpot
       List<FlSpot> flSpots = parsedList.map((data) {
         double x;
-        if (data['x'] is String && selectedType == "Daily") {
+        if (data['x'] is String) {
           // Parse the string value to double
-          String result = data['x'].replaceAll("-", "");
-          double doubleValue = double.parse(result);
+          double doubleValue = double.parse(data['x']);
           x = doubleValue;
-        } else if (data['x'] is String && selectedType == "Monthly") {
-          String dateString = data['x'];
-          List<String> dateParts = dateString.split("-");
-          int year = int.parse(dateParts[0]);
-          int month = int.parse(dateParts[1]);
-          int numericDate = year * 100 +
-              month; // For example, 2022-02 becomes 202202.0 as a int
-          x = numericDate.toDouble();
         } else {
-          x = 0.0;
+          x = data['x'].toDouble();
         }
         double yValue = double.parse(data['y'].toStringAsFixed(1));
         return FlSpot(x, yValue);
@@ -232,300 +221,291 @@ class _MealPlannerViewState extends State<MealPlannerView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    lineChartData.isNotEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Meal Nutritions",
-                                      style: TextStyle(
-                                        color: TColor.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 30,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            colors: TColor.primaryG),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: DropdownButtonHideUnderline(
-                                        child: DropdownButton(
-                                          value: selectedType,
-                                          items:
-                                              ["Monthly", "Daily"].map((name) {
-                                            return DropdownMenuItem(
-                                              value: name,
-                                              child: Text(
-                                                name,
-                                                style: TextStyle(
-                                                  color: TColor.gray,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              if (value != null) {
-                                                selectedType = value;
-                                                // Convert the value to lowercase before passing it to _loadLineChartDetails
-                                                _loadLineChartDetails(
-                                                    type: value.toLowerCase());
-                                              }
-                                            });
-                                          },
-                                          icon: Icon(Icons.expand_more,
-                                              color: TColor.white),
-                                          hint: Text(
-                                            "Select a graph type",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: TColor.white,
-                                              fontSize: 12,
-                                            ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Meal Nutritions",
+                            style: TextStyle(
+                              color: TColor.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(
+                            height: media.height * 0.05,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                height: 30,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      LinearGradient(colors: TColor.primaryG),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton(
+                                    value: selectedType,
+                                    items: ["Monthly", "Daily"].map((name) {
+                                      return DropdownMenuItem(
+                                        value: name,
+                                        child: Text(
+                                          name,
+                                          style: TextStyle(
+                                            color: TColor.gray,
+                                            fontSize: 14,
                                           ),
                                         ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) async {
+                                      setState(() {
+                                        selectedType = value as String;
+                                      });
+                                      if (selectedType == "Monthly") {
+                                        await _showMonthlyDialog();
+                                      } else {
+                                        await _showDailyDialog();
+                                      }
+                                    },
+                                    icon: Icon(Icons.expand_more,
+                                        color: TColor.white),
+                                    hint: Text(
+                                      "Select a type",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: TColor.white,
+                                        fontSize: 12,
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                                SizedBox(
-                                  height: media.width * 0.05,
+                              ),
+                              const Spacer(),
+                              Container(
+                                height: 30,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      LinearGradient(colors: TColor.primaryG),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                                SizedBox(
-                                  height: media.width * 0.05,
+                                child: Text(
+                                  selectedType.toLowerCase() == 'monthly'
+                                      ? selectedYear ?? ''
+                                      : '${selectedYear ?? ''}-${selectedMonth ?? ''}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: TColor.gray),
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.only(left: 15),
-                                  height: media.width * 0.5,
-                                  width: double.maxFinite,
-                                  child: lineChartData.isNotEmpty
-                                      ? SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: SizedBox(
-                                              height: media.height *
-                                                  0.8, // Set a fixed height for the chart container
-                                              width: media.width *
-                                                  0.5 *
-                                                  spots.length,
-                                              child: LineChart(
-                                                LineChartData(
-                                                  showingTooltipIndicators:
-                                                      showingTooltipOnSpots
-                                                          .map((index) {
-                                                    return ShowingTooltipIndicators([
-                                                      LineBarSpot(
-                                                        tooltipsOnBar,
-                                                        lineBarsData.indexOf(
-                                                            tooltipsOnBar),
-                                                        tooltipsOnBar
-                                                            .spots[index],
-                                                      ),
-                                                    ]);
-                                                  }).toList(),
-                                                  lineTouchData: LineTouchData(
-                                                    enabled: true,
-                                                    handleBuiltInTouches: false,
-                                                    touchCallback:
-                                                        (FlTouchEvent event,
-                                                            LineTouchResponse?
-                                                                response) {
-                                                      if (response == null ||
-                                                          response.lineBarSpots ==
-                                                              null) {
-                                                        return;
-                                                      }
-                                                      if (event
-                                                          is FlTapUpEvent) {
-                                                        final spotIndex =
-                                                            response
-                                                                .lineBarSpots!
-                                                                .first
-                                                                .spotIndex;
-                                                        showingTooltipOnSpots
-                                                            .clear();
-                                                        setState(() {
-                                                          showingTooltipOnSpots
-                                                              .add(spotIndex);
-                                                        });
-                                                      }
-                                                    },
-                                                    mouseCursorResolver:
-                                                        (FlTouchEvent event,
-                                                            LineTouchResponse?
-                                                                response) {
-                                                      if (response == null ||
-                                                          response.lineBarSpots ==
-                                                              null) {
-                                                        return SystemMouseCursors
-                                                            .basic;
-                                                      }
-                                                      return SystemMouseCursors
-                                                          .click;
-                                                    },
-                                                    getTouchedSpotIndicator:
-                                                        (LineChartBarData
-                                                                barData,
-                                                            List<int>
-                                                                spotIndexes) {
-                                                      return spotIndexes
-                                                          .map((index) {
-                                                        return TouchedSpotIndicatorData(
-                                                          const FlLine(
-                                                            color: Colors
-                                                                .transparent,
-                                                          ),
-                                                          FlDotData(
-                                                            show: true,
-                                                            getDotPainter: (spot,
-                                                                    percent,
-                                                                    barData,
-                                                                    index) =>
-                                                                FlDotCirclePainter(
-                                                              radius: 3,
-                                                              color:
-                                                                  Colors.white,
-                                                              strokeWidth: 3,
-                                                              strokeColor: TColor
-                                                                  .secondaryColor1,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      }).toList();
-                                                    },
-                                                    touchTooltipData:
-                                                        LineTouchTooltipData(
-                                                      tooltipBgColor: TColor
-                                                          .secondaryColor1,
-                                                      tooltipRoundedRadius: 20,
-                                                      getTooltipItems:
-                                                          (List<LineBarSpot>
-                                                              lineBarsSpot) {
-                                                        return lineBarsSpot
-                                                            .map((lineBarSpot) {
-                                                          return LineTooltipItem(
-                                                            "${lineBarSpot.x.toInt()} mins ago",
-                                                            const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          );
-                                                        }).toList();
-                                                      },
-                                                    ),
-                                                  ),
-                                                  lineBarsData: lineBarsData1,
-                                                  minY: 0,
-                                                  maxY:
-                                                      selectedType == 'Monthly'
-                                                          ? 60000
-                                                          : 2000,
-                                                  titlesData: FlTitlesData(
-                                                    show: true,
-                                                    leftTitles:
-                                                        const AxisTitles(),
-                                                    topTitles:
-                                                        const AxisTitles(),
-                                                    bottomTitles: AxisTitles(
-                                                      sideTitles: bottomTitles,
-                                                    ),
-                                                    rightTitles: AxisTitles(
-                                                      sideTitles: rightTitles,
-                                                    ),
-                                                  ),
-                                                  gridData: FlGridData(
-                                                    show: true,
-                                                    drawHorizontalLine: true,
-                                                    horizontalInterval: 25,
-                                                    drawVerticalLine: false,
-                                                    getDrawingHorizontalLine:
-                                                        (value) {
-                                                      return FlLine(
-                                                        color: TColor.gray
-                                                            .withOpacity(0.15),
-                                                        strokeWidth: 2,
-                                                      );
-                                                    },
-                                                  ),
-                                                  borderData: FlBorderData(
-                                                    show: true,
-                                                    border: Border.all(
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 15),
+                            height: media.width * 0.5,
+                            width: media.width * 0.7 * spots.length,
+                            child: lineChartData.isNotEmpty
+                                ? SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: SizedBox(
+                                        height: media.height *
+                                            0.8, // Set a fixed height for the chart container
+                                        width: media.width * 0.5 * spots.length,
+                                        child: LineChart(
+                                          LineChartData(
+                                            showingTooltipIndicators:
+                                                showingTooltipOnSpots
+                                                    .map((index) {
+                                              return ShowingTooltipIndicators([
+                                                LineBarSpot(
+                                                  tooltipsOnBar,
+                                                  lineBarsData
+                                                      .indexOf(tooltipsOnBar),
+                                                  tooltipsOnBar.spots[index],
+                                                ),
+                                              ]);
+                                            }).toList(),
+                                            lineTouchData: LineTouchData(
+                                              enabled: true,
+                                              handleBuiltInTouches: false,
+                                              touchCallback: (FlTouchEvent
+                                                      event,
+                                                  LineTouchResponse? response) {
+                                                if (response == null ||
+                                                    response.lineBarSpots ==
+                                                        null) {
+                                                  return;
+                                                }
+                                                if (event is FlTapUpEvent) {
+                                                  final spotIndex = response
+                                                      .lineBarSpots!
+                                                      .first
+                                                      .spotIndex;
+                                                  showingTooltipOnSpots.clear();
+                                                  setState(() {
+                                                    showingTooltipOnSpots
+                                                        .add(spotIndex);
+                                                  });
+                                                }
+                                              },
+                                              mouseCursorResolver: (FlTouchEvent
+                                                      event,
+                                                  LineTouchResponse? response) {
+                                                if (response == null ||
+                                                    response.lineBarSpots ==
+                                                        null) {
+                                                  return SystemMouseCursors
+                                                      .basic;
+                                                }
+                                                return SystemMouseCursors.click;
+                                              },
+                                              getTouchedSpotIndicator:
+                                                  (LineChartBarData barData,
+                                                      List<int> spotIndexes) {
+                                                return spotIndexes.map((index) {
+                                                  return TouchedSpotIndicatorData(
+                                                    const FlLine(
                                                       color: Colors.transparent,
                                                     ),
-                                                  ),
-                                                ),
-                                              )),
-                                        )
-                                      : const SizedBox(), // If lineChartData is empty, show an empty SizedBox
-                                ),
-                                SizedBox(
-                                  height: media.width * 0.05,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 15, horizontal: 15),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        TColor.primaryColor2.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Daily Meal Schedule",
-                                        style: TextStyle(
-                                            color: TColor.black,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      SizedBox(
-                                        width: 80,
-                                        height: 30,
-                                        child: RoundButton(
-                                          title: "Check",
-                                          type: RoundButtonType.bgGradient,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const MealScheduleView(),
+                                                    FlDotData(
+                                                      show: true,
+                                                      getDotPainter: (spot,
+                                                              percent,
+                                                              barData,
+                                                              index) =>
+                                                          FlDotCirclePainter(
+                                                        radius: 3,
+                                                        color: Colors.white,
+                                                        strokeWidth: 3,
+                                                        strokeColor: TColor
+                                                            .secondaryColor1,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList();
+                                              },
+                                              touchTooltipData:
+                                                  LineTouchTooltipData(
+                                                tooltipBgColor:
+                                                    TColor.secondaryColor1,
+                                                tooltipRoundedRadius: 20,
+                                                getTooltipItems:
+                                                    (List<LineBarSpot>
+                                                        lineBarsSpot) {
+                                                  return lineBarsSpot
+                                                      .map((lineBarSpot) {
+                                                    return LineTooltipItem(
+                                                      "${lineBarSpot.x.toInt()} mins ago",
+                                                      const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    );
+                                                  }).toList();
+                                                },
                                               ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                                            ),
+                                            lineBarsData: lineBarsData1,
+                                            minY: 0,
+                                            maxY: selectedType == 'Monthly'
+                                                ? 60000
+                                                : 2000,
+                                            titlesData: FlTitlesData(
+                                              show: true,
+                                              leftTitles: const AxisTitles(),
+                                              topTitles: const AxisTitles(),
+                                              bottomTitles: AxisTitles(
+                                                sideTitles: bottomTitles,
+                                              ),
+                                              rightTitles: AxisTitles(
+                                                sideTitles: rightTitles,
+                                              ),
+                                            ),
+                                            gridData: FlGridData(
+                                              show: true,
+                                              drawHorizontalLine: true,
+                                              horizontalInterval: 25,
+                                              drawVerticalLine: false,
+                                              getDrawingHorizontalLine:
+                                                  (value) {
+                                                return FlLine(
+                                                  color: TColor.gray
+                                                      .withOpacity(0.15),
+                                                  strokeWidth: 2,
+                                                );
+                                              },
+                                            ),
+                                            borderData: FlBorderData(
+                                              show: true,
+                                              border: Border.all(
+                                                color: Colors.transparent,
+                                              ),
+                                            ),
+                                          ),
+                                        )),
+                                  )
+                                : const SizedBox(), // If lineChartData is empty, show an empty SizedBox
+                          ),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            decoration: BoxDecoration(
+                              color: TColor.primaryColor2.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Daily Meal Schedule",
+                                  style: TextStyle(
+                                      color: TColor.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(
-                                  height: media.width * 0.05,
-                                ),
+                                  width: 80,
+                                  height: 30,
+                                  child: RoundButton(
+                                    title: "Check",
+                                    type: RoundButtonType.bgGradient,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MealScheduleView(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                )
                               ],
                             ),
-                          )
-                        : SizedBox(
-                            height: media.height * 0.3,
                           ),
+                          SizedBox(
+                            height: media.width * 0.05,
+                          ),
+                        ],
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
@@ -572,6 +552,116 @@ class _MealPlannerViewState extends State<MealPlannerView> {
           );
   }
 
+  Future<void> _showMonthlyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Year'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                DropdownButtonFormField<String>(
+                  value: selectedYear,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedYear = newValue;
+                    });
+                  },
+                  items: List.generate(10, (index) {
+                    return DropdownMenuItem(
+                      value: (int.parse(currentYear) - index).toString(),
+                      child: Text((int.parse(currentYear) - index).toString()),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _loadLineChartDetails();
+                // Handle fetching line chart details for selected year
+                Navigator.of(context).pop();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showDailyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Month and Year'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                DropdownButtonFormField<String>(
+                  value: selectedMonth,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedMonth = newValue;
+                    });
+                  },
+                  items: List.generate(12, (index) {
+                    return DropdownMenuItem(
+                      value: (index + 1).toString().padLeft(2, '0'),
+                      child: Text('${index + 1}'.padLeft(2, '0')),
+                    );
+                  }),
+                ),
+                DropdownButtonFormField<String>(
+                  value: selectedYear,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedYear = newValue;
+                    });
+                  },
+                  items: List.generate(10, (index) {
+                    return DropdownMenuItem(
+                      value: (int.parse(currentYear) - index).toString(),
+                      child: Text((int.parse(currentYear) - index).toString()),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _loadLineChartDetails();
+                // Handle fetching line chart details for selected month and year
+                Navigator.of(context).pop();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget rightTitleWidgets(double value, TitleMeta meta) {
     return Text(
       value.toString(),
@@ -594,45 +684,44 @@ class _MealPlannerViewState extends State<MealPlannerView> {
     doubleString = doubleString.replaceAll(".0", "");
     if (selectedType == "Monthly") {
       // Parse the integer
-      int month = int.parse(doubleString.substring(4));
-      String yearString = doubleString.substring(0, 4);
+      int month = int.parse(doubleString);
 
       switch (month) {
         case 1:
-          text = Text("$yearString-Jan", style: style);
+          text = Text("Jan", style: style);
           break;
         case 2:
-          text = Text("$yearString-Feb", style: style);
+          text = Text("Feb", style: style);
           break;
         case 3:
-          text = Text("$yearString-Mar", style: style);
+          text = Text("Mar", style: style);
           break;
         case 4:
-          text = Text("$yearString-Apr", style: style);
+          text = Text("Apr", style: style);
           break;
         case 5:
-          text = Text("$yearString-May", style: style);
+          text = Text("May", style: style);
           break;
         case 6:
-          text = Text("$yearString-Jun", style: style);
+          text = Text("Jun", style: style);
           break;
         case 7:
-          text = Text("$yearString-Jul", style: style);
+          text = Text("Jul", style: style);
           break;
         case 8:
-          text = Text("$yearString-Aug", style: style);
+          text = Text("Aug", style: style);
           break;
         case 9:
-          text = Text("$yearString-Sep", style: style);
+          text = Text("Sep", style: style);
           break;
         case 10:
-          text = Text("$yearString-Oct", style: style);
+          text = Text("Oct", style: style);
           break;
         case 11:
-          text = Text("$yearString-Nov", style: style);
+          text = Text("Nov", style: style);
           break;
         case 12:
-          text = Text("$yearString-Dec", style: style);
+          text = Text("Dec", style: style);
           break;
         default:
           text = Text('None', style: style);
@@ -645,56 +734,11 @@ class _MealPlannerViewState extends State<MealPlannerView> {
         child: text,
       );
     }
-    int month = int.parse(doubleString.substring(4, 6));
 
-    String yearString = doubleString.substring(0, 4);
-    String dayString = doubleString.substring(6);
-
-    switch (month) {
-      case 1:
-        text = Text("$yearString-Jan-$dayString", style: style);
-        break;
-      case 2:
-        text = Text("$yearString-Feb-$dayString", style: style);
-        break;
-      case 3:
-        text = Text("$yearString-Mar-$dayString", style: style);
-        break;
-      case 4:
-        text = Text("$yearString-Apr-$dayString", style: style);
-        break;
-      case 5:
-        text = Text("$yearString-May-$dayString", style: style);
-        break;
-      case 6:
-        text = Text("$yearString-Jun-$dayString", style: style);
-        break;
-      case 7:
-        text = Text("$yearString-Jul-$dayString", style: style);
-        break;
-      case 8:
-        text = Text("$yearString-Aug-$dayString", style: style);
-        break;
-      case 9:
-        text = Text("$yearString-Sep-$dayString", style: style);
-        break;
-      case 10:
-        text = Text("$yearString-Oct-$dayString", style: style);
-        break;
-      case 11:
-        text = Text("$yearString-Nov-$dayString", style: style);
-        break;
-      case 12:
-        text = Text("$yearString-Dec-$dayString", style: style);
-        break;
-      default:
-        text = Text('None', style: style);
-        break;
-    }
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 10,
-      child: text,
+      child: Text(doubleString, style: style),
     );
   }
 
@@ -702,7 +746,7 @@ class _MealPlannerViewState extends State<MealPlannerView> {
         getTitlesWidget: rightTitleWidgets,
         showTitles: true,
         interval: selectedType == 'Monthly' ? 20000 : 400,
-        reservedSize: 40,
+        reservedSize: 60,
       );
 
   SideTitles get bottomTitles => SideTitles(

@@ -104,7 +104,7 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
           user.profile.sodium = result['sodium'].toDouble();
           user.profile.sugar = result['sugar'].toDouble();
 
-          Navigator.pushNamed(context, '/profile');
+          Navigator.pushNamed(context, '/');
         }
       } else {
         print("Error setting goal");
@@ -181,7 +181,7 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
                                     child: Column(
                                       children: [
                                         Image.network(
-                                          'http://10.0.2.2:8000/uploads/weightPlan/thumb/${gObj["image"]}',
+                                          'http://10.0.2.2:8000/storage/uploads/weightPlan/thumb/${gObj["image"]}',
                                           width: media.width * 0.5,
                                           fit: BoxFit.fitWidth,
                                         ),

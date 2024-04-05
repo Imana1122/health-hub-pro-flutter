@@ -93,7 +93,7 @@ class DieticianMyMessageCard extends StatelessWidget {
                                     message.file!.endsWith('.gif')) {
                                   // Navigate to a new screen to display the image
                                   downloadFile(
-                                      '${dotenv.env['BASE_URL']}/uploads/chats/files/${message.file!}');
+                                      '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -185,7 +185,7 @@ class ImageScreen extends StatelessWidget {
       ),
       body: Center(
         child: Image.network(
-            '${dotenv.env['BASE_URL']}/uploads/chats/files/$imageUrl'),
+            '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/$imageUrl'),
       ),
     );
   }

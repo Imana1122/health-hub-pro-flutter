@@ -124,7 +124,7 @@ class _DieticianSelectViewState extends State<DieticianSelectView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      height: media.height,
+                      height: media.height * 0.1 * ratings.length,
                       child: ListView.builder(
                         itemCount: ratings.length,
                         itemBuilder: (context, index) {
@@ -151,23 +151,28 @@ class _DieticianSelectViewState extends State<DieticianSelectView> {
                     SizedBox(
                       height: media.width * 0.05,
                     ),
-                    SizedBox(
-                      height: media.width * 0.05,
-                      child: Row(
-                        children: [
-                          Spacer(), // Add Spacer to fill the remaining space
-                          InkWell(
-                            child: Text('more'),
-                            onTap: () {
-                              setState(() {
-                                currentPage += 1;
-                              });
-                              _loadDetails();
-                            },
+                    lastPage > currentPage
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            height: media.width * 0.05,
+                            child: Row(
+                              children: [
+                                const Spacer(), // Add Spacer to fill the remaining space
+                                InkWell(
+                                  child: const Text('more'),
+                                  onTap: () {
+                                    if (lastPage > currentPage) {
+                                      setState(() {
+                                        currentPage += 1;
+                                      });
+                                      _loadDetails();
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
                           )
-                        ],
-                      ),
-                    ),
+                        : const SizedBox(),
                   ],
                 ),
               ),

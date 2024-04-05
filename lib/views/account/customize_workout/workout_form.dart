@@ -45,11 +45,7 @@ class _WorkoutFormState extends State<WorkoutForm> {
       isLoading = true;
     });
     var result = await CustomizeWorkoutService(authProvider).getExercises();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const CustomizedWorkoutView()),
-      (route) => false, // Remove all routes by returning false
-    );
+
     setState(() {
       if (result != null && result != null) {
         exercises = List<ExerciseForCustomization>.from(
@@ -93,6 +89,11 @@ class _WorkoutFormState extends State<WorkoutForm> {
     await CustomizeWorkoutService(authProvider).saveCustomizedWorkout(
       body: body,
       image: imageFile,
+    );
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const CustomizedWorkoutView()),
+      (route) => false, // Remove all routes by returning false
     );
   }
 

@@ -19,11 +19,54 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
 
   List dieticians = [];
   bool isLoading = false;
+  late ScrollController _scrollController;
+  int currentPage = 1;
+  int lastPage = 1;
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     _loadDetails();
+    _scrollController = ScrollController()..addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+    loadMore();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      loadMore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void loadMore() async {
+    setState(() {
+      currentPage++;
+    });
+    if (currentPage <= lastPage) {
+      setState(() {
+        isLoading = true;
+      });
+      var result =
+          await DieticianBookingService(authProvider).getBookedDieticians(
+        currentPage: currentPage,
+        keyword: txtSearch.text.trim(),
+      );
+      setState(() {
+        dieticians.addAll(result['data']);
+        currentPage = result['current_page'];
+        lastPage = result['last_page'];
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadDetails() async {
@@ -36,6 +79,8 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
     );
     setState(() {
       dieticians = result['data'];
+      currentPage = result['current_page'];
+      lastPage = result['last_page'];
       isLoading = false;
     });
   }
@@ -174,8 +219,9 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
                             child: Text('No dieticians available'),
                           )
                         : SizedBox(
-                            height: media.height * 1,
+                            height: media.height * 0.2 * dieticians.length,
                             child: ListView.builder(
+                              controller: _scrollController,
                               itemCount: dieticians.length,
                               itemBuilder: (context, index) {
                                 final dietician = dieticians[index];
@@ -219,7 +265,7 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
                                               ListTile(
                                                 leading: CircleAvatar(
                                                   backgroundImage: NetworkImage(
-                                                    'http://10.0.2.2:8000/uploads/dietician/profile/${dietician['image']}',
+                                                    'http://10.0.2.2:8000/storage/uploads/dietician/profile/${dietician['image']}',
                                                   ),
                                                 ),
                                                 title: Text(

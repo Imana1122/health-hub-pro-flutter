@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/icon_title_next_row.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
@@ -7,6 +8,7 @@ import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/home/finished_workout_view.dart';
+import 'package:fyp_flutter/views/account/workout_tracker/perform_workout_view.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/schedule_workout_view.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_tracker_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
@@ -31,27 +33,17 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
   double caloriesBurned = 0.0;
   late AuthProvider authProvider;
   // Define a timer for the workout
-  int _currentExerciseIndex = 0;
-  int _currentExerciseIndexInSet = 0;
-  final FlutterTts flutterTts = FlutterTts();
-  int gapBetweenExercises = 2;
-  int exerciseDuration = 5;
-  int gapBetweenSets = 3;
-  int noOfDialogs = 1;
-  double totalCaloriesBurned = 0;
+
   late User user;
-  String startedAt = '';
-  String endedAt = '';
-  int completionStatus = 0;
-  bool continueCountdown = true; // Add a flag to control the countdown
+
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _loadWorkouts();
     user = authProvider.getAuthenticatedUser();
+    _loadWorkouts();
 
     // Iterate over each exercise and accumulate total calories burned
     widget.dObj["exercises"].forEach((key, exercise) {
@@ -67,83 +59,49 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
     });
     setState(() {
       final exerciseKeys = widget.dObj['exercises'].keys.toList();
+      // Parse "no_of_ex_per_set" into an integer
+      int noOfExPerSet = widget.dObj['no_of_ex_per_set'];
 
-      for (int i = 0;
-          i < exerciseKeys.length;
-          i += int.parse(widget.dObj['no_of_ex_per_set'])) {
-        final endIndex =
-            (i + 3 < exerciseKeys.length) ? i + 3 : exerciseKeys.length;
-        final setKeys = exerciseKeys.sublist(i, endIndex);
-        final setExercises =
-            setKeys.map((key) => widget.dObj['exercises'][key]).toList();
-        final Map<dynamic, dynamic> setMap = {};
-        for (int j = 0; j < setKeys.length; j++) {
-          setMap[setKeys[j]] = setExercises[j];
+      // Verify that "no_of_ex_per_set" is a valid integer
+      if (noOfExPerSet != null && noOfExPerSet > 0) {
+        // Iterate over exercise keys
+        for (int i = 0; i < exerciseKeys.length; i += noOfExPerSet) {
+          // Determine the end index for the current set
+          final endIndex = (i + noOfExPerSet < exerciseKeys.length)
+              ? i + noOfExPerSet
+              : exerciseKeys.length;
+
+          // Get the keys for the current set
+          final setKeys = exerciseKeys.sublist(i, endIndex);
+
+          // Get exercises for the current set
+          final setExercises =
+              setKeys.map((key) => widget.dObj['exercises'][key]).toList();
+
+          // Create a map for the current set
+          final Map<dynamic, dynamic> setMap = {};
+          for (int j = 0; j < setKeys.length; j++) {
+            setMap[setKeys[j]] = setExercises[j];
+          }
+
+          // Add the current set to exerciseSets
+          exerciseSets.add(setMap);
         }
-        exerciseSets.add(setMap);
+      } else {
+        // Handle the case where "no_of_ex_per_set" is not a valid positive integer
+        print('Error: "no_of_ex_per_set" is not a valid positive integer.');
       }
+
+      // Set isLoading to false after processing
       isLoading = false;
     });
   }
 
-  List latestArr = [
-    {
-      "image": "assets/img/Workout1.png",
-      "title": "Fullbody Workout",
-      "time": "Today, 03:00pm"
-    },
-    {
-      "image": "assets/img/Workout2.png",
-      "title": "Upperbody Workout",
-      "time": "June 05, 02:00pm"
-    },
-  ];
+  List latestArr = [];
 
   List youArr = [
     {"image": "assets/img/bottle.png", "title": "Bottle 1 Liters"},
   ];
-
-  Future<void> submitWorkoutDone() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      await WorkoutRecommendationService(authProvider).logWorkout(
-          workoutId: widget.dObj['id'],
-          caloriesBurned: totalCaloriesBurned,
-          workoutName: widget.dObj['name'],
-          startAt: startedAt,
-          endAt: endedAt,
-          completionStatus: completionStatus,
-          type: widget.dObj['user_id'] == null ? null : 'customized');
-      if (widget.done != null) {
-        widget.done!();
-        await WorkoutRecommendationService(authProvider).logWorkout(
-            workoutId: widget.dObj['id'],
-            caloriesBurned: totalCaloriesBurned,
-            workoutName: widget.dObj['name'],
-            startAt: startedAt,
-            endAt: endedAt,
-            completionStatus: completionStatus,
-            type: widget.dObj['user_id'] == null ? null : 'customized');
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => WorkoutDetailView(
-            dObj: widget.dObj,
-          ),
-        ),
-      );
-    } catch (e) {
-      print("Error: $e");
-      // Handle errors, show a message to the user if needed
-    }
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -231,8 +189,8 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                       expandedHeight: media.width * 0.5,
                       flexibleSpace: Align(
                         alignment: Alignment.center,
-                        child: Image.asset(
-                          "assets/img/detail_top.png",
+                        child: Image.network(
+                          '${dotenv.env['BASE_URL']}/storage/uploads/workout/${widget.dObj['image']}',
                           width: media.width * 0.75,
                           height: media.width * 0.8,
                           fit: BoxFit.contain,
@@ -450,9 +408,16 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                               RoundButton(
                                   title: "Start Workout",
                                   onPressed: () {
-                                    _currentExerciseIndex = 0;
-                                    _currentExerciseIndexInSet = 0;
-                                    _startWorkout(media, 5);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            PerformWorkoutView(
+                                          set: exerciseSets,
+                                          dObj: widget.dObj,
+                                        ), // Replace PerformWorkoutView with your actual page
+                                      ),
+                                    );
                                   })
                             ],
                           ),
@@ -464,265 +429,5 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
               ),
             ),
           );
-  }
-
-  Future<void> _displayExercise(media) async {
-    var currentSet = {};
-    // Get the current set
-    if (exerciseSets != []) {
-      currentSet = exerciseSets[_currentExerciseIndex];
-    } else {
-      print(exerciseSets);
-    }
-
-    if (currentSet != {}) {
-      // Get the current exercise in the set
-      var currentExercise =
-          currentSet.values.elementAt(_currentExerciseIndexInSet);
-      // var language = 'en-US';
-      // var isLanguageAvailable = await flutterTts.isLanguageAvailable(language);
-      // if (isLanguageAvailable) {
-      //   await flutterTts.setLanguage(language);
-      //   await flutterTts.speak(currentExercise["name"]);
-      // } else {
-      //   print('Language $language is not available on this device.');
-      // }
-      noOfDialogs += 1;
-      startedAt = DateTime.now().toIso8601String();
-      // Show the exercise image fullscreen
-      showDialog(
-        context: context,
-        barrierDismissible:
-            false, // Prevents dismissing the dialog on tap outside
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Stack(
-              children: [
-                Image.network(
-                  'http://10.0.2.2:8000/uploads/exercise/${currentExercise['image']}',
-                  height: media.height * 1,
-                  width: media.width,
-                  fit: BoxFit.contain,
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          popContextMultipleTimes(context);
-                          endedAt = DateTime.now().toIso8601String();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(
-                                'Workout cancelled!',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          );
-                          submitWorkoutDone();
-                          return;
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-
-      // Increment the exercise index for the next iteration
-      _currentExerciseIndexInSet++;
-
-      // Check if the current set is finished
-      if (_currentExerciseIndexInSet >= currentSet.length) {
-        // Wait for 30 seconds before moving to the next set
-        Future.delayed(Duration(seconds: exerciseDuration), () {
-          double calories = currentExercise["metabolic_equivalent"] *
-              user.profile.weight /
-              60;
-          totalCaloriesBurned += calories;
-          showCountdownDialog(media, gapBetweenSets, 'REST AND START NEW SET');
-
-          Future.delayed(Duration(seconds: gapBetweenSets), () {
-            _nextSet(media);
-          });
-        });
-      } else {
-        // Wait for 45 seconds before displaying the next exercise in the same set
-        Future.delayed(Duration(seconds: exerciseDuration), () async {
-          double calories = currentExercise["metabolic_equivalent"] *
-              user.profile.weight /
-              60;
-          totalCaloriesBurned += calories;
-          // if (isLanguageAvailable) {
-          //   var currentExercise =
-          //       currentSet.values.elementAt(_currentExerciseIndexInSet);
-          //   await flutterTts.setLanguage(language);
-          //   await flutterTts.speak(currentExercise["name"]);
-          // } else {
-          //   print('Language $language is not available on this device.');
-          // }
-
-          showCountdownDialog(media, gapBetweenExercises,
-              'REST AND BE READY FOR NEXT EXERCISE');
-          Future.delayed(Duration(seconds: gapBetweenExercises), () {
-            _displayExercise(media);
-          });
-        });
-      }
-    }
-  }
-
-  void popContextMultipleTimes(BuildContext context) {
-    continueCountdown = false;
-
-    for (int i = 0; i < noOfDialogs; i++) {
-      Navigator.pop(context);
-    }
-  }
-
-  void showCountdownDialog(Size media, int seconds, String txt) {
-    if (seconds > 0 && continueCountdown) {
-      noOfDialogs += 1;
-
-      showDialog(
-        context: context,
-        barrierDismissible:
-            false, // Prevents dismissing the dialog on tap outside
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Stack(
-              children: [
-                SizedBox(
-                  height: media.height * 1,
-                  width: media.width,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "$txt | ${(_currentExerciseIndex + 1).toString()} Set",
-                          style: const TextStyle(fontSize: 30),
-                        ),
-                        const SizedBox(height: 10), // Add spacing
-                        Text(
-                          "$seconds remaining", // Countdown timer
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-
-      // Decrement seconds and schedule the next dialog
-      Future.delayed(const Duration(seconds: 1), () {
-        if (continueCountdown) {
-          seconds -= 1;
-
-          showCountdownDialog(media, seconds, txt); // Recursive call
-        }
-      });
-    }
-  }
-
-  void _startWorkout(Size media, int seconds) {
-    if (seconds > 0 && continueCountdown) {
-      noOfDialogs += 1;
-
-      showDialog(
-        context: context,
-        barrierDismissible:
-            false, // Prevents dismissing the dialog on tap outside
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Stack(
-              children: [
-                SizedBox(
-                  height: media.height * 1,
-                  width: media.width,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "BE READY FOR WORKOUT | ${(_currentExerciseIndex + 1).toString()} Set",
-                          style: const TextStyle(fontSize: 30),
-                        ),
-                        const SizedBox(height: 10), // Add spacing
-                        Text(
-                          "$seconds remaining", // Countdown timer
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-
-      // Decrement seconds and schedule the next dialog
-      Future.delayed(const Duration(seconds: 1), () {
-        if (continueCountdown) {
-          setState(() {
-            seconds -= 1;
-          });
-
-          _startWorkout(media, seconds); // Recursive call
-        }
-      });
-    } else {
-      _displayExercise(media);
-    }
-  }
-
-  void _nextSet(media) {
-    // Increment the set index for the next iteration
-    _currentExerciseIndex++;
-
-    // Check if all sets have been displayed
-    if (_currentExerciseIndex >= exerciseSets.length) {
-      // Workout finished
-      popContextMultipleTimes(context);
-      endedAt = DateTime.now().toIso8601String();
-      completionStatus = 1;
-      var route =
-          MaterialPageRoute(builder: (context) => const FinishedWorkoutView());
-
-      // Navigate to the login view page
-      Navigator.push(context, route);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: TColor.secondaryColor1,
-          content: const Text(
-            'Congratulations! You successfully completed workout.',
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-      submitWorkoutDone();
-
-      return;
-    } else {
-      // Reset the exercise index in the set
-      _currentExerciseIndexInSet = 0;
-
-      // Display the next set
-      _displayExercise(media);
-    }
   }
 }

@@ -1,4 +1,8 @@
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/customize_workout_service.dart';
+import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_detail_view.dart';
+import 'package:provider/provider.dart';
 
 import '../common/color_extension.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +11,6 @@ import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart
 class WorkoutRow extends StatelessWidget {
   final Map wObj;
   const WorkoutRow({super.key, required this.wObj});
-  // Iterate over each exercise and accumulate total calories burned
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,7 @@ class WorkoutRow extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(30),
               child: Image.network(
-                'http://10.0.2.2:8000/uploads/workout/${wObj['workout']['image']}',
+                'http://10.0.2.2:8000/storage/uploads/workout/${wObj['workout']['image']}',
                 width: 60,
                 height: 60,
                 fit: BoxFit.cover,
@@ -57,8 +60,7 @@ class WorkoutRow extends StatelessWidget {
                   backgroundColor: Colors.grey.shade100,
                   foregrondColor: Colors.purple,
                   ratio: wObj["calories_burned"] /
-                          wObj['workout']['total_calories_burned'] as double? ??
-                      0.0,
+                      wObj['workout']['total_calories_burned'] as double,
                   direction: Axis.horizontal,
                   curve: Curves.fastLinearToSlowEaseIn,
                   duration: const Duration(seconds: 3),
@@ -71,12 +73,22 @@ class WorkoutRow extends StatelessWidget {
               ],
             )),
             IconButton(
-                onPressed: () {
+                onPressed: () async {
+                  AuthProvider authProvider =
+                      Provider.of<AuthProvider>(context, listen: false);
+                  var result = {};
+                  if (wObj['workout']['user_id'] != null) {
+                    result = await CustomizeWorkoutService(authProvider)
+                        .getWorkoutDetails(id: wObj['workout']['id']);
+                  } else {
+                    result = await WorkoutRecommendationService(authProvider)
+                        .getWorkoutDetails(id: wObj['workout']['id']);
+                  }
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => WorkoutDetailView(
-                                dObj: wObj['workout'],
+                                dObj: result,
                               )));
                 },
                 icon: Image.asset(

@@ -1,8 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/account/progress_service.dart';
-import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
+import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
+import 'package:fyp_flutter/services/dietician/shared_progress_service.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart';
 
@@ -10,16 +10,18 @@ import '../../../common/color_extension.dart';
 import '../../../common/common.dart';
 import '../../../common_widget/round_button.dart';
 
-class ResultView extends StatefulWidget {
+class SharedResultView extends StatefulWidget {
   final DateTime date1;
   final DateTime date2;
-  const ResultView({super.key, required this.date1, required this.date2});
+  final String id;
+  const SharedResultView(
+      {super.key, required this.date1, required this.date2, required this.id});
 
   @override
-  State<ResultView> createState() => _ResultViewState();
+  State<SharedResultView> createState() => _SharedResultViewState();
 }
 
-class _ResultViewState extends State<ResultView> {
+class _SharedResultViewState extends State<SharedResultView> {
   int selectButton = 0;
 
   List imaArr = [];
@@ -38,13 +40,13 @@ class _ResultViewState extends State<ResultView> {
       "month_2_per": "12%",
     },
   ];
-  late AuthProvider authProvider;
+  late DieticianAuthProvider authProvider;
   bool isLoading = false;
   List<dynamic> lineChartData = [];
   @override
   void initState() {
     super.initState();
-    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
     loadDetails();
   }
 
@@ -52,14 +54,16 @@ class _ResultViewState extends State<ResultView> {
     setState(() {
       isLoading = true;
     });
-    var result = await ProgressService(authProvider).getResult(
+    var result = await SharedProgressService(authProvider).getResult(
         month1: widget.date1.toIso8601String(),
-        month2: widget.date2.toIso8601String());
-    var result2 = await ProgressService(authProvider).getStat(
+        month2: widget.date2.toIso8601String(),
+        id: widget.id);
+    var result2 = await SharedProgressService(authProvider).getStat(
         month1: widget.date1.toIso8601String(),
-        month2: widget.date2.toIso8601String());
-    var result3 = await ProgressService(authProvider)
-        .getChartData(year: widget.date2.year.toString());
+        month2: widget.date2.toIso8601String(),
+        id: widget.id);
+    var result3 = await SharedProgressService(authProvider)
+        .getChartData(year: widget.date2.year.toString(), id: widget.id);
     setState(() {
       imaArr = result;
       statArr = result2;
@@ -72,7 +76,7 @@ class _ResultViewState extends State<ResultView> {
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context).size;
 
-    return AuthenticatedLayout(
+    return AuthenticatedDieticianLayout(
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: TColor.white,

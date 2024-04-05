@@ -20,6 +20,13 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
+  Future<dynamic> getWorkoutDetails({required String id}) async {
+    var url = 'account/workout-details/$id';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
   Future<dynamic> getWorkoutExercises({required String id}) async {
     var url = 'account/workout-exercises/$id';
 
@@ -27,8 +34,12 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
-  Future<dynamic> getWorkoutLineChartDetails({required String type}) async {
-    var url = 'account/get-workout-linechart-details/$type';
+  Future<dynamic> getWorkoutLineChartDetails(
+      {required String type,
+      required String year,
+      required String month}) async {
+    var url =
+        'account/get-workout-linechart-details/$type?year=$year&month=$month';
 
     String token = authProvider.user.token;
     return await api.httpGet(url, token: token);
@@ -69,8 +80,8 @@ class WorkoutRecommendationService extends BaseApi {
     return await api.httpDelete(url, body: body, token: token);
   }
 
-  Future<dynamic> getWorkoutLogs() async {
-    String now = DateTime.now().toIso8601String();
+  Future<dynamic> getWorkoutLogs({String? now}) async {
+    now ??= DateTime.now().toIso8601String();
     var url = 'account/get-workout-logs/$now';
     String token = authProvider.user.token;
 

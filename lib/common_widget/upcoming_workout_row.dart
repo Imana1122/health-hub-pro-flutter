@@ -31,7 +31,7 @@ class _UpcomingWorkoutRowState extends State<UpcomingWorkoutRow> {
             ClipRRect(
               borderRadius: BorderRadius.circular(30),
               child: Image.network(
-                'http://10.0.2.2:8000/uploads/workout/${widget.wObj['workout']['image']}',
+                'http://10.0.2.2:8000/storage/uploads/workout/${widget.wObj['workout']['image']}',
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,

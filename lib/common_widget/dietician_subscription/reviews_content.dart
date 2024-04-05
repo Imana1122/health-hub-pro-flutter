@@ -7,9 +7,9 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
 class ReviewsContent extends StatefulWidget {
-  final Map product;
-
-  const ReviewsContent({super.key, required this.product});
+  final String id;
+  final String avgRating;
+  const ReviewsContent({super.key, required this.id, required this.avgRating});
 
   @override
   State<ReviewsContent> createState() => _ReviewsContentState();
@@ -18,6 +18,29 @@ class ReviewsContent extends StatefulWidget {
 class _ReviewsContentState extends State<ReviewsContent> {
   final TextEditingController _commentController = TextEditingController();
   double _rating = 0;
+  List ratings = [];
+
+  late AuthProvider authProvider;
+  bool isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    loadRatings();
+  }
+
+  void loadRatings() async {
+    setState(() {
+      isLoading = true;
+    });
+    var result =
+        await DieticianBookingService(authProvider).getRatings(id: widget.id);
+    setState(() {
+      ratings = result['data'];
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +53,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
 
       // Call the saveRating method on the instance
       if (await frontService.saveRating(
-          id: widget.product['id'],
+          id: widget.id,
           body: body,
           token: authProvider.getAuthenticatedToken())) {
         Navigator.push(
@@ -127,7 +150,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
                         ),
                         const SizedBox(height: 8),
                         StarRating(
-                          rating: double.parse(widget.product['avgRating']),
+                          rating: double.parse(widget.avgRating),
                         ),
                       ],
                     ),
@@ -136,12 +159,12 @@ class _ReviewsContentState extends State<ReviewsContent> {
                 const SizedBox(
                   height: 10,
                 ),
-                widget.product.isNotEmpty
+                ratings.isNotEmpty
                     ? ListView.builder(
                         shrinkWrap: true,
-                        itemCount: widget.product['ratings'].length,
+                        itemCount: ratings.length,
                         itemBuilder: (context, index) {
-                          var review = widget.product['ratings'][index];
+                          var review = ratings[index];
                           return Padding(
                               padding: const EdgeInsets.all(10),
                               child: Column(

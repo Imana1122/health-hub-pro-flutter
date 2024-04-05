@@ -1,4 +1,8 @@
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/customize_workout_service.dart';
+import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_detail_view.dart';
+import 'package:provider/provider.dart';
 
 import './round_button.dart';
 import 'package:flutter/material.dart';
@@ -61,12 +65,26 @@ class WhatTrainRow extends StatelessWidget {
                           type: RoundButtonType.textGradient,
                           elevation: 0.05,
                           fontWeight: FontWeight.w400,
-                          onPressed: () {
+                          onPressed: () async {
+                            AuthProvider authProvider =
+                                Provider.of<AuthProvider>(context,
+                                    listen: false);
+                            var result = {};
+                            if (wObj['user_id'] != null) {
+                              result =
+                                  await CustomizeWorkoutService(authProvider)
+                                      .getWorkoutDetails(id: wObj['id']);
+                            } else {
+                              result = await WorkoutRecommendationService(
+                                      authProvider)
+                                  .getWorkoutDetails(id: wObj['id']);
+                            }
+                            print(result);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => WorkoutDetailView(
-                                          dObj: wObj,
+                                          dObj: result,
                                         )));
                           }),
                     )
@@ -90,7 +108,7 @@ class WhatTrainRow extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(30),
                     child: Image.network(
-                      'http://10.0.2.2:8000/uploads/workout/${wObj['image']}',
+                      'http://10.0.2.2:8000/storage/uploads/workout/${wObj['image']}',
                       width: 90,
                       height: 90,
                       fit: BoxFit.contain,

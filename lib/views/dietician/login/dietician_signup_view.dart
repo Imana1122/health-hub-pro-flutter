@@ -6,11 +6,10 @@ import 'package:fyp_flutter/common_widget/round_textfield.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/dietician/login/dietician_login_view.dart';
 import 'package:flutter/material.dart';
-import 'package:fyp_flutter/views/widget/pdf_view.dart';
+import 'package:fyp_flutter/views/widget/pdf_view_from_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_summernote/flutter_summernote.dart';
 
 class DieticianSignUpView extends StatefulWidget {
   const DieticianSignUpView({super.key});
@@ -327,8 +326,9 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => PDFViewerScreen(
-                                              filePath: cvFile!.path),
+                                          builder: (context) =>
+                                              PDFViewFromStoragePage(
+                                                  title: cvFile!.path),
                                         ),
                                       );
                                     },
@@ -389,7 +389,6 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                         controller: specialityController,
                         maxLines: 6,
                         icon: const Icon(Icons.folder_special),
-                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(
                         height: media.width * 0.04,
@@ -399,7 +398,6 @@ class _DieticianSignUpViewState extends State<DieticianSignUpView> {
                         controller: descriptionController,
                         maxLines: 6,
                         icon: const Icon(Icons.description),
-                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(
                         height: media.width * 0.04,

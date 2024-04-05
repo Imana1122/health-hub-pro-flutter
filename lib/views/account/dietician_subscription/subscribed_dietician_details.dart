@@ -2,11 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/dietician_subscription/reviews_content.dart';
 import 'package:fyp_flutter/common_widget/dietician_subscription/star_rating.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/dietician_booking_service.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
+import 'package:provider/provider.dart';
 
-class SubscribedDieticianDetails extends StatelessWidget {
+class SubscribedDieticianDetails extends StatefulWidget {
   final Map dietician;
   const SubscribedDieticianDetails({super.key, required this.dietician});
+
+  @override
+  State<SubscribedDieticianDetails> createState() =>
+      _SubscribedDieticianDetailsState();
+}
+
+class _SubscribedDieticianDetailsState
+    extends State<SubscribedDieticianDetails> {
+  String avgRating = '0';
+  late AuthProvider authProvider;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    loadAvgRating();
+  }
+
+  loadAvgRating() async {
+    setState(() {
+      isLoading = true;
+    });
+    var result = await DieticianBookingService(authProvider)
+        .getAvgRating(id: widget.dietician['id']);
+    setState(() {
+      avgRating = result;
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +108,7 @@ class SubscribedDieticianDetails extends StatelessWidget {
                           ),
                           child: ClipOval(
                             child: Image.network(
-                              'http://10.0.2.2:8000/uploads/dietician/profile/${dietician['image']}',
+                              'http://10.0.2.2:8000/storage/uploads/dietician/profile/${widget.dietician['image']}',
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -128,7 +162,7 @@ class SubscribedDieticianDetails extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "${dietician["first_name"]} ${dietician['last_name']}",
+                                      "${widget.dietician["first_name"]} ${widget.dietician['last_name']}",
                                       style: TextStyle(
                                           color: TColor.black,
                                           fontSize: 16,
@@ -149,7 +183,7 @@ class SubscribedDieticianDetails extends StatelessWidget {
                             children: [
                               const SizedBox(height: 14),
                               StarRating(
-                                rating: double.parse(dietician['avgRating']),
+                                rating: double.parse(avgRating),
                               ),
                               const SizedBox(height: 10),
                               SizedBox(
@@ -182,7 +216,7 @@ class SubscribedDieticianDetails extends StatelessWidget {
                                             padding: const EdgeInsets.only(
                                                 bottom: 4.0),
                                             child: Text(
-                                              'NRs ${dietician['booking_amount']}',
+                                              'NRs ${widget.dietician['booking_amount']}',
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 color: Colors.black,
@@ -214,7 +248,39 @@ class SubscribedDieticianDetails extends StatelessWidget {
                                             padding: const EdgeInsets.only(
                                                 bottom: 4.0),
                                             child: Text(
-                                              dietician['bio'],
+                                              widget.dietician['bio'],
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        TableCell(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4.0),
+                                            child: Text(
+                                              'Phone Number:',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          verticalAlignment:
+                                              TableCellVerticalAlignment.middle,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4.0),
+                                            child: Text(
+                                              '${widget.dietician['phone_number']}',
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 color: Colors.black,
@@ -250,7 +316,7 @@ class SubscribedDieticianDetails extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.all(16.0),
                                             child: Text(
-                                              "${dietician['description']}",
+                                              "${widget.dietician['description']}",
                                               style:
                                                   const TextStyle(fontSize: 11),
                                             ),
@@ -258,12 +324,15 @@ class SubscribedDieticianDetails extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.all(16.0),
                                             child: Text(
-                                              "${dietician['speciality']}",
+                                              "${widget.dietician['speciality']}",
                                               style:
                                                   const TextStyle(fontSize: 11),
                                             ),
                                           ),
-                                          ReviewsContent(product: dietician)
+                                          ReviewsContent(
+                                            id: widget.dietician['id'],
+                                            avgRating: avgRating,
+                                          )
                                         ],
                                       ),
                                     ),

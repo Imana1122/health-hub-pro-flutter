@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'round_button.dart';
 import '../common/color_extension.dart';
@@ -42,7 +43,7 @@ class FindEatCell extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Image.network(
-                'http://10.0.2.2:8000/uploads/mealType/thumb/${mealType.image}',
+                '${dotenv.env['BASE_URL']}/storage/uploads/mealType/thumb/${mealType.image}',
                 width: media.width * 0.2,
                 height: media.width * 0.15,
                 fit: BoxFit.contain,

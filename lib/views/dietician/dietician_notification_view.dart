@@ -28,7 +28,6 @@ class _DieticianNotificationViewState extends State<DieticianNotificationView> {
     authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
     notiProvider =
         Provider.of<DieticianNotificationProvider>(context, listen: false);
-    print(notiProvider.notifications);
 
     notificationArr = notiProvider.notifications;
     readNotifications();
@@ -41,7 +40,8 @@ class _DieticianNotificationViewState extends State<DieticianNotificationView> {
   }
 
   void _scrollListener() {
-    if (_scrollController.offset <= 0.0) {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
       loadMore();
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/setting_row.dart';
@@ -6,9 +7,8 @@ import 'package:fyp_flutter/common_widget/title_subtitle_cell.dart';
 import 'package:fyp_flutter/models/dietician.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
+import 'package:fyp_flutter/views/dietician/profile/update_profile_image.dart';
 import 'package:provider/provider.dart';
-
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
 class DieticianProfileView extends StatefulWidget {
   const DieticianProfileView({super.key});
@@ -113,7 +113,26 @@ class _DieticianProfileViewState extends State<DieticianProfileView> {
               backgroundColor: TColor.white,
               centerTitle: true,
               elevation: 0,
-              leadingWidth: 0,
+              leading: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  height: 40,
+                  width: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: TColor.lightGray,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Image.asset(
+                    "assets/img/black_btn.png",
+                    width: 15,
+                    height: 15,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
               title: Text(
                 "Profile",
                 style: TextStyle(
@@ -152,15 +171,26 @@ class _DieticianProfileViewState extends State<DieticianProfileView> {
                   children: [
                     Row(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: Image.network(
-                            authenticatedUser.image != ''
-                                ? 'http://10.0.2.2:8000/uploads/dietician/profile/${authenticatedUser.image}'
-                                : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const UpdateProfileImage(),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: Image.network(
+                              authenticatedUser.image != ''
+                                  ? '${dotenv.env['BASE_URL']}/storage/uploads/dietician/profile/${authenticatedUser.image}'
+                                  : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         const SizedBox(

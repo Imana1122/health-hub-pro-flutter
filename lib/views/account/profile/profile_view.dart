@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
+import 'package:fyp_flutter/views/account/profile/update_user_profile_image.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -162,34 +164,38 @@ class _ProfileViewState extends State<ProfileView> {
                 backgroundColor: TColor.white,
                 centerTitle: true,
                 elevation: 0,
-                leadingWidth: 0,
-                title: Text(
-                  "Profile",
-                  style: TextStyle(
-                      color: TColor.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700),
-                ),
-                actions: [
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      margin: const EdgeInsets.all(8),
-                      height: 40,
-                      width: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: TColor.lightGray,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Image.asset(
-                        "assets/img/more_btn.png",
-                        width: 15,
-                        height: 15,
-                        fit: BoxFit.contain,
-                      ),
+                leading: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    height: 40,
+                    width: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: TColor.lightGray,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Image.asset(
+                      "assets/img/black_btn.png",
+                      width: 15,
+                      height: 15,
+                      fit: BoxFit.contain,
                     ),
-                  )
-                ],
+                  ),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Profile",
+                      style: TextStyle(
+                          color: TColor.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
               ),
               backgroundColor: TColor.white,
               body: SingleChildScrollView(
@@ -201,13 +207,26 @@ class _ProfileViewState extends State<ProfileView> {
                     children: [
                       Row(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: Image.asset(
-                              "assets/img/u2.png",
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const UpdateUserProfileImage(),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Image.network(
+                                authenticatedUser.image != ''
+                                    ? '${dotenv.env['BASE_URL']}/storage/uploads/users/${authenticatedUser.image}'
+                                    : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                           const SizedBox(

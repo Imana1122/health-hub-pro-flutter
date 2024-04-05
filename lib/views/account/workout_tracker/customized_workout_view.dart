@@ -222,13 +222,18 @@ class _CustomizedWorkoutViewState extends State<CustomizedWorkoutView> {
                               itemBuilder: (context, index) {
                                 var wObj = whatArr[index] as Map? ?? {};
                                 return InkWell(
-                                    onTap: () {
+                                    onTap: () async {
+                                      var result =
+                                          await CustomizeWorkoutService(
+                                                  authProvider)
+                                              .getWorkoutDetails(
+                                                  id: wObj['id']);
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   WorkoutDetailView(
-                                                    dObj: wObj,
+                                                    dObj: result,
                                                   )));
                                     },
                                     child: WhatTrainRow(wObj: wObj));

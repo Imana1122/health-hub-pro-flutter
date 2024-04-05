@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/account/progress_service.dart';
+import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
+import 'package:fyp_flutter/services/dietician/shared_progress_service.dart';
 import 'package:fyp_flutter/views/account/photo_progress/add_progress_view.dart';
-import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/color_extension.dart';
 import '../../../common_widget/round_button.dart';
-import 'comparison_view.dart';
+import 'shared_comparison_view.dart';
 
-class PhotoProgressView extends StatefulWidget {
-  const PhotoProgressView({super.key});
+class SharedPhotoProgressView extends StatefulWidget {
+  final String id;
+  const SharedPhotoProgressView({super.key, required this.id});
 
   @override
-  State<PhotoProgressView> createState() => _PhotoProgressViewState();
+  State<SharedPhotoProgressView> createState() =>
+      _SharedPhotoProgressViewState();
 }
 
-class _PhotoProgressViewState extends State<PhotoProgressView> {
+class _SharedPhotoProgressViewState extends State<SharedPhotoProgressView> {
   List photoArr = [];
   bool isLoading = false;
-  late AuthProvider authProvider;
+  late DieticianAuthProvider authProvider;
   int currentPage = 1;
   @override
   void initState() {
     super.initState();
-    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
     loadDetails();
   }
 
@@ -34,8 +36,8 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
     setState(() {
       isLoading = true;
     });
-    var result = await ProgressService(authProvider)
-        .getProgress(currentPage: currentPage);
+    var result = await SharedProgressService(authProvider)
+        .getProgress(currentPage: currentPage, id: widget.id);
     setState(() {
       photoArr = result['data'];
       currentPage = result['current_page'];
@@ -63,7 +65,7 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
               ),
             ),
           )
-        : AuthenticatedLayout(
+        : AuthenticatedDieticianLayout(
             child: Scaffold(
               appBar: AppBar(
                 backgroundColor: TColor.white,
@@ -125,108 +127,6 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Container(
-                            width: double.maxFinite,
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                                color: const Color(0xffFFE5E5),
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: TColor.white,
-                                      borderRadius: BorderRadius.circular(30)),
-                                  width: 50,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  child: Image.asset(
-                                    "assets/img/date_notifi.png",
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Expanded(
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "Reminder!",
-                                          style: TextStyle(
-                                              color: Colors.red,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Text(
-                                          "Next Photos Fall On July 08",
-                                          style: TextStyle(
-                                              color: TColor.black,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                      ]),
-                                ),
-                                Container(
-                                    height: 60,
-                                    alignment: Alignment.topRight,
-                                    child: IconButton(
-                                        onPressed: () {},
-                                        icon: Icon(
-                                          Icons.close,
-                                          color: TColor.gray,
-                                          size: 15,
-                                        )))
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Container(
-                            width: double.maxFinite,
-                            padding: const EdgeInsets.all(20),
-                            height: media.width * 0.4,
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: [
-                                  TColor.primaryColor2.withOpacity(0.4),
-                                  TColor.primaryColor1.withOpacity(0.4)
-                                ]),
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        height: 15,
-                                      ),
-                                      Text(
-                                        "Track Your Progress Each\nMonth With Photo",
-                                        style: TextStyle(
-                                          color: TColor.black,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                    ]),
-                                Image.asset(
-                                  "assets/img/progress_each_photo.png",
-                                  width: media.width * 0.35,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
                         SizedBox(
                           height: media.width * 0.05,
                         ),
@@ -242,7 +142,7 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Compare my Photo",
+                                "Compare Photo",
                                 style: TextStyle(
                                     color: TColor.black,
                                     fontSize: 14,
@@ -261,7 +161,7 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const ComparisonView(),
+                                            SharedComparisonView(id: widget.id),
                                       ),
                                     );
                                   },
@@ -351,35 +251,6 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                       height: media.width * 0.05,
                     ),
                   ],
-                ),
-              ),
-              floatingActionButton: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProgressForm(),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 55,
-                  height: 55,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: TColor.secondaryG),
-                      borderRadius: BorderRadius.circular(27.5),
-                      boxShadow: const [
-                        BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                            offset: Offset(0, 2))
-                      ]),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.photo_camera,
-                    size: 20,
-                    color: TColor.white,
-                  ),
                 ),
               ),
             ),

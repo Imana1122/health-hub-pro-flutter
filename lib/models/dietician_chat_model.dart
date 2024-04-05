@@ -20,7 +20,6 @@ class DieticianChatModel {
   final String createdAt;
   final String updatedAt;
   final String otherUserId;
-
   final List<ChatMessage> messages;
   int currentMessagePage;
 
@@ -97,5 +96,27 @@ class DieticianChatModel {
       currentMessagePage: json['messages']['current_page'],
       messages: messageList,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'phone_number': phoneNumber,
+      'image': image,
+      'cv': cv,
+      'speciality': speciality,
+      'bio': bio,
+      'description': description,
+      'esewa_id': esewaId,
+      'booking_amount': bookingAmount,
+      'status': status,
+      'approved_status': approvedStatus,
+      'availability_status': availabilityStatus,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+    };
   }
 }

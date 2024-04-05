@@ -51,7 +51,7 @@ class MealCategoryCell extends StatelessWidget {
                   borderRadius: BorderRadius.circular(17.5),
                 ),
                 child: Image.network(
-                  'http://10.0.2.2:8000/uploads/recipeCategory/thumb/${cObj.image}',
+                  'http://10.0.2.2:8000/storage/uploads/recipeCategory/thumb/${cObj.image}',
                   width: 35,
                   height: 35,
                   fit: BoxFit.contain,

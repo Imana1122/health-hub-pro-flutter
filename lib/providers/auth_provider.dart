@@ -56,6 +56,7 @@ class AuthProvider with ChangeNotifier {
     required String password,
   }) async {
     try {
+      print(phoneNumber);
       User user = await AuthService().login(
         phoneNumber: phoneNumber,
         password: password,

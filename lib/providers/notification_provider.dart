@@ -4,6 +4,8 @@ import 'package:fyp_flutter/services/account/notification_service.dart';
 
 class NotificationProvider extends BaseProvider {
   final NotificationService _notificationService = NotificationService();
+  int currentPage = 1;
+  int lastPage = 1;
   List<NotificationModel> _notifications = [];
   List<NotificationModel> get notifications => _notifications;
 
@@ -15,6 +17,8 @@ class NotificationProvider extends BaseProvider {
     List<NotificationModel> notifications = List<NotificationModel>.from(
         data['data']
             .map((notification) => NotificationModel.fromJson(notification)));
+    currentPage = data['current_page'];
+    lastPage = data['last_page'];
 
     _notifications = notifications;
 
@@ -24,24 +28,26 @@ class NotificationProvider extends BaseProvider {
     return _notifications;
   }
 
-  Future<void> loadMoreNotifications(
-      {required String token, required int page}) async {
-    setBusy(true);
+  Future<void> loadMoreNotifications({required String token}) async {
+    if (currentPage < lastPage) {
+      setBusy(true);
 
-    var loadedMessages = await _notificationService.loadMoreNotifications(
-      page: page,
-      token: token,
-    );
+      var loadedMessages = await _notificationService.loadMoreNotifications(
+        page: currentPage + 1,
+        token: token,
+      );
 
-    List<dynamic> dynamicList = loadedMessages['data'];
-    List<NotificationModel> chatMessagesList = dynamicList.map((data) {
-      return NotificationModel.fromJson(data);
-    }).toList();
-    _notifications.insertAll(0, chatMessagesList);
+      List<dynamic> dynamicList = loadedMessages['data'];
+      List<NotificationModel> chatMessagesList = dynamicList.map((data) {
+        return NotificationModel.fromJson(data);
+      }).toList();
+      _notifications.addAll(chatMessagesList);
+      currentPage = loadedMessages['current_page'];
+      lastPage = loadedMessages['last_page'];
+      notifyListeners();
 
-    notifyListeners();
-
-    setBusy(false);
+      setBusy(false);
+    }
   }
 
   Future<bool> readNotifications({required String token}) async {
@@ -67,7 +73,6 @@ class NotificationProvider extends BaseProvider {
   }
 
   Future<dynamic> saveNotification({required NotificationModel item}) async {
-    print("hello fromnotification");
     setBusy(true);
     _notifications.add(item);
     notifyListeners();

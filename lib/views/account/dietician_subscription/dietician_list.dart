@@ -20,11 +20,54 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
   TextEditingController txtSearch = TextEditingController();
 
   bool isLoading = false;
+  late ScrollController _scrollController;
+  int currentPage = 1;
+  int lastPage = 1;
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     _loadDieticians();
+
+    _scrollController = ScrollController()..addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+    loadMore();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      loadMore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void loadMore() async {
+    setState(() {
+      currentPage++;
+    });
+    if (currentPage <= lastPage) {
+      setState(() {
+        isLoading = true;
+      });
+      var result = await DieticianBookingService(authProvider).getDieticians(
+        currentPage: currentPage,
+        keyword: txtSearch.text.trim(),
+      );
+      setState(() {
+        dieticians.addAll(result['data']);
+        currentPage = result['current_page'];
+        lastPage = result['last_page'];
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _bookDietician(String dieticianId) async {
@@ -32,12 +75,9 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
       isLoading = true;
     });
     try {
-      print("dietician :  $dieticianId");
-      var result = await DieticianBookingService(authProvider)
+      await DieticianBookingService(authProvider)
           .bookDietician(dieticianId: dieticianId, context: context);
     } catch (e) {
-      // Handle any errors that occur during booking
-      // For example, show a toast message with the error
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,
@@ -62,6 +102,8 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
         .getDieticians(keyword: txtSearch.text.trim());
     setState(() {
       dieticians = result['data'];
+      currentPage = result['current_page'];
+      lastPage = result['last_page'];
       isLoading = false;
     });
   }
@@ -184,8 +226,10 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
                             child: Text('No dieticians available'),
                           )
                         : SizedBox(
-                            height: media.height * 1,
+                            height: media.height * 0.2 * dieticians.length,
                             child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              controller: _scrollController,
                               itemCount: dieticians.length,
                               itemBuilder: (context, index) {
                                 final dietician = dieticians[index];
@@ -232,7 +276,7 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
                                               ListTile(
                                                 leading: ClipOval(
                                                   child: Image.network(
-                                                    'http://10.0.2.2:8000/uploads/dietician/profile/${dietician['image']}',
+                                                    'http://10.0.2.2:8000/storage/uploads/dietician/profile/${dietician['image']}',
                                                     width: 48,
                                                     height: 48,
                                                     fit: BoxFit.cover,
@@ -246,7 +290,7 @@ class _WorkoutTrackerViewState extends State<DieticianListView> {
                                                   ),
                                                 ),
                                                 subtitle: Text(
-                                                  dietician['description'],
+                                                  dietician['bio'],
                                                   style: TextStyle(
                                                       color: TColor
                                                           .secondaryColor1,

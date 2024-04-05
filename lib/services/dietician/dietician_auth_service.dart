@@ -67,17 +67,23 @@ class DieticianAuthService {
 
         // Check if registration was successful
         if (data['status'] == true) {
-          Fluttertoast.showToast(
-            msg: "Successfully registered.",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: TColor.secondaryColor1,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-
-          return true;
+          if (data.containsKey('message')) {
+            Fluttertoast.showToast(
+              msg: data['message'],
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: TColor.secondaryColor1,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
+          if (data.containsKey('data')) {
+            print(data['data']);
+            return data['data'];
+          } else {
+            return data['status'];
+          }
         } else {
           if (data.containsKey('error')) {
             Fluttertoast.showToast(
@@ -126,7 +132,7 @@ class DieticianAuthService {
           textColor: Colors.white,
           fontSize: 16.0,
         );
-        throw Exception('Failed to Register');
+        throw Exception(response.body);
       }
     } catch (e) {
       // Handle any errors that occur during the request
@@ -220,7 +226,7 @@ class DieticianAuthService {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      throw Exception('Failed to Login');
+      throw Exception(response.body);
     }
   }
 
@@ -406,4 +412,108 @@ class DieticianAuthService {
       throw Exception(response.body);
     }
   }
+
+  Future<bool> updateProfileImage(
+      {required File image, required String token}) async {
+    var url = '$baseUrl/dietician/update-profile-image';
+
+    // Create headers
+    var headers = {
+      'Content-Type': 'multipart/form-data',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    // Create a multipart request body
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+    request.headers.addAll(headers);
+
+    // Add files to the request
+    request.files.add(await http.MultipartFile.fromPath('image', image.path));
+
+    try {
+      // Send the request
+      var streamedResponse = await request.send();
+      // Read and decode the response
+      var response = await http.Response.fromStream(streamedResponse);
+      // Check the response status code
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+        // Check if registration was successful
+        if (data['status'] == true) {
+          if (data.containsKey('message')) {
+            Fluttertoast.showToast(
+              msg: data['message'],
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: TColor.secondaryColor1,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
+          if (data.containsKey('data')) {
+            print(data['data']);
+            return data['data'];
+          } else {
+            return data['status'];
+          }
+        } else {
+          if (data.containsKey('error')) {
+            Fluttertoast.showToast(
+              msg: data[
+                  'error'], // Concatenate elements with '\n' (newline) separator
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            throw Exception("${data['error']}");
+          } else {
+            Map<String, dynamic> errorMap = data['errors'];
+            List<String> errorMessages = [];
+
+            errorMap.forEach((field, errors) {
+              for (var error in errors) {
+                errorMessages.add('$field: $error');
+              }
+            });
+
+            Fluttertoast.showToast(
+              msg: errorMessages.join(
+                  '\n\n'), // Concatenate elements with '\n' (newline) separator
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            throw Exception("${data['errors']}");
+          }
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: "Failed to connect",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: const Color.fromARGB(255, 231, 105, 96),
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        throw Exception(response.body);
+      }
+    } catch (e) {
+      // Handle any errors that occur during the request
+      print("An error occurred: $e");
+      throw Exception('Failed to Register');
+    }
+  }
+
+
 }

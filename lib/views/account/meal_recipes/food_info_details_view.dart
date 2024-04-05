@@ -207,7 +207,7 @@ class _FoodInfoDetailsViewState extends State<FoodInfoDetailsView> {
                                             widget.dObj['images'].isNotEmpty &&
                                             widget.dObj['images'][0]['image'] !=
                                                 null
-                                        ? 'http://10.0.2.2:8000/uploads/recipes/large/${widget.dObj['images'][0]['image']}'
+                                        ? 'http://10.0.2.2:8000/storage/uploads/recipes/large/${widget.dObj['images'][0]['image']}'
                                         : 'http://10.0.2.2:8000/admin-assets/img/default-150x150.png',
                                     fit: BoxFit.cover,
                                   ),
@@ -453,7 +453,7 @@ class _FoodInfoDetailsViewState extends State<FoodInfoDetailsView> {
                                                                       [index]
                                                                   ['image'] !=
                                                               null
-                                                      ? 'http://10.0.2.2:8000/uploads/ingredient/thumb/${widget.dObj['ingredient'][index]['image']}'
+                                                      ? 'http://10.0.2.2:8000/storage/uploads/ingredient/thumb/${widget.dObj['ingredient'][index]['image']}'
                                                       : 'http://10.0.2.2:8000/admin-assets/img/default-150x150.png',
                                                   width: media.width * 0.3,
                                                   height: media.width * 0.25,

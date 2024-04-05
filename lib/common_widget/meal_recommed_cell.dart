@@ -1,5 +1,8 @@
 import 'package:fyp_flutter/models/meal_type.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/meal_recipes/food_info_details_view.dart';
+import 'package:provider/provider.dart';
 
 import './round_button.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +61,7 @@ class MealRecommendCell extends StatelessWidget {
                         fObj['images'] is List &&
                         (fObj['images'] as List).isNotEmpty &&
                         fObj['images'][0]['image'] != null
-                    ? 'http://10.0.2.2:8000/uploads/recipes/small/${fObj['images'][0]['image']}'
+                    ? 'http://10.0.2.2:8000/storage/uploads/recipes/small/${fObj['images'][0]['image']}'
                     : 'http://10.0.2.2:8000/admin-assets/img/default-150x150.png',
                 fit: BoxFit.cover,
               ),
@@ -95,12 +98,17 @@ class MealRecommendCell extends StatelessWidget {
                       ? RoundButtonType.bgGradient
                       : RoundButtonType.bgSGradient,
                   title: "View",
-                  onPressed: () {
+                  onPressed: () async {
+                    AuthProvider authProvider =
+                        Provider.of<AuthProvider>(context, listen: false);
+
+                    var result = await RecipeRecommendationService(authProvider)
+                        .getRecipeDetails(id: fObj['id']);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => FoodInfoDetailsView(
-                          dObj: fObj,
+                          dObj: result,
                           mObj: eObj,
                         ),
                       ),

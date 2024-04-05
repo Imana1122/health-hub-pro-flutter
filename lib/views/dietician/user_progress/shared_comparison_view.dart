@@ -1,26 +1,27 @@
 import 'package:fyp_flutter/common_widget/icon_title_next_row.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
-import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
-import 'result_view.dart';
+import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
+import 'shared_result_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/color_extension.dart';
 
-class ComparisonView extends StatefulWidget {
-  const ComparisonView({super.key});
+class SharedComparisonView extends StatefulWidget {
+  final String id;
+  const SharedComparisonView({super.key, required this.id});
 
   @override
-  State<ComparisonView> createState() => _ComparisonViewState();
+  State<SharedComparisonView> createState() => _SharedComparisonViewState();
 }
 
-class _ComparisonViewState extends State<ComparisonView> {
+class _SharedComparisonViewState extends State<SharedComparisonView> {
   int? selectedYear1;
   int? selectedMonth1;
   int? selectedYear2;
   int? selectedMonth2;
   @override
   Widget build(BuildContext context) {
-    return AuthenticatedLayout(
+    return AuthenticatedDieticianLayout(
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: TColor.white,
@@ -109,10 +110,10 @@ class _ComparisonViewState extends State<ComparisonView> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ResultView(
-                          date1: DateTime(selectedYear1!, selectedMonth1!, 3),
-                          date2: DateTime(selectedYear2!, selectedMonth2!, 3),
-                        ),
+                        builder: (context) => SharedResultView(
+                            date1: DateTime(selectedYear1!, selectedMonth1!, 3),
+                            date2: DateTime(selectedYear2!, selectedMonth2!, 3),
+                            id: widget.id),
                       ),
                     );
                   }),

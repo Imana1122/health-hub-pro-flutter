@@ -76,7 +76,7 @@ class DieticianDetails extends StatelessWidget {
                           ),
                           child: ClipOval(
                             child: Image.network(
-                              'http://10.0.2.2:8000/uploads/dietician/profile/${dietician['image']}',
+                              'http://10.0.2.2:8000/storage/uploads/dietician/profile/${dietician['image']}',
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -160,6 +160,7 @@ class DieticianDetails extends StatelessWidget {
                                   columnWidths: const {
                                     0: FlexColumnWidth(1),
                                     1: FlexColumnWidth(1),
+                                    2: FlexColumnWidth(1),
                                   },
                                   children: [
                                     TableRow(
@@ -226,6 +227,36 @@ class DieticianDetails extends StatelessWidget {
                                         ),
                                       ],
                                     ),
+                                    TableRow(children: [
+                                      TableCell(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 4.0),
+                                          child: Text(
+                                            'Phone Number:',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      TableCell(
+                                        verticalAlignment:
+                                            TableCellVerticalAlignment.middle,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 4.0),
+                                          child: Text(
+                                            '${dietician['phone_number']}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ])
                                   ],
                                 ),
                               ),

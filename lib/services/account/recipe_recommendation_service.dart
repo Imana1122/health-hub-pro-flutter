@@ -26,6 +26,16 @@ class RecipeRecommendationService extends BaseApi {
     return await api.httpGet(url, token: token);
   }
 
+  Future<dynamic> getRecipeDetails({
+    required String id,
+  }) async {
+    var url = 'account/recipe/$id';
+
+    String token = authProvider.user.token;
+
+    return await api.httpGet(url, token: token);
+  }
+
   Future<List<RecipeCategory>> getRecipeCategories() async {
     var url = 'account/recipe-categories';
     String token = authProvider.user.token;
@@ -61,8 +71,11 @@ class RecipeRecommendationService extends BaseApi {
     return mealTypes;
   }
 
-  Future<dynamic> getMealLineChartDetails({required String type}) async {
-    var url = 'account/get-linechart-details/$type';
+  Future<dynamic> getMealLineChartDetails(
+      {required String type,
+      required String year,
+      required String month}) async {
+    var url = 'account/get-linechart-details/$type?year=$year&month=$month';
 
     String token = authProvider.user.token;
     return await api.httpGet(url, token: token);

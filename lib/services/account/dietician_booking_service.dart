@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/dietician_subscription/payment_details.dart';
+import 'package:fyp_flutter/views/account/dietician_subscription/payment_success_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../base_api.dart';
@@ -39,6 +40,32 @@ class DieticianBookingService extends BaseApi {
   Future<dynamic> getBookedDieticians(
       {int currentPage = 1, String keyword = ''}) async {
     var url = 'account/get-booked-dieticians?page=$currentPage';
+
+    // Append keyword and category parameters if they are not empty
+    if (keyword != '') {
+      url += '&keyword=$keyword';
+    }
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getRatings({int currentPage = 1, required String id}) async {
+    var url = 'account/get-ratings/$id?page=$currentPage';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getAvgRating({required String id}) async {
+    var url = 'account/get-avg-rating/$id';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getPayments(
+      {int currentPage = 1, String keyword = ''}) async {
+    var url = 'account/get-payments?page=$currentPage';
 
     // Append keyword and category parameters if they are not empty
     if (keyword != '') {
@@ -105,7 +132,7 @@ class DieticianBookingService extends BaseApi {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const PaymentDetails()),
+                      builder: (context) => const PaymentSuccessPage()),
                 );
                 return result;
               },

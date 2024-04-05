@@ -15,7 +15,7 @@ class ExercisesRow extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: Image.network(
-              'http://10.0.2.2:8000/uploads/exercise/${eObj['image']}',
+              'http://10.0.2.2:8000/storage/uploads/exercise/${eObj['image']}',
               width: 60,
               height: 60,
               fit: BoxFit.cover,

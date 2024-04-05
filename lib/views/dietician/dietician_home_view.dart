@@ -12,6 +12,7 @@ import 'package:fyp_flutter/providers/dietician_notification_provider.dart';
 import 'package:fyp_flutter/services/dietician/dietician_home_service.dart';
 import 'package:fyp_flutter/views/dietician/dietician_notification_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class DieticianHomeView extends StatefulWidget {
@@ -82,9 +83,8 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
     });
     yearController.text = DateTime.now().year.toString();
     monthController.text = DateTime.now().month.toString();
-    _loadLineChartDetails();
-
     _loadDetails();
+    _loadLineChartDetails();
   }
 
   Future<void> _loadDetails() async {
@@ -118,6 +118,7 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
     });
     var chartData = await DieticianHomeService(authProvider)
         .getHomeDetails(); // Convert type to lowercase
+
     setState(() {
       lineChartData = chartData;
       if (lineChartData.isNotEmpty) {
@@ -429,7 +430,7 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
                                               ),
                                               lineBarsData: lineBarsData1,
                                               minY: 0,
-                                              maxY: 500,
+                                              maxY: 50000,
                                               titlesData: FlTitlesData(
                                                 show: true,
                                                 leftTitles: const AxisTitles(),
@@ -487,22 +488,19 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
                           SizedBox(
                             height: media.width * 0.05,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Payment",
-                                style: TextStyle(
-                                    color: TColor.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700),
+                          Center(
+                            child: Text(
+                              "Payment",
+                              style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
+                            ),
                           ),
                           SizedBox(
                             height: media.width * 0.05,
                           ),
-                          SizedBox(height: media.height * 0.05),
                           RoundTextField(
                             hitText: 'Year',
                             icon: const Icon(Icons.access_time),
@@ -515,14 +513,11 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
                             controller: monthController,
                           ),
                           SizedBox(height: media.height * 0.02),
-                          Container(
-                            alignment: Alignment.bottomRight,
-                            child: SizedBox(
-                              width: 100, // Adjust width as needed
-                              child: RoundButton(
-                                title: 'Get',
-                                onPressed: _loadDetails,
-                              ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: RoundButton(
+                              title: 'Get',
+                              onPressed: _loadDetails,
                             ),
                           ),
                           SizedBox(height: media.height * 0.02),
@@ -546,7 +541,7 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
                                     "Salary",
                                     style: TextStyle(
                                         color: TColor.black,
-                                        fontSize: 12,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w700),
                                   ),
                                   ShaderMask(
@@ -566,17 +561,16 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
                                       style: TextStyle(
                                           color: TColor.white.withOpacity(0.7),
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 14),
+                                          fontSize: 18),
                                     ),
                                   ),
                                 ]),
                           ),
                           SizedBox(height: media.height * 0.02),
                           Container(
-                            alignment: Alignment.centerLeft,
+                            alignment: Alignment.center,
                             width: double.maxFinite,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(25),
@@ -584,31 +578,180 @@ class _DieticianHomeViewState extends State<DieticianHomeView> {
                                   BoxShadow(
                                       color: Colors.black12, blurRadius: 2)
                                 ]),
-                            height: media.height * 0.15 * chatMessages.length,
+                            height: media.height * 0.3 * chatMessages.length,
                             child: ListView.builder(
-                                itemCount: chatMessages.length,
-                                itemBuilder: (context, index) {
-                                  final item = chatMessages[index];
-                                  final user = item['user'];
-                                  final userName = user['name'];
-                                  final userImage = user['image'];
-                                  final receivedMessages =
-                                      item['received_messages'];
-                                  final sentMessages = item['sent_messages'];
+                              itemCount: chatMessages.length,
+                              itemBuilder: (context, index) {
+                                final item = chatMessages[index];
+                                final user = item['user'];
+                                final userName = user['name'];
+                                final userImage = user['image'];
+                                final receivedMessages =
+                                    item['received_messages'];
+                                final sentMessages = item['sent_messages'];
+                                final endDate = item['end_datetime'];
+                                final subscribedDate = item['updated_at'];
 
-                                  return ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                          // ignore: prefer_interpolation_to_compose_strings
-                                          '${dotenv.env['BASE_URL']}/uploads/users/' +
-                                              userImage),
+                                final formattedEndDate = DateFormat.yMMMMd()
+                                    .add_jm()
+                                    .format(DateTime.parse(endDate));
+                                final formattedSubscribedDate =
+                                    DateFormat.yMMMMd()
+                                        .add_jm()
+                                        .format(DateTime.parse(subscribedDate));
+
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      contentPadding: const EdgeInsets.all(5),
+                                      leading: CircleAvatar(
+                                        radius: 30,
+                                        backgroundImage: NetworkImage(
+                                            '${dotenv.env['BASE_URL']}/storage/uploads/users/$userImage'),
+                                      ),
+                                      title: Text(
+                                        userName,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.calendar_today,
+                                                  size: 16),
+                                              const SizedBox(width: 5),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Text(
+                                                      'Subscribed Date:',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.grey),
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      formattedSubscribedDate,
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              Colors.black87),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.calendar_today,
+                                                  size: 16),
+                                              const SizedBox(width: 5),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Text(
+                                                      'End Date:',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.grey),
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      formattedEndDate,
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              Colors.black87),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.message,
+                                                  size: 16),
+                                              const SizedBox(width: 5),
+                                              Expanded(
+                                                child: Text(
+                                                  'Received: $receivedMessages',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.send, size: 16),
+                                              const SizedBox(width: 5),
+                                              Expanded(
+                                                child: Text(
+                                                  'Sent: $sentMessages',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    title: Text(userName),
-                                    subtitle: Text(
-                                        'Received: $receivedMessages, Sent: $sentMessages'),
-                                  );
-                                }),
+                                    const Divider(),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
+                          const SizedBox(height: 20),
+                          lastPage > currentPage
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  height: media.width * 0.05,
+                                  child: Row(
+                                    children: [
+                                      const Spacer(), // Add Spacer to fill the remaining space
+                                      InkWell(
+                                        child: const Text('more'),
+                                        onTap: () {
+                                          if (lastPage > currentPage) {
+                                            setState(() {
+                                              currentPage += 1;
+                                            });
+                                            _loadDetails();
+                                          }
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                )
+                              : const SizedBox(),
                         ],
                       ),
                     ),

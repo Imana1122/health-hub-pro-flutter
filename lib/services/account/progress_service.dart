@@ -13,8 +13,31 @@ class ProgressService extends BaseApi {
   var authProvider = AuthProvider();
   ProgressService(this.authProvider);
 
-  Future<dynamic> getCustomizedWorkouts({int currentPage = 1}) async {
-    var url = 'account/get-progress?page=$currentPage';
+  Future<dynamic> getProgress({int currentPage = 1}) async {
+    var url = 'account/progress?page=$currentPage';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getResult(
+      {required String month1, required String month2}) async {
+    var url = 'account/progress/result?month1=$month1&month2=$month2';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getStat(
+      {required String month1, required String month2}) async {
+    var url = 'account/progress/stat?month1=$month1&month2=$month2';
+
+    String token = authProvider.user.token;
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getChartData({required String year}) async {
+    var url = 'account/progress/line-chart-data?year=$year';
 
     String token = authProvider.user.token;
     return await api.httpGet(url, token: token);
@@ -47,6 +70,7 @@ class ProgressService extends BaseApi {
       request.fields[key] = value.toString();
     });
     print(request.fields);
+    print(url);
 
     request.files.add(
         await http.MultipartFile.fromPath('front_image', frontImage!.path));
@@ -134,7 +158,7 @@ class ProgressService extends BaseApi {
     } catch (e) {
       // Handle any errors that occur during the request
       print("An error occurred: $e");
-      throw Exception('Failed to Register');
+      throw Exception('Failed to save.');
     }
   }
 }
