@@ -1,4 +1,5 @@
 import 'package:fyp_flutter/common_widget/round_button.dart';
+import 'package:fyp_flutter/views/account/bookmarks/bookmarks.dart';
 import 'package:fyp_flutter/views/account/chat/main_chat_screen.dart';
 import 'package:fyp_flutter/views/account/customize_workout/workout_form.dart';
 import 'package:fyp_flutter/views/account/dietician_subscription/dietician_list.dart';
@@ -28,6 +29,18 @@ class _SelectViewState extends State<SelectView> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              RoundButton(
+                title: "Bookmarked Recipes",
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Bookmarks(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 15),
               RoundButton(
                 title: "Customized Workouts",
                 onPressed: () {

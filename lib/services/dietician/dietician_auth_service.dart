@@ -413,7 +413,7 @@ class DieticianAuthService {
     }
   }
 
-  Future<bool> updateProfileImage(
+  Future<dynamic> updateProfileImage(
       {required File image, required String token}) async {
     var url = '$baseUrl/dietician/update-profile-image';
 
@@ -514,6 +514,4 @@ class DieticianAuthService {
       throw Exception('Failed to Register');
     }
   }
-
-
 }

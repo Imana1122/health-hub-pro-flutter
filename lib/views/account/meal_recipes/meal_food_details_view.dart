@@ -68,8 +68,9 @@ class _MealFoodDetailsViewState extends State<MealFoodDetailsView> {
             category: selectedCategoryId);
     setState(() {
       recommendArr = data['data'];
-      totalPages = (data['total'] / 5).ceil(); // Assuming 10 items per page
+      totalPages = data['last_page']; // Assuming 10 items per page
       isLoading = false;
+      currentPage = data['current_page'];
     });
   }
 

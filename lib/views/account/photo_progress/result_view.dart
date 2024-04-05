@@ -60,6 +60,7 @@ class _ResultViewState extends State<ResultView> {
         month2: widget.date2.toIso8601String());
     var result3 = await ProgressService(authProvider)
         .getChartData(year: widget.date2.year.toString());
+    print(result3);
     setState(() {
       imaArr = result;
       statArr = result2;

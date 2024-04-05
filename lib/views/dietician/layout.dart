@@ -4,7 +4,6 @@ import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
 import 'package:fyp_flutter/providers/dietician_notification_provider.dart';
 import 'package:fyp_flutter/services/pusher_service.dart';
-import 'package:fyp_flutter/views/account/meal_planner/meal_plans.dart';
 import 'package:fyp_flutter/views/dietician/chat/dietician_conversations_screen.dart';
 import 'package:fyp_flutter/views/dietician/dietician_home_view.dart';
 import 'package:fyp_flutter/views/dietician/dietician_payment_history.dart';

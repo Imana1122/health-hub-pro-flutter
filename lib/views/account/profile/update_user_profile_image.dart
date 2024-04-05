@@ -5,6 +5,9 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/auth_service.dart';
+import 'package:fyp_flutter/views/account/home/home_view.dart';
+import 'package:fyp_flutter/views/account/main_tab/main_tab_view.dart';
+import 'package:fyp_flutter/views/account/profile/profile_view.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:image_picker/image_picker.dart';
@@ -48,12 +51,14 @@ class _UpdateUserProfileImageState extends State<UpdateUserProfileImage> {
       });
 
       if (imageFile != null) {
-        if (await AuthService().updateProfileImage(
-            image: imageFile!, token: authProvider.getAuthenticatedToken())) {
+        var result = await AuthService().updateProfileImage(
+            image: imageFile!, token: authProvider.getAuthenticatedToken());
+        if (result != null && result is Map) {
+          authProvider.getAuthenticatedUser().image = result['image'];
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const DieticianProfileView(),
+              builder: (context) => const MainTabView(),
             ),
           );
         } else {
@@ -61,7 +66,7 @@ class _UpdateUserProfileImageState extends State<UpdateUserProfileImage> {
             const SnackBar(
               backgroundColor: Colors.red,
               content: Text(
-                'Failed to update profile image. Please try again later.',
+                'Problems in updating image.',
                 textAlign: TextAlign.center,
               ),
             ),

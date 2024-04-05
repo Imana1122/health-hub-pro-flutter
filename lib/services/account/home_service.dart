@@ -6,7 +6,15 @@ class HomeService extends BaseApi {
   HomeService(this.authProvider);
 
   Future<dynamic> getHomeDetails() async {
-    var url = 'account/home-details/${DateTime.now()}';
+    var url = 'account/home-details';
+
+    String token = authProvider.user.token;
+
+    return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> getBadges() async {
+    var url = 'account/badges';
 
     String token = authProvider.user.token;
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
+import 'package:fyp_flutter/views/account/meal_recipes/meal_food_details_view.dart';
 import 'round_button.dart';
 import '../common/color_extension.dart';
 
@@ -82,7 +83,13 @@ class FindEatCell extends StatelessWidget {
                     ? RoundButtonType.bgGradient
                     : RoundButtonType.bgSGradient,
                 title: "Select",
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              MealFoodDetailsView(eObj: mealType)));
+                },
               ),
             ),
           ),

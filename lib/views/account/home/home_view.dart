@@ -9,7 +9,7 @@ import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/notification_provider.dart';
 import 'package:fyp_flutter/services/account/home_service.dart';
-import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
+import 'package:fyp_flutter/views/account/home/badge_view.dart';
 import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +60,7 @@ class _HomeViewState extends State<HomeView> {
   List lastWorkoutArr = [];
   List nutritionArr = [];
   late NotificationProvider notiProvider;
-
+  int noOfBadges = 1;
   @override
   void initState() {
     super.initState();
@@ -92,7 +92,9 @@ class _HomeViewState extends State<HomeView> {
       isLoading = true;
     });
     var result = await HomeService(authProvider).getHomeDetails();
+    var result1 = await HomeService(authProvider).getBadges();
     setState(() {
+      noOfBadges = result1;
       todayUserDetails = result['mealData'];
       lastWorkoutArr = result['workoutLogs'];
       if (result.containsKey('mealPlan')) {
@@ -498,7 +500,7 @@ class _HomeViewState extends State<HomeView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Workout Progress",
+                              "Badges Earned on Weekly basis",
                               style: TextStyle(
                                   color: TColor.black,
                                   fontSize: 16,
@@ -506,6 +508,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ],
                         ),
+                        BadgeView(numberOfBadgesToShow: noOfBadges),
                         SizedBox(
                           height: media.width * 0.05,
                         ),

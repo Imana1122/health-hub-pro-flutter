@@ -278,8 +278,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: heightController,
                                       hitText: "Your Height",
-                                      icon: const Icon(
-                                          Icons.double_arrow_outlined),
+                                      icon: const Icon(Icons.height_outlined),
                                     ),
                                   ),
                                   const SizedBox(
@@ -312,7 +311,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: bustController,
                                       hitText: "Your Bust",
-                                      icon: const Icon(Icons.double_arrow),
+                                      icon: const Icon(Icons.height_sharp),
                                     ),
                                   ),
                                   const SizedBox(
@@ -345,7 +344,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: waistController,
                                       hitText: "Your Waist",
-                                      icon: const Icon(Icons.double_arrow),
+                                      icon: const Icon(Icons.height),
                                     ),
                                   ),
                                   const SizedBox(
@@ -378,7 +377,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: hipsController,
                                       hitText: "Your Hips",
-                                      icon: const Icon(Icons.double_arrow),
+                                      icon: const Icon(Icons.height),
                                     ),
                                   ),
                                   const SizedBox(
@@ -411,7 +410,8 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: targetedWeightController,
                                       hitText: "Your Targeted Weight",
-                                      icon: const Icon(Icons.double_arrow),
+                                      icon: const Icon(
+                                          Icons.monitor_weight_outlined),
                                     ),
                                   ),
                                   const SizedBox(
@@ -444,8 +444,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                                     child: RoundTextField(
                                       controller: calorieDifferenceController,
                                       hitText: "CalorieDifference",
-                                      icon: const Icon(
-                                          Icons.double_arrow_outlined),
+                                      icon: const Icon(Icons.food_bank),
                                     ),
                                   ),
                                   const SizedBox(

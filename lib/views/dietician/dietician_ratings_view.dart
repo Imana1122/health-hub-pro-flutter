@@ -20,12 +20,30 @@ class _DieticianSelectViewState extends State<DieticianSelectView> {
 
   int lastPage = 1;
   late DieticianAuthProvider authProvider;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<DieticianAuthProvider>(context, listen: false);
+    _scrollController = ScrollController()..addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
     _loadDetails();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      setState(() {
+        currentPage++;
+      });
+      if (currentPage <= lastPage) {
+        print(currentPage);
+        _loadDetails();
+      }
+    }
   }
 
   Future<void> _loadDetails() async {
@@ -151,28 +169,6 @@ class _DieticianSelectViewState extends State<DieticianSelectView> {
                     SizedBox(
                       height: media.width * 0.05,
                     ),
-                    lastPage > currentPage
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            height: media.width * 0.05,
-                            child: Row(
-                              children: [
-                                const Spacer(), // Add Spacer to fill the remaining space
-                                InkWell(
-                                  child: const Text('more'),
-                                  onTap: () {
-                                    if (lastPage > currentPage) {
-                                      setState(() {
-                                        currentPage += 1;
-                                      });
-                                      _loadDetails();
-                                    }
-                                  },
-                                )
-                              ],
-                            ),
-                          )
-                        : const SizedBox(),
                   ],
                 ),
               ),

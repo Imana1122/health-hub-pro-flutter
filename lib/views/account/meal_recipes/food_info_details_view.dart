@@ -3,6 +3,7 @@ import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/bookmark_service.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
@@ -82,6 +83,39 @@ class _FoodInfoDetailsViewState extends State<FoodInfoDetailsView> {
             ),
           ),
         );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: TColor.primaryColor1,
+          content: Text(
+            e.toString(),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  bookmark() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      var body = {
+        'recipe_id': widget.dObj["id"],
+      };
+      if (await BookMarkService(authProvider).bookmark(body: body)) {
+        setState(() {
+          if (widget.dObj['bookmark'] == 1) {
+            widget.dObj['bookmark'] = 0;
+          } else {
+            widget.dObj['bookmark'] = 1;
+          }
+        });
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -274,15 +308,35 @@ class _FoodInfoDetailsViewState extends State<FoodInfoDetailsView> {
                                         ],
                                       ),
                                     ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: Image.asset(
-                                        "assets/img/fav.png",
-                                        width: 15,
-                                        height: 15,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    )
+                                    widget.dObj['bookmark'] == 0
+                                        ? TextButton(
+                                            onPressed: () {
+                                              if (widget.dObj['bookmark'] ==
+                                                  0) {
+                                                bookmark();
+                                              }
+                                            },
+                                            child: Image.asset(
+                                              "assets/img/fav.png",
+                                              width: 15,
+                                              height: 15,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          )
+                                        : TextButton(
+                                            onPressed: () {
+                                              if (widget.dObj['bookmark'] ==
+                                                  1) {
+                                                bookmark();
+                                              }
+                                            },
+                                            child: Image.asset(
+                                              "assets/img/not-fav.jpg",
+                                              width: 15,
+                                              height: 15,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          )
                                   ],
                                 ),
                               ),

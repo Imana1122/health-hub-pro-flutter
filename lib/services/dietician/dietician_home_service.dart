@@ -5,8 +5,8 @@ class DieticianHomeService extends BaseApi {
   var authProvider = DieticianAuthProvider();
   DieticianHomeService(this.authProvider);
 
-  Future<dynamic> getHomeDetails() async {
-    var url = 'dietician/home-details';
+  Future<dynamic> getHomeDetails({required int year}) async {
+    var url = 'dietician/home-details?year=$year';
 
     String token = authProvider.dietician.token;
 

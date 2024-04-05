@@ -165,7 +165,7 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                                               fontWeight: FontWeight.w500),
                                         ),
                                         Text(
-                                          "Next Photos Fall On July 08",
+                                          "Next Photos Fall On ${getNextMonth()}",
                                           style: TextStyle(
                                               color: TColor.black,
                                               fontSize: 14,
@@ -384,5 +384,12 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
               ),
             ),
           );
+  }
+
+  String getNextMonth() {
+    final now = DateTime.parse(photoArr[0]['updated_at']);
+    final nextMonth = DateTime(now.year, now.month + 1);
+    final formatter = DateFormat.MMMM();
+    return formatter.format(nextMonth);
   }
 }

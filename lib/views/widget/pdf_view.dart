@@ -72,6 +72,36 @@ class _PDFViewPageState extends State<PDFViewPage> {
     print(urlPDFPath);
     if (loaded) {
       return Scaffold(
+        appBar: AppBar(
+          backgroundColor: TColor.white,
+          centerTitle: true,
+          elevation: 0,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              height: 40,
+              width: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: TColor.lightGray,
+                  borderRadius: BorderRadius.circular(10)),
+              child: Image.asset(
+                "assets/img/black_btn.png",
+                width: 15,
+                height: 15,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          title: Text(
+            "PDF View",
+            style: TextStyle(
+                color: TColor.black, fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+        ),
         body: PDFView(
           filePath: urlPDFPath,
           autoSpacing: true,
@@ -194,9 +224,11 @@ class _PDFViewPageState extends State<PDFViewPage> {
                   fontWeight: FontWeight.w700),
             ),
           ),
-          body: const Text(
-            "Loading..",
-            style: TextStyle(fontSize: 20),
+          body: const Center(
+            child: Text(
+              "Loading..",
+              style: TextStyle(fontSize: 20),
+            ),
           ),
         );
       } else {

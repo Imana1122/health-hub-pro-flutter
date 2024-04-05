@@ -21,8 +21,9 @@ class MealRecommendCell extends StatelessWidget {
     var media = MediaQuery.of(context).size;
     bool isEvent = index % 2 == 0;
     return Container(
+      padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.all(5),
-      width: media.width * 0.5,
+      width: media.width * 0.6,
       decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isEvent
@@ -72,9 +73,12 @@ class MealRecommendCell extends StatelessWidget {
             child: Text(
               fObj["title"],
               style: TextStyle(
-                  color: TColor.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500),
+                color: TColor.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis, // Add this line
+              maxLines: 2, // Add this line to limit to a single line
             ),
           ),
           Padding(

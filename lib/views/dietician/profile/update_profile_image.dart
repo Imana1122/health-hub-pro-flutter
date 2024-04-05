@@ -5,7 +5,7 @@ import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/services/dietician/dietician_auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
+import 'package:fyp_flutter/views/dietician/layout.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -32,12 +32,28 @@ class _UpdateProfileImageState extends State<UpdateProfileImage> {
       isLoading = true;
     });
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-        isLoading = false;
-      });
+
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          imageFile = File(pickedFile.path);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      final LostDataResponse response = await picker.retrieveLostData();
+      final List<XFile>? files = response.files;
+      if (files != null) {
+        final pickedFile = files[0];
+
+        setState(() {
+          imageFile = File(pickedFile.path);
+          isLoading = false;
+        });
+      }
+
+      print('ImagePicker:: - $e');
     }
     setState(() {
       isLoading = false;
@@ -55,12 +71,15 @@ class _UpdateProfileImageState extends State<UpdateProfileImage> {
       });
 
       if (imageFile != null) {
-        if (await DieticianAuthService().updateProfileImage(
-            image: imageFile!, token: authProvider.getAuthenticatedToken())) {
+        var result = await DieticianAuthService().updateProfileImage(
+            image: imageFile!, token: authProvider.getAuthenticatedToken());
+
+        if (result != null && result is Map) {
+          authProvider.getAuthenticatedDietician().image = result['image'];
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const DieticianProfileView(),
+              builder: (context) => const DieticianCommonLayout(),
             ),
           );
         } else {
@@ -68,7 +87,7 @@ class _UpdateProfileImageState extends State<UpdateProfileImage> {
             const SnackBar(
               backgroundColor: Colors.red,
               content: Text(
-                'Problems in registering.',
+                'Problems in updating image.',
                 textAlign: TextAlign.center,
               ),
             ),

@@ -606,7 +606,7 @@ class AuthService {
     }
   }
 
-  Future<bool> updateProfileImage(
+  Future<dynamic> updateProfileImage(
       {required File image, required String token}) async {
     var url = '$baseUrl/account/update-profile-image';
 
@@ -645,12 +645,7 @@ class AuthService {
               fontSize: 16.0,
             );
           }
-          if (data.containsKey('data')) {
-            print(data['data']);
-            return data['data'];
-          } else {
-            return data['status'];
-          }
+          return data['data'];
         } else {
           if (data.containsKey('error')) {
             Fluttertoast.showToast(

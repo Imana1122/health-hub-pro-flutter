@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/models/chat_message.dart';
+import 'package:fyp_flutter/views/widget/pdf_view.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:dio/dio.dart';
@@ -36,6 +38,15 @@ class DieticianMyMessageCard extends StatelessWidget {
                 // You can build a progress bar feature here
               }
             },
+          );
+          Fluttertoast.showToast(
+            msg: "Downloaded Successfully!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: TColor.secondaryColor1,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
           print('File is saved to the Downloads folder.');
         } on Error catch (e) {
@@ -91,9 +102,6 @@ class DieticianMyMessageCard extends StatelessWidget {
                                             message.file!.endsWith('.png')) ||
                                     message.file!.endsWith('.jpeg') ||
                                     message.file!.endsWith('.gif')) {
-                                  // Navigate to a new screen to display the image
-                                  downloadFile(
-                                      '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -103,10 +111,55 @@ class DieticianMyMessageCard extends StatelessWidget {
                                     ),
                                   );
                                 } else {
-                                  // Handle file download
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PDFViewPage(
+                                        title:
+                                            '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}',
+                                      ),
+                                    ),
+                                  );
                                 }
                               },
-                              child: Text(message.file!),
+                              child: Column(
+                                children: [
+                                  message.file != null &&
+                                              (message.file!.endsWith('.jpg') ||
+                                                  message.file!
+                                                      .endsWith('.png')) ||
+                                          message.file!.endsWith('.jpeg') ||
+                                          message.file!.endsWith('.gif')
+                                      ? Image.network(
+                                          '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}')
+                                      : Container(
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: const Icon(
+                                              Icons.picture_as_pdf_outlined,
+                                              size: 50.0)), // Image icon
+                                  const SizedBox(
+                                      height:
+                                          8), // Add spacing between icon and text
+                                  Row(children: [
+                                    Expanded(
+                                      child: Text(
+                                        message.file!,
+                                        style: const TextStyle(fontSize: 16),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        downloadFile(
+                                            '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}');
+                                      },
+                                      icon: const Icon(
+                                          Icons.file_download), // Download icon
+                                    ),
+                                  ]),
+                                ],
+                              ),
                             ),
                     ),
                   ),

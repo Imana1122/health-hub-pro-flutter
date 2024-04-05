@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/common_widget/dietician_chat_cards/dietician_my_message_card.dart';
@@ -40,6 +41,15 @@ class FriendMessageCard extends StatelessWidget {
                 // You can build a progress bar feature here
               }
             },
+          );
+          Fluttertoast.showToast(
+            msg: "Downloaded Successfully!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: TColor.secondaryColor1,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
           print('File is saved to the Downloads folder.');
         } on Error catch (e) {
