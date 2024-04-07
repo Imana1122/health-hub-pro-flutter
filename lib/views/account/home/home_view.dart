@@ -68,23 +68,9 @@ class _HomeViewState extends State<HomeView> {
     // Access the authentication provider
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     user = authProvider.getAuthenticatedUser();
-
-    if (authProvider.getAuthenticatedUser().profile.height == 0) {
-      // Navigate to DieticianProfilePage and replace the current route
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const CompleteProfileView()),
-        );
-      });
-    }
+    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
 
     loadDetails();
-    notiProvider = Provider.of<NotificationProvider>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notiProvider.getNotifications(
-          token: authProvider.getAuthenticatedToken());
-    });
   }
 
   void loadDetails() async {
@@ -96,6 +82,7 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       noOfBadges = result1;
       todayUserDetails = result['mealData'];
+
       lastWorkoutArr = result['workoutLogs'];
       if (result.containsKey('mealPlan')) {
         mealPlan = result['mealPlan'];
@@ -131,6 +118,7 @@ class _HomeViewState extends State<HomeView> {
         ];
       }
       isLoading = false;
+      print(todayUserDetails);
     });
   }
 
@@ -473,8 +461,7 @@ class _HomeViewState extends State<HomeView> {
                                                           todayUserDetails[
                                                               'calories'] <
                                                       0)
-                                                  ? TColor
-                                                      .secondaryG // Use secondaryG if the difference is negative
+                                                  ? [Colors.red, Colors.pink]
                                                   : TColor
                                                       .primaryG, // Use primaryG color otherwise
 
@@ -508,7 +495,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ],
                         ),
-                        BadgeView(numberOfBadgesToShow: noOfBadges),
+                        BadgeView(numberOfBadgesToShow: noOfBadges + 1),
                         SizedBox(
                           height: media.width * 0.05,
                         ),
@@ -545,7 +532,7 @@ class _HomeViewState extends State<HomeView> {
                                       },
                                       child: WorkoutRow(wObj: wObj));
                                 })
-                            : const SizedBox(),
+                            : const SizedBox(child: Text('No workouts logged')),
                         SizedBox(
                           height: media.width * 0.1,
                         ),

@@ -5,6 +5,7 @@ import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/common_widget/dietician_chat_cards/dietician_my_message_card.dart';
 import 'package:fyp_flutter/models/chat_message.dart';
+import 'package:fyp_flutter/views/widget/image_screen.dart';
 import 'package:fyp_flutter/views/widget/pdf_view.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
@@ -143,7 +144,20 @@ class DieticianFriendMessageCard extends StatelessWidget {
                                           message.file!.endsWith('.jpeg') ||
                                           message.file!.endsWith('.gif')
                                       ? Image.network(
-                                          '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}')
+                                          '${dotenv.env['BASE_URL']}/storage/uploads/chats/files/${message.file!}',
+                                          errorBuilder: (BuildContext context,
+                                              Object exception,
+                                              StackTrace? stackTrace) {
+                                            // This function is called when the image fails to load
+                                            // You can return a fallback image here
+                                            return Image.asset(
+                                              'assets/img/non.png', // Path to your placeholder image asset
+                                              width: 40,
+                                              height: 40,
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
+                                        )
                                       : Container(
                                           height: 50,
                                           alignment: Alignment.centerLeft,

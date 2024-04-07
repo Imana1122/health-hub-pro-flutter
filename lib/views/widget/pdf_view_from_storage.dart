@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
@@ -8,11 +6,10 @@ import 'package:permission_handler/permission_handler.dart';
 class PDFViewFromStoragePage extends StatefulWidget {
   final String title;
 
-  const PDFViewFromStoragePage({Key? key, required this.title})
-      : super(key: key);
+  const PDFViewFromStoragePage({super.key, required this.title});
 
   @override
-  _PDFViewFromStoragePageState createState() => _PDFViewFromStoragePageState();
+  State<PDFViewFromStoragePage> createState() => _PDFViewFromStoragePageState();
 }
 
 class _PDFViewFromStoragePageState extends State<PDFViewFromStoragePage> {

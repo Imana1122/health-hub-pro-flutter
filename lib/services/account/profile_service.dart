@@ -55,6 +55,7 @@ class ProfileService extends BaseApi {
     String now = DateTime.now().toIso8601String();
 
     var body = {'recipe_id': recipeId, 'created_at': now};
+    print(body);
     return await api.httpPost(url, body: body, token: token);
   }
 
@@ -80,5 +81,12 @@ class ProfileService extends BaseApi {
     var url = 'account/get-meal-logs/$datetime';
 
     return await api.httpGet(url, token: token);
+  }
+
+  Future<dynamic> changeNotification({required String token}) async {
+    var url = 'account/update-notification';
+
+    var body = {};
+    return await api.httpPost(url, body: body, token: token);
   }
 }

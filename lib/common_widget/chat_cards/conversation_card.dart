@@ -30,6 +30,17 @@ class ConversationCard extends StatelessWidget {
           conversation.image.isNotEmpty
               ? 'http://10.0.2.2:8000/storage/uploads/dietician/profile/${conversation.image}'
               : 'http://w3schools.fzxgj.top/Static/Picture/img_avatar3.png',
+          errorBuilder:
+              (BuildContext context, Object exception, StackTrace? stackTrace) {
+            // This function is called when the image fails to load
+            // You can return a fallback image here
+            return Image.asset(
+              'assets/img/non.png', // Path to your placeholder image asset
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
+            );
+          },
         ),
       ),
       title: Text(

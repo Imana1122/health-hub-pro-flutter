@@ -65,6 +65,17 @@ class MealRecommendCell extends StatelessWidget {
                     ? 'http://10.0.2.2:8000/storage/uploads/recipes/small/${fObj['images'][0]['image']}'
                     : 'http://10.0.2.2:8000/admin-assets/img/default-150x150.png',
                 fit: BoxFit.cover,
+                errorBuilder: (BuildContext context, Object exception,
+                    StackTrace? stackTrace) {
+                  // This function is called when the image fails to load
+                  // You can return a fallback image here
+                  return Image.asset(
+                    'assets/img/non.png', // Path to your placeholder image asset
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                  );
+                },
               ),
             ),
           ),

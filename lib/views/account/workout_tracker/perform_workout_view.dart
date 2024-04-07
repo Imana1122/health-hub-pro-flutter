@@ -11,8 +11,17 @@ import 'package:provider/provider.dart';
 class PerformWorkoutView extends StatefulWidget {
   final List<Map<dynamic, dynamic>> set;
   final Map dObj;
+  final int exerciseTime;
+  final int restTime;
+  final int gapBetweenSets;
 
-  const PerformWorkoutView({super.key, required this.set, required this.dObj});
+  const PerformWorkoutView(
+      {super.key,
+      required this.set,
+      required this.dObj,
+      required this.exerciseTime,
+      required this.restTime,
+      required this.gapBetweenSets});
 
   @override
   State<PerformWorkoutView> createState() => _PerformWorkoutViewState();
@@ -36,16 +45,20 @@ class _PerformWorkoutViewState extends State<PerformWorkoutView> {
   int restDuration = 10;
   int setsCount = 0;
   bool isRest = false;
+  int gapBetweenSets = 10;
 
   @override
   void initState() {
     super.initState();
+    exerciseDuration = widget.exerciseTime;
+    restDuration = widget.restTime;
+    gapBetweenSets = widget.gapBetweenSets;
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     user = authProvider.getAuthenticatedUser();
     exerciseSets = widget.set;
     flutterTts = FlutterTts();
     setsCount = exerciseSets.length;
-    _startWorkout();
+    _startWorkout(10);
   }
 
   @override
@@ -127,6 +140,17 @@ class _PerformWorkoutViewState extends State<PerformWorkoutView> {
                 height: double.infinity,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (BuildContext context, Object exception,
+                    StackTrace? stackTrace) {
+                  // This function is called when the image fails to load
+                  // You can return a fallback image here
+                  return Image.asset(
+                    'assets/img/non.png', // Path to your placeholder image asset
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                  );
+                },
               ),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -161,7 +185,7 @@ class _PerformWorkoutViewState extends State<PerformWorkoutView> {
     );
   }
 
-  Future<void> _startWorkout() async {
+  Future<void> _startWorkout(int duration) async {
     // Start workout
     setState(() {
       isRest = true;
@@ -170,7 +194,7 @@ class _PerformWorkoutViewState extends State<PerformWorkoutView> {
     });
 
     await _speak('Get Ready');
-    for (int i = restDuration; i >= 0; i--) {
+    for (int i = duration; i >= 0; i--) {
       await Future.delayed(const Duration(seconds: 1));
       await _speak('$i ');
     }
@@ -216,7 +240,8 @@ class _PerformWorkoutViewState extends State<PerformWorkoutView> {
           currentExercise['metabolic_equivalent'].toDouble();
       double weightKg =
           authProvider.getAuthenticatedUser().profile.weight.toDouble();
-      double durationMinutes = 1.0; // Duration of each exercise in minutes
+      double durationMinutes = (exerciseDuration / 60)
+          .toDouble(); // Duration of each exercise in minutes
       double durationHours =
           durationMinutes / 60.0; // Convert duration from minutes to hours
       double caloriesBurned = metabolicEquivalent * weightKg * durationHours;
@@ -226,22 +251,22 @@ class _PerformWorkoutViewState extends State<PerformWorkoutView> {
         _currentSet++;
         _currentExerciseIndexInSet = 0;
         if (_currentSet < setsCount) {
-          _startRestTimer();
+          _startRestTimer(gapBetweenSets);
         } else {
           _endWorkout();
         }
       } else {
-        _startRestTimer();
+        _startRestTimer(restDuration);
       }
     });
   }
 
-  void _startRestTimer() async {
+  void _startRestTimer(int duration) async {
     setState(() {
       isRest = true;
     });
-    await _speak('Rest for $restDuration seconds');
-    for (int i = restDuration; i >= 0; i--) {
+    await _speak('Rest for $duration seconds');
+    for (int i = duration; i >= 0; i--) {
       await Future.delayed(const Duration(seconds: 1));
       await _speak('$i ');
     }

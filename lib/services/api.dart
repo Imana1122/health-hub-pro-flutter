@@ -348,6 +348,7 @@ class Api {
         return data['status'];
       } else {
         if (data.containsKey('message')) {
+          print(data['message']);
           Fluttertoast.showToast(
             msg: data[
                 'message'], // Concatenate elements with '\n' (newline) separator
@@ -394,6 +395,8 @@ class Api {
         textColor: Colors.white,
         fontSize: 16.0,
       );
+      print(response.body);
+
       throw Exception(response.body);
     }
   }

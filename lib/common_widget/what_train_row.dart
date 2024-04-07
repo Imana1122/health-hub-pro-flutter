@@ -112,6 +112,17 @@ class WhatTrainRow extends StatelessWidget {
                       width: 90,
                       height: 90,
                       fit: BoxFit.contain,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        // This function is called when the image fails to load
+                        // You can return a fallback image here
+                        return Image.asset(
+                          'assets/img/non.png', // Path to your placeholder image asset
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
                   ),
                 ],

@@ -8,7 +8,6 @@ class UserProfile {
   int bust;
   int targetedWeight;
   double calorieDifference;
-
   int age;
   String gender;
   String weightPlanId;
@@ -23,6 +22,7 @@ class UserProfile {
   double sugar;
   double bmi;
   int notification;
+  String weightPlan;
 
   UserProfile({
     required this.id,
@@ -48,6 +48,7 @@ class UserProfile {
     required this.sugar,
     required this.bmi,
     required this.notification,
+    required this.weightPlan,
   });
 
   // Named constructor with default values
@@ -74,7 +75,8 @@ class UserProfile {
         sodium = 0,
         sugar = 0,
         bmi = 0,
-        notification = 1;
+        notification = 1,
+        weightPlan = '';
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
@@ -103,6 +105,7 @@ class UserProfile {
       sugar: (json['sugar'] ?? 0).toDouble(), // Handle null value
       bmi: (json['bmi'] ?? 0).toDouble(), // Handle null value
       notification: json['notification'] ?? 0,
+      weightPlan: json['weight_plan'] ?? '',
     );
   }
 
@@ -128,6 +131,7 @@ class UserProfile {
         sodium == 0 &&
         sugar == 0 &&
         bmi == 0 &&
+        weightPlan == '' &&
         notification == 0;
   }
 
@@ -155,6 +159,7 @@ class UserProfile {
     data['sodium'] = sodium;
     data['sugar'] = sugar;
     data['bmi'] = bmi;
+    data['weight_plan'] = weightPlan;
     data['notification'] = notification;
     return data;
   }

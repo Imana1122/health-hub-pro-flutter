@@ -42,15 +42,8 @@ class _UpdateProfileImageState extends State<UpdateProfileImage> {
         });
       }
     } catch (e) {
-      final LostDataResponse response = await picker.retrieveLostData();
-      final List<XFile>? files = response.files;
-      if (files != null) {
-        final pickedFile = files[0];
-
-        setState(() {
-          imageFile = File(pickedFile.path);
-          isLoading = false;
-        });
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
       }
 
       print('ImagePicker:: - $e');

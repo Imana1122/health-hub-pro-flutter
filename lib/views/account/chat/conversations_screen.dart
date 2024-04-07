@@ -46,7 +46,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     await pusherService.getMessages(
         channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
         convProvider: convProvider,
-        notiProvider: notiProvider);
+        notiProvider: notiProvider,
+        authProvider: authProvider);
   }
 
   @override

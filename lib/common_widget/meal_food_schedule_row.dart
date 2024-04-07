@@ -3,6 +3,7 @@ import 'package:fyp_flutter/models/meal_type.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/recipe_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/meal_recipes/food_info_details_view.dart';
+import 'package:fyp_flutter/views/account/meal_recipes/meal_schedule_view.dart';
 import 'package:provider/provider.dart';
 
 import '../common/color_extension.dart';
@@ -23,7 +24,10 @@ class MealFoodScheduleRow extends StatelessWidget {
         if (await authProvider.deleteLogMeal(
           id: mObj["id"],
         )) {
-          Navigator.pushNamed(context, '/meal-planner');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MealScheduleView()),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -72,6 +76,17 @@ class MealFoodScheduleRow extends StatelessWidget {
                   width: 40,
                   height: 40,
                   fit: BoxFit.contain,
+                  errorBuilder: (BuildContext context, Object exception,
+                      StackTrace? stackTrace) {
+                    // This function is called when the image fails to load
+                    // You can return a fallback image here
+                    return Image.asset(
+                      'assets/img/non.png', // Path to your placeholder image asset
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               ),
             ),

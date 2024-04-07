@@ -19,6 +19,17 @@ class ExercisesRow extends StatelessWidget {
               width: 60,
               height: 60,
               fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object exception,
+                  StackTrace? stackTrace) {
+                // This function is called when the image fails to load
+                // You can return a fallback image here
+                return Image.asset(
+                  'assets/img/non.png', // Path to your placeholder image asset
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
           const SizedBox(

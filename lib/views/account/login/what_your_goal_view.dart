@@ -83,6 +83,7 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
         if (user.profile.weightPlanId == '') {
           print('hello');
           user.profile.weightPlanId = result['weight_plan_id'];
+          user.profile.weightPlan = result['weight_plan'];
           user.profile.calories = result['calories'].toDouble();
           user.profile.protein = result['protein'].toDouble();
           user.profile.totalFat = result['total_fat'].toDouble();
@@ -97,6 +98,8 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
           );
         } else {
           user.profile.weightPlanId = result['weight_plan_id'];
+          user.profile.weightPlan = result['weight_plan'];
+
           user.profile.calories = result['calories'].toDouble();
           user.profile.protein = result['protein'].toDouble();
           user.profile.totalFat = result['total_fat'].toDouble();
@@ -184,6 +187,18 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
                                           'http://10.0.2.2:8000/storage/uploads/weightPlan/thumb/${gObj["image"]}',
                                           width: media.width * 0.5,
                                           fit: BoxFit.fitWidth,
+                                          errorBuilder: (BuildContext context,
+                                              Object exception,
+                                              StackTrace? stackTrace) {
+                                            // This function is called when the image fails to load
+                                            // You can return a fallback image here
+                                            return Image.asset(
+                                              'assets/img/non.png', // Path to your placeholder image asset
+                                              width: 40,
+                                              height: 40,
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
                                         ),
                                         SizedBox(
                                           height: media.width * 0.1,

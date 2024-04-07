@@ -39,7 +39,7 @@ class _MainTabViewState extends State<MainTabView> {
     convProvider = Provider.of<ConversationProvider>(context, listen: false);
     notiProvider = Provider.of<NotificationProvider>(context, listen: false);
 
-    if (authProvider.getAuthenticatedUser().profile.height == null) {
+    if (authProvider.getAuthenticatedUser().profile.height == 0) {
       // Navigate to DieticianProfilePage and replace the current route
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         Navigator.pushReplacement(
@@ -61,6 +61,7 @@ class _MainTabViewState extends State<MainTabView> {
             '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
       });
     }
+
     connectPusher();
   }
 
@@ -68,14 +69,12 @@ class _MainTabViewState extends State<MainTabView> {
   void connectPusher() async {
     PusherService pusherService =
         PusherService(); // Create an instance of PusherService
-    var result = await pusherService.getMessages(
+    await pusherService.getMessages(
         channelName: "private-user.${authProvider.getAuthenticatedUser().id}",
         notiProvider: notiProvider,
-        convProvider: convProvider);
-    if (result == true) {
-      notiProvider.readNotifications(
-          token: authProvider.getAuthenticatedToken());
-    }
+        convProvider: convProvider,
+        authProvider: authProvider);
+    print('pusher');
   }
 
   @override

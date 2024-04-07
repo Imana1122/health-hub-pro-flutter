@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fyp_flutter/models/chat_message.dart';
 import 'package:fyp_flutter/models/notification.dart';
+import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
@@ -15,6 +16,7 @@ class PusherService {
   Future<dynamic> getMessages(
       {required String channelName,
       required ConversationProvider convProvider,
+      required AuthProvider authProvider,
       required NotificationProvider notiProvider}) async {
     PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
     try {
@@ -33,6 +35,7 @@ class PusherService {
           },
           onEvent: (PusherEvent event) {
             Map<String, dynamic> jsonData = jsonDecode(event.data);
+            print('MESSAGE PUSHER :: $jsonData');
 
             if (jsonData.containsKey('read')) {
               Map<String, dynamic> read = jsonData['read'];
@@ -43,27 +46,12 @@ class PusherService {
               // Access the chatMessage object
               Map<String, dynamic> chatMessage = jsonData['chatMessage'];
               ChatMessage message = ChatMessage.fromJson(chatMessage);
-              final FlutterLocalNotificationsPlugin
-                  flutterLocalNotificationsPlugin =
-                  FlutterLocalNotificationsPlugin();
+              print('MESSAGE PUSHER :: $message');
 
-              Future<void> showNotification() async {
-                const AndroidNotificationDetails
-                    androidPlatformChannelSpecifics =
-                    AndroidNotificationDetails('1', 'HealthHub Pro',
-                        importance: Importance.max, priority: Priority.high);
-                const NotificationDetails platformChannelSpecifics =
-                    NotificationDetails(
-                        android: androidPlatformChannelSpecifics);
-                await flutterLocalNotificationsPlugin.show(
-                    0,
-                    'New Chat Message',
-                    message.message,
-                    platformChannelSpecifics,
-                    payload: 'item x');
+              if (authProvider.getAuthenticatedUser().profile.notification ==
+                  1) {
+                showNotification(message.message ?? '');
               }
-
-              showNotification();
 
               convProvider.saveMessage(chatMessage: message);
 
@@ -79,31 +67,12 @@ class PusherService {
                     NotificationModel.fromJson(notification);
 
                 // Print the message
-                print(message);
+                print('MESSAGE PUSHER :: $message');
 
-                // Show local notification
-                final FlutterLocalNotificationsPlugin
-                    flutterLocalNotificationsPlugin =
-                    FlutterLocalNotificationsPlugin();
-
-                Future<void> showNotification() async {
-                  const AndroidNotificationDetails
-                      androidPlatformChannelSpecifics =
-                      AndroidNotificationDetails('1', 'HealthHub Pro',
-                          importance: Importance.max, priority: Priority.high);
-                  const NotificationDetails platformChannelSpecifics =
-                      NotificationDetails(
-                          android: androidPlatformChannelSpecifics);
-                  await flutterLocalNotificationsPlugin.show(
-                      0,
-                      'New Notification',
-                      message.message,
-                      platformChannelSpecifics,
-                      payload: 'item x');
+                if (authProvider.getAuthenticatedUser().profile.notification ==
+                    1) {
+                  showNotification(message.message ?? '');
                 }
-
-                showNotification();
-
                 // Save notification
                 notiProvider.saveNotification(item: message);
 
@@ -186,27 +155,8 @@ class PusherService {
               // Access the chatMessage object
               Map<String, dynamic> chatMessage = jsonData['chatMessage'];
               ChatMessage message = ChatMessage.fromJson(chatMessage);
-              final FlutterLocalNotificationsPlugin
-                  flutterLocalNotificationsPlugin =
-                  FlutterLocalNotificationsPlugin();
 
-              Future<void> showNotification() async {
-                const AndroidNotificationDetails
-                    androidPlatformChannelSpecifics =
-                    AndroidNotificationDetails('1', 'HealthHub Pro',
-                        importance: Importance.max, priority: Priority.high);
-                const NotificationDetails platformChannelSpecifics =
-                    NotificationDetails(
-                        android: androidPlatformChannelSpecifics);
-                await flutterLocalNotificationsPlugin.show(
-                    0,
-                    'New Chat Message',
-                    message.message,
-                    platformChannelSpecifics,
-                    payload: 'item x');
-              }
-
-              showNotification();
+              showNotification(message.message ?? '');
 
               convProvider.saveMessage(chatMessage: message);
 
@@ -293,5 +243,19 @@ class PusherService {
     } catch (e) {
       print("ERROR: $e");
     }
+  }
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> showNotification(message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails('1', 'HealthHub Pro',
+            importance: Importance.max, priority: Priority.high);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'New Chat Message', message, platformChannelSpecifics,
+        payload: 'item x');
   }
 }

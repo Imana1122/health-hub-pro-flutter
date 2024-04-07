@@ -4,10 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/icon_title_next_row.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
+import 'package:fyp_flutter/common_widget/tab_button.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
-import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
-import 'package:fyp_flutter/views/account/home/finished_workout_view.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/perform_workout_view.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/schedule_workout_view.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_tracker_view.dart';
@@ -15,7 +14,6 @@ import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 import 'exercises_step_details.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../../common_widget/exercises_set_section.dart';
 
@@ -32,7 +30,9 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
   final List<Map<dynamic, dynamic>> exerciseSets = [];
   double caloriesBurned = 0.0;
   late AuthProvider authProvider;
-  // Define a timer for the workout
+  int exerciseTime = 60;
+  int restTime = 15;
+  int gapBetweenSets = 15;
 
   late User user;
 
@@ -194,6 +194,17 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                           width: media.width * 0.75,
                           height: media.width * 0.8,
                           fit: BoxFit.contain,
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            // This function is called when the image fails to load
+                            // You can return a fallback image here
+                            return Image.asset(
+                              'assets/img/non.png', // Path to your placeholder image asset
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -250,15 +261,6 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                                       ],
                                     ),
                                   ),
-                                  TextButton(
-                                    onPressed: () {},
-                                    child: Image.asset(
-                                      "assets/img/fav.png",
-                                      width: 15,
-                                      height: 15,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  )
                                 ],
                               ),
                               SizedBox(
@@ -408,16 +410,7 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                               RoundButton(
                                   title: "Start Workout",
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PerformWorkoutView(
-                                          set: exerciseSets,
-                                          dObj: widget.dObj,
-                                        ), // Replace PerformWorkoutView with your actual page
-                                      ),
-                                    );
+                                    _showWorkoutSettingsDialog();
                                   })
                             ],
                           ),
@@ -429,5 +422,85 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
               ),
             ),
           );
+  }
+
+  void _showWorkoutSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Workout Settings'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                initialValue: exerciseTime.toString(),
+                onChanged: (value) {
+                  setState(() {
+                    exerciseTime = int.tryParse(value) ?? exerciseTime;
+                  });
+                },
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Exercise Time (seconds)'),
+              ),
+              TextFormField(
+                initialValue: restTime.toString(),
+                onChanged: (value) {
+                  setState(() {
+                    restTime = int.tryParse(value) ?? restTime;
+                  });
+                },
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Rest Time (seconds)'),
+              ),
+              TextFormField(
+                initialValue: gapBetweenSets.toString(),
+                onChanged: (value) {
+                  setState(() {
+                    gapBetweenSets = int.tryParse(value) ?? gapBetweenSets;
+                  });
+                },
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                    labelText: 'Gap Between Sets (seconds)'),
+              ),
+            ],
+          ),
+          actions: [
+            MaterialButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              color: Colors.red,
+              textColor: TColor.white,
+              child: const Text('Cancel'),
+            ),
+            RoundButton(
+              onPressed: () {
+                Navigator.pop(context);
+
+                // Navigate to PerformWorkoutView with the selected values
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PerformWorkoutView(
+                      set: exerciseSets,
+                      dObj: widget.dObj,
+                      exerciseTime: exerciseTime,
+                      restTime: restTime,
+                      gapBetweenSets: gapBetweenSets,
+                      // Pass additional parameters as needed
+                    ),
+                  ),
+                );
+              },
+              title: 'OK',
+            ),
+          ],
+        );
+      },
+    );
   }
 }

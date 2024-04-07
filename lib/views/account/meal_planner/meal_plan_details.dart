@@ -21,6 +21,7 @@ class MealPlanDetails extends StatefulWidget {
 class _MealPlanDetailsState extends State<MealPlanDetails> {
   late User user;
   List nutritionArr = [];
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -77,172 +78,198 @@ class _MealPlanDetailsState extends State<MealPlanDetails> {
     var media = MediaQuery.of(context).size;
 
     SizeConfig().init(context);
-    return AuthenticatedLayout(
-      child: Scaffold(
-        backgroundColor: TColor.lightGray,
-        appBar: AppBar(
-          backgroundColor: TColor.white,
-          centerTitle: true,
-          elevation: 0,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              height: 40,
-              width: 40,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  color: TColor.lightGray,
-                  borderRadius: BorderRadius.circular(10)),
-              child: Image.asset(
-                "assets/img/black_btn.png",
-                width: 15,
-                height: 15,
-                fit: BoxFit.contain,
+    return isLoading
+        ? SizedBox(
+            height: media.height, // Adjust height as needed
+            width: media.width, // Adjust width as needed
+            child: const Center(
+              child: SizedBox(
+                width: 50, // Adjust size of the CircularProgressIndicator
+                height: 50, // Adjust size of the CircularProgressIndicator
+                child: CircularProgressIndicator(
+                  strokeWidth:
+                      4, // Adjust thickness of the CircularProgressIndicator
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue), // Change color
+                ),
               ),
             ),
-          ),
-          title: Text(
-            widget.mealPlan['name'],
-            style: TextStyle(
-                color: TColor.black, fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
+          )
+        : AuthenticatedLayout(
+            child: Scaffold(
+              backgroundColor: TColor.lightGray,
+              appBar: AppBar(
+                backgroundColor: TColor.white,
+                centerTitle: true,
+                elevation: 0,
+                leading: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    height: 40,
+                    width: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: TColor.lightGray,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Image.asset(
+                      "assets/img/black_btn.png",
+                      width: 15,
+                      height: 15,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                title: Text(
+                  widget.mealPlan['name'],
+                  style: TextStyle(
+                      color: TColor.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700),
+                ),
+              ),
+              body: SingleChildScrollView(
                 padding: const EdgeInsets.all(15),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      "BreakFast",
-                      style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "BreakFast",
+                            style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          MealPlanDetailsRow(
+                              mObj: widget.mealPlan['breakfast_recipe'],
+                              dObj: MealType.fromJson(widget
+                                  .mealPlan['breakfast_recipe']['meal_type'])),
+                        ],
+                      ),
                     ),
-                    MealPlanDetailsRow(
-                        mObj: widget.mealPlan['breakfast_recipe'],
-                        dObj: MealType.fromJson(
-                            widget.mealPlan['breakfast_recipe']['meal_type'])),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Lunch",
-                      style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Lunch",
+                            style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          MealPlanDetailsRow(
+                              mObj: widget.mealPlan['lunch_recipe'],
+                              dObj: MealType.fromJson(widget
+                                  .mealPlan['lunch_recipe']['meal_type'])),
+                        ],
+                      ),
                     ),
-                    MealPlanDetailsRow(
-                        mObj: widget.mealPlan['lunch_recipe'],
-                        dObj: MealType.fromJson(
-                            widget.mealPlan['lunch_recipe']['meal_type'])),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Snacks",
-                      style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Snacks",
+                            style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          MealPlanDetailsRow(
+                              mObj: widget.mealPlan['snack_recipe'],
+                              dObj: MealType.fromJson(widget
+                                  .mealPlan['snack_recipe']['meal_type'])),
+                        ],
+                      ),
                     ),
-                    MealPlanDetailsRow(
-                        mObj: widget.mealPlan['snack_recipe'],
-                        dObj: MealType.fromJson(
-                            widget.mealPlan['snack_recipe']['meal_type'])),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Dinner",
-                      style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Dinner",
+                            style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          MealPlanDetailsRow(
+                              mObj: widget.mealPlan['dinner_recipe'],
+                              dObj: MealType.fromJson(widget
+                                  .mealPlan['dinner_recipe']['meal_type'])),
+                        ],
+                      ),
                     ),
-                    MealPlanDetailsRow(
-                        mObj: widget.mealPlan['dinner_recipe'],
-                        dObj: MealType.fromJson(
-                            widget.mealPlan['dinner_recipe']['meal_type'])),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: media.width * 0.05,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Today Meal Nutritions",
-                      style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
+                    SizedBox(
+                      height: media.width * 0.05,
                     ),
-                  ],
-                ),
-              ),
-              ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: nutritionArr.length,
-                  itemBuilder: (context, index) {
-                    var nObj = nutritionArr[index] as Map? ?? {};
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Today Meal Nutritions",
+                            style: TextStyle(
+                                color: TColor.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: nutritionArr.length,
+                        itemBuilder: (context, index) {
+                          var nObj = nutritionArr[index] as Map? ?? {};
 
-                    return NutritionRow(
-                      nObj: nObj,
-                    );
-                  }),
-              SizedBox(
-                height: media.height * 0.1,
+                          return NutritionRow(
+                            nObj: nObj,
+                          );
+                        }),
+                    SizedBox(
+                      height: media.height * 0.1,
+                    ),
+                    RoundButton(
+                        title: 'Select',
+                        onPressed: () async {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          AuthProvider authProvider =
+                              Provider.of<AuthProvider>(context, listen: false);
+                          await MealPlanService(authProvider).selectMealPlan(
+                              mealPlanId: widget.mealPlan['id'],
+                              token: authProvider.getAuthenticatedToken());
+
+                          Navigator.pushNamed(context, '/');
+                          setState(() {
+                            isLoading = false;
+                          });
+                        })
+                  ],
+                ),
               ),
-              RoundButton(
-                  title: 'Select',
-                  onPressed: () async {
-                    AuthProvider authProvider =
-                        Provider.of<AuthProvider>(context, listen: false);
-                    await MealPlanService(authProvider).selectMealPlan(
-                        mealPlanId: widget.mealPlan['id'],
-                        token: authProvider.getAuthenticatedToken());
-                    Navigator.pushNamed(context, '/');
-                  })
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 }

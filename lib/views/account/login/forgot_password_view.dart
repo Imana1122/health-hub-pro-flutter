@@ -1,64 +1,44 @@
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/round_textfield.dart';
-import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:fyp_flutter/views/account/login/forgot_password_view.dart';
+import 'package:fyp_flutter/services/account/forgot_password_service.dart';
+import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:fyp_flutter/views/layouts/unauthenticated_layout.dart';
-import 'package:provider/provider.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class ForgotPasswordView extends StatefulWidget {
+  const ForgotPasswordView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   TextEditingController phoneNumberController = TextEditingController();
 
-  TextEditingController passwordController = TextEditingController();
-  bool obscurePassword = true;
-
   bool isLoading = false;
-  @override
-  void initState() {
-    super.initState();
-
-    // Access the authentication provider
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-
-    // Check if the user is already logged in
-    if (authProvider.isLoggedIn) {
-      // Navigate to DieticianProfilePage and replace the current route
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context,
-            '/'); // Replace '/dietician-profile' with the route of DieticianProfilePage
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
-
-    handleSignIn() async {
+    handleSubmit() async {
       setState(() {
         isLoading = true;
       });
       try {
-        if (await authProvider.login(
-          phoneNumber: phoneNumberController.text,
-          password: passwordController.text,
-        )) {
-          Navigator.pushNamed(context, '/');
+        if (await ForgotPasswordService().forgotPassword(
+            body: {'phone_number': phoneNumberController.text})) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoginView(),
+            ),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Colors.red,
               content: Text(
-                'Problems in logging in',
+                'Problems in sending reset route',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -139,7 +119,7 @@ class _LoginViewState extends State<LoginView> {
                       style: TextStyle(color: TColor.gray, fontSize: 16),
                     ),
                     Text(
-                      "Welcome Back",
+                      "Forgot Your Password?",
                       style: TextStyle(
                         color: TColor.white,
                         fontSize: 20,
@@ -170,32 +150,6 @@ class _LoginViewState extends State<LoginView> {
                           controller: phoneNumberController,
                           icon: const Icon(Icons.phone),
                         ),
-                        SizedBox(
-                          height: media.width * 0.04,
-                        ),
-                        RoundTextField(
-                          hitText: "Password",
-                          controller: passwordController,
-                          icon: const Icon(Icons.lock),
-                          obscureText: obscurePassword,
-                          rigtIcon: TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  obscurePassword = !obscurePassword;
-                                });
-                              },
-                              child: Container(
-                                  alignment: Alignment.center,
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "assets/img/show_password.png",
-                                    width: 20,
-                                    height: 20,
-                                    fit: BoxFit.contain,
-                                    color: TColor.gray,
-                                  ))),
-                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -204,13 +158,12 @@ class _LoginViewState extends State<LoginView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ForgotPasswordView(),
+                                    builder: (context) => const LoginView(),
                                   ),
                                 );
                               },
                               child: Text(
-                                "Forgot your password?",
+                                "Remembered your password?",
                                 style: TextStyle(
                                     color: TColor.gray,
                                     fontSize: 10,
@@ -221,8 +174,8 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         const Spacer(),
                         RoundButton(
-                          title: "Login",
-                          onPressed: () => handleSignIn(),
+                          title: "Proceed",
+                          onPressed: () => handleSubmit(),
                         ),
                         SizedBox(
                           height: media.width * 0.04,

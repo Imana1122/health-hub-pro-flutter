@@ -4,6 +4,7 @@ import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/models/user.dart';
 import 'package:fyp_flutter/models/user_profile.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
+import 'package:fyp_flutter/services/account/profile_service.dart';
 import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
 import 'package:fyp_flutter/views/account/profile/update_user_profile_image.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
@@ -33,6 +34,7 @@ class _ProfileViewState extends State<ProfileView> {
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     authenticatedUser = authProvider.getAuthenticatedUser();
     userProfile = authProvider.getAuthenticatedUser().profile;
+    positive = authenticatedUser.profile.notification == 1 ? true : false;
     // Check if the user is already logged in
     if (!authProvider.isLoggedIn) {
       // Navigate to DieticianProfilePage and replace the current route
@@ -226,6 +228,17 @@ class _ProfileViewState extends State<ProfileView> {
                                 width: 50,
                                 height: 50,
                                 fit: BoxFit.cover,
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  // This function is called when the image fails to load
+                                  // You can return a fallback image here
+                                  return Image.asset(
+                                    'assets/img/non.png', // Path to your placeholder image asset
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -245,7 +258,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   ),
                                 ),
                                 Text(
-                                  "Lose a Fat Program",
+                                  authenticatedUser.profile.weightPlan,
                                   style: TextStyle(
                                     color: TColor.gray,
                                     fontSize: 12,
@@ -412,10 +425,14 @@ class _ProfileViewState extends State<ProfileView> {
                                       },
                                       onTap: (TapProperties<bool>
                                           properties) async {
-                                        // Your onTap logic here
                                         setState(() {
                                           positive = !positive;
                                         });
+                                        var result = await ProfileService()
+                                            .changeNotification(
+                                                token: authenticatedUser.token);
+                                        authenticatedUser.profile.notification =
+                                            result;
                                       },
                                       iconsTappable: false,
                                       wrapperBuilder: (context, global, child) {

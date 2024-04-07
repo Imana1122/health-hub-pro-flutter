@@ -119,7 +119,7 @@ class _NotificationViewState extends State<NotificationView> {
       backgroundColor: TColor.white,
       body: Container(
         alignment: Alignment.centerLeft,
-        height: media.height * 0.1 * notificationArr.length,
+        height: media.height,
         child: Consumer<NotificationProvider>(
           builder: (context, cartProvider, _) {
             return notificationArr.isNotEmpty

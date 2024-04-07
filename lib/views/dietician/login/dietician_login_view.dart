@@ -3,6 +3,7 @@ import 'package:fyp_flutter/common_widget/round_button.dart';
 import 'package:fyp_flutter/common_widget/round_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
+import 'package:fyp_flutter/views/dietician/login/dietician_forgot_password_view.dart';
 import 'package:provider/provider.dart';
 
 class DieticianLoginView extends StatefulWidget {
@@ -200,12 +201,23 @@ class _DieticianLoginViewState extends State<DieticianLoginView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            "Forgot your password?",
-                            style: TextStyle(
-                                color: TColor.gray,
-                                fontSize: 10,
-                                decoration: TextDecoration.none),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DieticianForgotPasswordView(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Forgot your password?",
+                              style: TextStyle(
+                                  color: TColor.gray,
+                                  fontSize: 10,
+                                  decoration: TextDecoration.none),
+                            ),
                           ),
                         ],
                       ),

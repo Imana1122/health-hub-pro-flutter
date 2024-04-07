@@ -336,6 +336,19 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
                                               width: 100,
                                               height: 100,
                                               fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (BuildContext context,
+                                                      Object exception,
+                                                      StackTrace? stackTrace) {
+                                                // This function is called when the image fails to load
+                                                // You can return a fallback image here
+                                                return Image.asset(
+                                                  'assets/img/non.png', // Path to your placeholder image asset
+                                                  width: 40,
+                                                  height: 40,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
                                             ),
                                           ),
                                         );
@@ -387,8 +400,12 @@ class _PhotoProgressViewState extends State<PhotoProgressView> {
   }
 
   String getNextMonth() {
-    final now = DateTime.parse(photoArr[0]['updated_at']);
-    final nextMonth = DateTime(now.year, now.month + 1);
+    final now = photoArr.length > 1
+        ? DateTime.parse(photoArr[0]['updated_at'])
+        : DateTime.now();
+    final nextMonth = photoArr.length > 1
+        ? DateTime(now.year, now.month + 1)
+        : DateTime(now.year, now.month);
     final formatter = DateFormat.MMMM();
     return formatter.format(nextMonth);
   }

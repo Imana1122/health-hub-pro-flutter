@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fyp_flutter/common/color_extension.dart';
 
 class BadgeView extends StatelessWidget {
   // Number of badges to display
@@ -16,7 +17,8 @@ class BadgeView extends StatelessWidget {
               // All but the last badge are marked as earned
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _buildBadgeWidget(isEarned: true),
+                child: _buildBadgeWidget(
+                    isEarned: true, label: (index + 1).toString()),
               );
             }) +
             [
@@ -30,23 +32,42 @@ class BadgeView extends StatelessWidget {
     );
   }
 
-  Widget _buildBadgeWidget({required bool isEarned}) {
-    return Column(
+  Widget _buildBadgeWidget({required bool isEarned, String label = ''}) {
+    return Row(
       children: [
-        Container(
-          width: 50, // Adjust as needed
-          height: 50, // Adjust as needed
-          decoration: BoxDecoration(
-            color: isEarned ? Colors.green : Colors.grey[300],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            Icons.star, // Replace with any icon you prefer
-            color: isEarned ? Colors.white : Colors.black,
-          ),
+        Stack(
+          children: [
+            Icon(
+              Icons.emoji_events,
+              size: 100,
+              color: isEarned ? Colors.amberAccent : Colors.grey[200],
+              semanticLabel: label,
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: TColor.secondaryColor1,
+                ),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
+
         const SizedBox(height: 4), // Spacer between icon and separator
-        const Icon(Icons.remove, size: 20), // Separator
+        isEarned
+            ? const Icon(Icons.remove, size: 20)
+            : const SizedBox(), // Separator
       ],
     );
   }

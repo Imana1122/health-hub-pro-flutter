@@ -1,9 +1,6 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:fyp_flutter/common/color_extension.dart';
 import 'package:fyp_flutter/common/size_config.dart';
 import 'package:fyp_flutter/common_widget/chat_cards/friend_message_card.dart';
@@ -13,9 +10,6 @@ import 'package:fyp_flutter/models/dietician_chat_model.dart';
 import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/providers/conversation_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
-import 'package:fyp_flutter/providers/notification_provider.dart';
-import 'package:fyp_flutter/services/pusher_service.dart';
-import 'package:fyp_flutter/views/account/dietician_subscription/dietician_details.dart';
 import 'package:fyp_flutter/views/account/dietician_subscription/subscribed_dietician_details.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
