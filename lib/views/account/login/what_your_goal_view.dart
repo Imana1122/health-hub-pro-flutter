@@ -83,6 +83,7 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
         if (user.profile.weightPlanId == '') {
           print('hello');
           user.profile.weightPlanId = result['weight_plan_id'];
+          user.profile.bmi = result['bmi'];
           user.profile.weightPlan = result['weight_plan'];
           user.profile.calories = result['calories'].toDouble();
           user.profile.protein = result['protein'].toDouble();
@@ -99,6 +100,7 @@ class _WhatYourGoalViewState extends State<WhatYourGoalView> {
         } else {
           user.profile.weightPlanId = result['weight_plan_id'];
           user.profile.weightPlan = result['weight_plan'];
+          user.profile.bmi = result['bmi'];
 
           user.profile.calories = result['calories'].toDouble();
           user.profile.protein = result['protein'].toDouble();

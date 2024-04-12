@@ -113,7 +113,7 @@ class _BookmarksState extends State<Bookmarks> {
                   ),
                 ),
                 title: Text(
-                  'Bookmarks',
+                  'Recipe Bookmarks',
                   style: TextStyle(
                       color: TColor.black,
                       fontSize: 16,

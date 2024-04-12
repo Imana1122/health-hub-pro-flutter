@@ -136,11 +136,8 @@ class _WorkoutDetailViewState extends State<WorkoutDetailView> {
                       elevation: 0,
                       leading: InkWell(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pop(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => const WorkoutTrackerView(),
-                            ),
                           );
                         },
                         child: Container(

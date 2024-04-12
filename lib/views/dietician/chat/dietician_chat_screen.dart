@@ -11,6 +11,7 @@ import 'package:flutter/material.dart' hide Badge;
 import 'package:fyp_flutter/providers/dietician_auth_provider.dart';
 import 'package:fyp_flutter/providers/dietician_conversation_provider.dart';
 import 'package:fyp_flutter/views/dietician/user_progress/shared_photo_progress_view.dart';
+import 'package:fyp_flutter/views/dietician/user_progress/shared_user_profile_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_dietician_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -133,7 +134,7 @@ class _DieticianChatScreenState extends State<DieticianChatScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          SharedPhotoProgressView(id: widget.conversation.id),
+                          SharedUserProfileView(id: widget.conversation.id),
                     ),
                   );
                 },

@@ -6,6 +6,13 @@ class SharedProgressService extends BaseApi {
   var authProvider = DieticianAuthProvider();
   SharedProgressService(this.authProvider);
 
+  Future<dynamic> getUserProfile({required String id}) async {
+    var url = 'dietician/user-profile/$id';
+
+    String token = authProvider.dietician.token;
+    return await api.httpGet(url, token: token);
+  }
+
   Future<dynamic> getProgress({int currentPage = 1, required String id}) async {
     var url = 'dietician/progress/$id?page=$currentPage';
 

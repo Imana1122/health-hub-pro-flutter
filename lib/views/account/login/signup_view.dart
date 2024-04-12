@@ -7,6 +7,7 @@ import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/views/account/login/login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp_flutter/views/layouts/unauthenticated_layout.dart';
+import 'package:fyp_flutter/views/others/terms_and_conditions_view.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -321,10 +322,21 @@ class _SignUpViewState extends State<SignUpView> {
                             ),
                             Padding(
                               padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                "By continuing you accept our Privacy Policy and\nTerm of Use",
-                                style:
-                                    TextStyle(color: TColor.gray, fontSize: 10),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const TermsAndConditionsView()),
+                                  );
+                                },
+                                child: Text(
+                                  "By continuing you accept our Privacy Policy and\nTerm of Use",
+                                  style: TextStyle(
+                                      color: TColor.secondaryColor1,
+                                      fontSize: 10),
+                                ),
                               ),
                             )
                           ],

@@ -10,10 +10,8 @@ import 'package:fyp_flutter/views/account/login/allergen_filter.dart';
 import 'package:fyp_flutter/views/account/login/cuisine_preference.dart';
 import 'package:fyp_flutter/views/account/login/health_condition_filter.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_schedule_view.dart';
-import 'package:fyp_flutter/views/account/workout_tracker/workout_tracker_view.dart';
 import 'package:fyp_flutter/views/dietician/layout.dart';
 import 'package:fyp_flutter/views/dietician/profile/dietician_change_password.dart';
-import 'package:fyp_flutter/views/dietician/profile/dietician_profile_view.dart';
 import 'package:fyp_flutter/views/dietician/profile/update_dietician.dart';
 import 'package:fyp_flutter/views/account/login/change_password.dart';
 import 'package:fyp_flutter/views/account/login/complete_profile_view.dart';
@@ -26,6 +24,8 @@ import 'package:fyp_flutter/views/account/login/what_your_goal_view.dart';
 import 'package:fyp_flutter/views/account/main_tab/main_tab_view.dart';
 import 'package:fyp_flutter/views/account/meal_recipes/meal_planner_view.dart';
 import 'package:fyp_flutter/views/account/profile/profile_view.dart';
+import 'package:fyp_flutter/views/others/contact_view.dart';
+import 'package:fyp_flutter/views/others/terms_and_conditions_view.dart';
 import 'package:fyp_flutter/views/user_selection/user_type_selection_page.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
@@ -88,8 +88,8 @@ class MyApp extends StatelessWidget {
           '/personal-activity': (context) => const MainTabView(),
           '/workout-progress': (context) => const WorkoutScheduleView(),
           '/change-password': (context) => const ChangePassword(),
-          '/privacy-policy': (context) => const ChangePassword(),
-          '/contact-us': (context) => const ChangePassword(),
+          '/privacy-policy': (context) => const TermsAndConditionsView(),
+          '/contact-us': (context) => const ContactView(),
           '/meal-planner': (context) => const MealPlannerView(),
 
           // Dietician Routes

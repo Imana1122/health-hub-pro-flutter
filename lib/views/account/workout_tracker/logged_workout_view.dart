@@ -4,7 +4,6 @@ import 'package:fyp_flutter/providers/auth_provider.dart';
 import 'package:fyp_flutter/services/account/customize_workout_service.dart';
 import 'package:fyp_flutter/services/account/workout_recommendation_service.dart';
 import 'package:fyp_flutter/views/account/workout_tracker/workout_detail_view.dart';
-import 'package:fyp_flutter/views/account/workout_tracker/workout_tracker_view.dart';
 import 'package:fyp_flutter/views/layouts/authenticated_user_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -99,7 +98,7 @@ class _LoggedWorkoutViewState extends State<LoggedWorkoutView> {
                   ),
                 ),
                 title: Text(
-                  "Workout Schedule",
+                  "Workout Logs",
                   style: TextStyle(
                       color: TColor.black,
                       fontSize: 16,

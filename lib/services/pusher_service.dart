@@ -172,30 +172,11 @@ class PusherService {
                     NotificationModel.fromJson(notification);
 
                 // Print the message
-                print(message);
+                print(message);              
 
-                // Show local notification
-                final FlutterLocalNotificationsPlugin
-                    flutterLocalNotificationsPlugin =
-                    FlutterLocalNotificationsPlugin();
+               
 
-                Future<void> showNotification() async {
-                  const AndroidNotificationDetails
-                      androidPlatformChannelSpecifics =
-                      AndroidNotificationDetails('1', 'HealthHub Pro',
-                          importance: Importance.max, priority: Priority.high);
-                  const NotificationDetails platformChannelSpecifics =
-                      NotificationDetails(
-                          android: androidPlatformChannelSpecifics);
-                  await flutterLocalNotificationsPlugin.show(
-                      0,
-                      'New Notification',
-                      message.message,
-                      platformChannelSpecifics,
-                      payload: 'item x');
-                }
-
-                showNotification();
+                showNotification(message.message ?? '');
 
                 // Save notification
                 notiProvider.saveNotification(item: message);
@@ -255,7 +236,7 @@ class PusherService {
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
-        0, 'New Chat Message', message, platformChannelSpecifics,
+        0, 'Health Hub Pro', message, platformChannelSpecifics,
         payload: 'item x');
   }
 }

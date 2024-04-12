@@ -87,7 +87,7 @@ class _ProfileViewState extends State<ProfileView> {
       "image": "assets/img/p_contact.png",
       "name": "Contact Us",
       "tag": "5",
-      "url": "/"
+      "url": "/contact-us"
     },
     {
       "image": "assets/img/p_privacy.png",
@@ -97,7 +97,7 @@ class _ProfileViewState extends State<ProfileView> {
     },
     {
       "image": "assets/img/p_setting.png",
-      "name": "Setting",
+      "name": "Change Password",
       "tag": "7",
       "url": "/change-password"
     },
